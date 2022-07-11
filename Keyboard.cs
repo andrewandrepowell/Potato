@@ -3,14 +3,14 @@ using MonoGame.Extended.Input;
 
 namespace Potato
 {
-    internal struct KeyboardSave
+    internal struct KeyboardControllerSave
     {
         public Keys ActivateKey;
         public Keys LeftKey;
         public Keys RightKey;
         public Keys UpKey;
         public Keys DownKey;
-        public KeyboardSave(Keys activateKey, Keys leftKey, Keys rightKey, Keys upKey, Keys downKey)
+        public KeyboardControllerSave(Keys activateKey, Keys leftKey, Keys rightKey, Keys upKey, Keys downKey)
         {
             ActivateKey = activateKey;
             LeftKey = leftKey;
@@ -19,16 +19,16 @@ namespace Potato
             DownKey = downKey;
         }
     }
-    internal class Keyboard : IController, IDefaultable, ISavable<KeyboardSave>
+    internal class KeyboardController : IController, IDefaultable, ISavable<KeyboardControllerSave>
     {
         public Keys ActivateKey;
         public Keys LeftKey;
         public Keys RightKey;
         public Keys UpKey;
         public Keys DownKey;
-        public KeyboardSave Save() => new KeyboardSave(ActivateKey, LeftKey, RightKey, UpKey, DownKey);
+        public KeyboardControllerSave Save() => new KeyboardControllerSave(ActivateKey, LeftKey, RightKey, UpKey, DownKey);
 
-        public void Load(KeyboardSave save)
+        public void Load(KeyboardControllerSave save)
         {
             ActivateKey = save.ActivateKey;
             LeftKey = save.LeftKey;

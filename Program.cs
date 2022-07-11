@@ -7,7 +7,7 @@ namespace Potato
         [STAThread]
         static void Main()
         {
-            using (var game = new Game1())
+            using (Potato game = new Potato())
                 game.Run();
         }
     }

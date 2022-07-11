@@ -4,16 +4,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Potato
 {
-    public class Game1 : Game
+    public class Potato : Game
     {
+        public static Game Game { get; private set; }
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        public Game1()
+        public Potato()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            Game = this;
         }
 
         protected override void Initialize()

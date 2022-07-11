@@ -8,22 +8,22 @@ namespace Potato
         public ControllerManager() => Controllers = new List<IController>();
         public List<IController> Controllers { get; private set; }
 
-        bool IController.ActivatePressed() => Controllers.Aggregate(false, (current, controller) => current | controller.ActivatePressed());
+        public bool ActivatePressed() => Controllers.Aggregate(false, (current, controller) => current | controller.ActivatePressed());
 
-        float IController.DownHeld() => Controllers.Select((controller) => controller.DownHeld()).Max();
+        public float DownHeld() => Controllers.Select((controller) => controller.DownHeld()).Max();
 
-        bool IController.DownPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.DownPressed());
+        public bool DownPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.DownPressed());
 
-        float IController.LeftHeld() => Controllers.Select((controller) => controller.LeftHeld()).Max();
+        public float LeftHeld() => Controllers.Select((controller) => controller.LeftHeld()).Max();
 
-        bool IController.LeftPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.LeftPressed());
+        public bool LeftPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.LeftPressed());
 
-        float IController.RightHeld() => Controllers.Select((controller) => controller.RightHeld()).Max();
+        public float RightHeld() => Controllers.Select((controller) => controller.RightHeld()).Max();
 
-        bool IController.RightPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.RightPressed());
+        public bool RightPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.RightPressed());
 
-        float IController.UpHeld() => Controllers.Select((controller) => controller.UpHeld()).Max();
+        public float UpHeld() => Controllers.Select((controller) => controller.UpHeld()).Max();
 
-        bool IController.UpPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.UpPressed());
+        public bool UpPressed() => Controllers.Aggregate(false, (current, controller) => current | controller.UpPressed());
     }
 }

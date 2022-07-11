@@ -7,6 +7,8 @@ Soon...
 ```
 dotnet add package MonoGame.Framework.DesktopGL --version 3.8.0.1641
 dotnet add package MonoGame.Extended
+dotnet add package MonoGame.Extended.Content.Pipeline
+dotnet add package MonoGame.Extended.Input
 ```
 
 ## Rough Gameplay Summary 

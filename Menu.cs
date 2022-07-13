@@ -9,92 +9,83 @@ using System.Text;
 
 namespace Potato
 {
-    internal interface IMenuItem
+    internal class SelectionMenu
     {
-        Vector2 Position { get; set; }
-        float Width { get; set; }
-        float Height { get; }
+        
     }
-    internal class TextMenuItem : IMenuItem, IDrawable
+    internal class SliderMenu
+    {
+        
+    }
+    internal class DividerMenu
+    {
+
+    }
+    internal class TextMenu : IMenu, IDrawable
     {
         private static BitmapFont font;
-        private string text;
-        private float width;
-        private List<string> lines;
-        private void Update()
+        private static readonly Color color = Color.Black;
+        private readonly List<string> lines;
+        public void Apply()
         {
-            if (width < 0)
+            if (Width < 0)
                 throw new ArgumentOutOfRangeException();
             lines.Clear();
             string currentLine = "";
-            foreach (string token in text.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            foreach (var token in Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Detailed())
             {
-                if (font.MeasureString(currentLine + token).Width > width)
+                if (font.MeasureString(currentLine + token.Value).Width > Width)
                 {
                     lines.Add(currentLine.Trim());
-                    currentLine = token + " ";
+                    currentLine = token.Value + " ";
+                }
+                else if (token.IsLast)
+                {
+                    currentLine += token.Value;
+                    lines.Add(currentLine.Trim());
                 }
                 else
                 {
-                    currentLine += token + " ";
+                    currentLine += token.Value + " ";
                 }
             }
         }
-        public TextMenuItem()
+        public TextMenu()
         {
             if (font == null)
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
             lines = new List<string>();
             Text = "";
             Width = 0;
+            Position = Vector2.Zero;
         }
-        public string Text
-        {
-            get => text;
-            set
-            {
-                text = value;
-                Update();
-            }
-        }
-        public float Width 
-        {
-            get => width;
-            set
-            {
-                width = value;
-                Update();
-            }
-        }
+        public string Text;
+        public float Width { get; set; }
         public float Height => lines.Count * font.LineHeight;
         public Vector2 Position { get; set; }
         public void Draw(SpriteBatch spriteBatch)
         {
             foreach ((int index, string line) in lines.Select((line, index) => (index, line)))
-                spriteBatch.DrawString(font, line, Position + new Vector2(0, index * font.LineHeight), Color.White);
+                spriteBatch.DrawString(
+                    font: font, 
+                    text: line, 
+                    position: Position + new Vector2(0, index * font.LineHeight), 
+                    color: color);
         }
     }
-    internal class Menu : IComponent, IDestroyable
+    internal class MenuManager : IMenu, IComponent
     {
-        public Menu()
+        public MenuManager()
         {
-            Destroyed = false;
-            Activate = false;
-            Items = new List<IMenuItem>();
-            Controller = null;
+            Items = new List<IMenu>();
+            Position = Vector2.Zero;
         }
-        public bool Destroyed { get; private set; }
-        public bool Activate;
-        public IController Controller;
-        public List<IMenuItem> Items { get; private set; }
-        public void Destroy()
-        {
-            Destroyed = true;
-        }
-        public void Close()
-        {
-            throw new NotImplementedException();
-        }
+        public List<IMenu> Items { get; private set; }
+        public Vector2 Position { get; set; }
+        public float Width => Items.Select((item) => item.Width).Max();
+
+        public float Height => Items.Select((item) => item.Height).Sum();
+
         public void Draw(SpriteBatch spriteBatch)
         {
             foreach (IDrawable item in Items.OfType<IDrawable>())
@@ -104,6 +95,16 @@ namespace Potato
         {
             foreach (IUpdateable item in Items.OfType<IUpdateable>())
                 item.Update(gameTime);
+        }
+        public void Apply()
+        {
+            float heightOffset = 0;
+            foreach (IMenu item in Items)
+            {
+                item.Apply();
+                item.Position = Position + new Vector2(0, heightOffset);
+                heightOffset += item.Height;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -55,5 +56,20 @@ namespace Potato
     internal interface IDefaultable
     {
         void ApplyDefaults();
+    }
+    internal interface IAppliable
+    {
+        void Apply();
+    }
+    internal interface IControllable
+    {
+        IController Controller { get; set; }
+    }
+    internal interface IMenu
+    {
+        Vector2 Position { get; set; }
+        float Width { get; }
+        float Height { get; }
+        void Apply();
     }
 }

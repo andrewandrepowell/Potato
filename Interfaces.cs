@@ -7,17 +7,19 @@ using System.Text;
 
 namespace Potato
 {
+    internal interface IMenu : IComponent, IControllable, IAppliable, IMovable, ISizable
+    {  
+    }
     internal interface IComponent : IDrawable, IUpdateable
     {
-    }
-
-    internal interface IUpdateable
-    {
-        void Update(GameTime gameTime);
     }
     internal interface IDrawable
     {
         void Draw(SpriteBatch spriteBatch);
+    }
+    internal interface IUpdateable
+    {
+        void Update(GameTime gameTime);
     }
     internal interface IDestroyable
     {
@@ -64,12 +66,5 @@ namespace Potato
     internal interface IControllable
     {
         IController Controller { get; set; }
-    }
-    internal interface IMenu
-    {
-        Vector2 Position { get; set; }
-        float Width { get; }
-        float Height { get; }
-        void Apply();
     }
 }

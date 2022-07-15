@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using Potato.Menu;
 
 namespace Potato
 {
@@ -10,7 +11,7 @@ namespace Potato
         public static Game Game { get; private set; }
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Menu menu;
+        private ContainerMenu menu;
         KeyboardController keyboard;
 
         public Potato()
@@ -25,7 +26,7 @@ namespace Potato
         {
             // TODO: Add your initialization logic here
             keyboard = new KeyboardController();
-            menu = new Menu();
+            menu = new ContainerMenu();
             TextMenu text0 = new TextMenu();
             TextMenu text1 = new TextMenu();
             DividerMenu divider0 = new DividerMenu();

@@ -1,0 +1,73 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
+using System;
+
+namespace Potato.Menu
+{
+    internal class DividerMenu : IMenu
+    {
+        private static Texture2D texture;
+        private static readonly Color color = Color.Black;
+        public DividerMenu()
+        {
+            Position = Vector2.Zero;
+            Size = Size2.Empty;
+        }
+        public IController Controller { get => null; set { } }
+        public Vector2 Position { get; set; }
+        public Size2 Size { get; set; }
+        public void Apply()
+        {
+        }
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            if (texture == null)
+            {
+                texture = new Texture2D(
+                    graphicsDevice: spriteBatch.GraphicsDevice,
+                    width: 1,
+                    height: 1,
+                    mipmap: false,
+                    format: SurfaceFormat.Color);
+                texture.SetData(new Color[] { Color.White });
+            }
+            DrawLine(
+                spriteBatch: spriteBatch,
+                point1: Position,
+                point2: Position + new Vector2(x: Size.Width, y: 0),
+                color: color,
+                thickness: Size.Height);
+        }
+        public void Update(GameTime gameTime)
+        {
+        }
+        public static void DrawLine(SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness = 1f)
+        {
+            Vector2 origin = new Vector2(0f, 0.5f);
+            Vector2 scale = new Vector2(length, thickness);
+            spriteBatch.Draw(
+                texture: texture,
+                position: point,
+                sourceRectangle: null,
+                color: color,
+                rotation: angle,
+                origin: origin,
+                scale: scale,
+                effects: SpriteEffects.None,
+                layerDepth: 0);
+        }
+        public static void DrawLine(SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
+        {
+            float distance = Vector2.Distance(point1, point2);
+            float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
+            DrawLine(
+                spriteBatch: spriteBatch,
+                point: point1,
+                length: distance,
+                angle: angle,
+                color: color,
+                thickness: thickness);
+        }
+    }
+}

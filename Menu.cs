@@ -18,6 +18,7 @@ namespace Potato
         private bool alphaIncrement;
         private float alpha;
         private bool apply;
+        private const float fillChangeRate = 0.1f;
         public SliderMenu()
         {
             apply = false;
@@ -71,6 +72,23 @@ namespace Potato
             {
                 alpha = 1.0f;
                 alphaIncrement = false;
+            }
+            if (Controller != null)
+            {
+                if (Controller.LeftPressed())
+                {
+                    Fill -= fillChangeRate;
+                    if (Fill < 0.0f)
+                        Fill = 0.0f;
+                    Apply();
+                }
+                if (Controller.RightPressed())
+                {
+                    Fill += fillChangeRate;
+                    if (Fill > 1.0f)
+                        Fill = 1.0f;
+                    Apply();
+                }
             }
         }
     }
@@ -222,6 +240,15 @@ namespace Potato
         private static BitmapFont font;
         private static readonly Color color = Color.Black;
         private readonly List<string> lines;
+        public TextMenu()
+        {
+            if (font == null)
+                font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
+            lines = new List<string>();
+            Text = "";
+            Position = Vector2.Zero;
+            Size = Size2.Empty;
+        }
         public void Apply()
         {
             if (Size.Width < 0)
@@ -249,15 +276,6 @@ namespace Potato
                 width: Size.Width, 
                 height: lines.Count * font.LineHeight);
         }
-        public TextMenu()
-        {
-            if (font == null)
-                font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
-            lines = new List<string>();
-            Text = "";
-            Position = Vector2.Zero;
-            Size = Size2.Empty;
-        }
         public string Text { get; set; }
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; }
@@ -277,10 +295,12 @@ namespace Potato
     }
     internal class Menu : IMenu
     {
+        private IController controller;
         public Menu()
         {
             Items = new List<IMenu>();
             Position = Vector2.Zero;
+            controller = null;
         }
         public List<IMenu> Items { get; private set; }
         public Vector2 Position { get; set; }
@@ -291,7 +311,31 @@ namespace Potato
                 height: Items.Select((item) => item.Size.Height).Sum());
             set { }
         }
-        public IController Controller { get; set; }
+        public IController Controller 
+        {
+            get => controller;
+            set
+            {
+                bool controllerSet = false;
+                foreach (IMenu item in Items)
+                {
+                    if (controllerSet)
+                    {
+                        item.Controller = null;
+                    }
+                    else
+                    {
+                        item.Controller = value;
+                        if (item.Controller == value)
+                            controllerSet = true;
+                    }
+                }
+                if (controllerSet)
+                    controller = value;
+                else
+                    controller = null;
+            }
+        }
         public void Draw(SpriteBatch spriteBatch)
         {
             foreach (IMenu item in Items)
@@ -301,15 +345,39 @@ namespace Potato
         {
             foreach (IMenu item in Items)
                 item.Update(gameTime);
-
+            
             if (Controller != null)
             {
-                int numberOfItemsWithAController = Items.Where((x) => x.Controller != null).Count();
-
-                if (numberOfItemsWithAController > 1)
-                    throw new Exception();
-                
-                //if ()
+                if (Controller.DownPressed())
+                {
+                    int indexWithController = Items.FindIndex((item) => item.Controller == Controller);
+                    if (indexWithController >= 0)
+                    {
+                        Items[indexWithController].Controller = null;
+                        for (int index = 0; index < Items.Count; index++)
+                        {
+                            int nextIndex = (indexWithController + 1 + index) % Items.Count;
+                            Items[nextIndex].Controller = Controller;
+                            if (Items[nextIndex].Controller == Controller)
+                                break;
+                        }
+                    }
+                }
+                if (Controller.UpPressed())
+                {
+                    int indexWithController = Items.FindIndex((item) => item.Controller == Controller);
+                    if (indexWithController >= 0)
+                    {
+                        Items[indexWithController].Controller = null;
+                        for (int index = 0; index < Items.Count; index++)
+                        {
+                            int prevIndex = ((indexWithController - (1 + index)) % Items.Count + Items.Count) % Items.Count;
+                            Items[prevIndex].Controller = Controller;
+                            if (Items[prevIndex].Controller == Controller)
+                                break;
+                        }
+                    }
+                }
             }
         }
         public void Apply()

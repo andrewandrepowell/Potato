@@ -11,6 +11,7 @@ namespace Potato
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Menu menu;
+        KeyboardController keyboard;
 
         public Potato()
         {
@@ -23,12 +24,14 @@ namespace Potato
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            keyboard = new KeyboardController();
             menu = new Menu();
             TextMenu text0 = new TextMenu();
             TextMenu text1 = new TextMenu();
             DividerMenu divider0 = new DividerMenu();
             SelectMenu select0 = new SelectMenu();
             SliderMenu slider0 = new SliderMenu();
+            SelectMenu select1 = new SelectMenu();
             text0.Text = "Hello! My name is Andrew, I am testing the menu out.";
             text0.Size = new Size2(width: 512, height: 0);
             text1.Text = "This is purely just a test to verify everything is working the way that I want.";
@@ -38,12 +41,16 @@ namespace Potato
             select0.Size = new Size2(width: 512, height: 0);
             slider0.Fill = 0.5f;
             slider0.Size = new Size2(width: 512, height: 32);
+            select1.Text = "This is another select item. WOo";
+            select1.Size = new Size2(width: 128, height: 0);
             menu.Items.Add(text0);
             menu.Items.Add(text1);
             menu.Items.Add(divider0);
             menu.Items.Add(select0);
             menu.Items.Add(slider0);
+            menu.Items.Add(select1);
             menu.Position = new Vector2(x: 256, y: 0);
+            menu.Controller = keyboard;
             menu.Apply();
             base.Initialize();
         }
@@ -62,6 +69,7 @@ namespace Potato
 
             // TODO: Add your update logic here
             menu.Update(gameTime);
+            keyboard.Update(gameTime);
             base.Update(gameTime);
         }
 

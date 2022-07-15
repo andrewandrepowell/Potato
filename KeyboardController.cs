@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
 
 namespace Potato
@@ -19,8 +20,14 @@ namespace Potato
             DownKey = downKey;
         }
     }
-    internal class KeyboardController : IController, IDefaultable, ISavable<KeyboardControllerSave>
+    internal class KeyboardController : IController, ISavable<KeyboardControllerSave>
     {
+        private KeyboardStateExtended keyboardState;
+        public KeyboardController()
+        {
+            keyboardState = KeyboardExtended.GetState();
+            ApplyDefaults();
+        }
         public Keys ActivateKey;
         public Keys LeftKey;
         public Keys RightKey;
@@ -44,21 +51,23 @@ namespace Potato
             UpKey = Keys.Up;
             DownKey = Keys.Down;
         }
-        public bool ActivatePressed() => KeyboardExtended.GetState().WasKeyJustDown(ActivateKey);
+        public bool ActivatePressed() => keyboardState.WasKeyJustDown(ActivateKey);
         public float DownHeld() => (DownPressed()) ? 1.0f : 0.0f;
 
-        public bool DownPressed() => KeyboardExtended.GetState().WasKeyJustDown(DownKey);
+        public bool DownPressed() => keyboardState.WasKeyJustDown(DownKey);
 
         public float LeftHeld() => (LeftPressed()) ? 1.0f : 0.0f;
 
-        public bool LeftPressed() => KeyboardExtended.GetState().WasKeyJustDown(LeftKey);
+        public bool LeftPressed() => keyboardState.WasKeyJustDown(LeftKey);
 
         public float RightHeld() => (RightPressed()) ? 1.0f : 0.0f;
 
-        public bool RightPressed() => KeyboardExtended.GetState().WasKeyJustDown(RightKey);
+        public bool RightPressed() => keyboardState.WasKeyJustDown(RightKey);
 
         public float UpHeld() => (UpPressed()) ? 1.0f : 0.0f;
 
-        public bool UpPressed() => KeyboardExtended.GetState().WasKeyJustDown(UpKey);
+        public bool UpPressed() => keyboardState.WasKeyJustDown(UpKey);
+
+        public void Update(GameTime gameTime) => keyboardState = KeyboardExtended.GetState();
     }
 }

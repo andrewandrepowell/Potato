@@ -43,7 +43,7 @@ namespace Potato
         T Save();
         void Load(T save);
     }
-    internal interface IController
+    internal interface IController : IUpdateable, IDefaultable
     {
         float LeftHeld();
         float RightHeld();

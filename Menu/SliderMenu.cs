@@ -30,6 +30,8 @@ namespace Potato.Menu
         public IController Controller { get; set; }
         public Vector2 Position { get; set; }
         public Size2 Size { get; set; }
+        public Alignment Align { get => Alignment.Left; set { } }
+
         public void ApplyChanges()
         {
             apply = true;

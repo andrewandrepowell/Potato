@@ -73,6 +73,8 @@ namespace Potato.Menu
         public IController Controller { get; set; }
         public Vector2 Position { get; set; }
         public Size2 Size { get; set; }
+        public Alignment Align { get; set; }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             foreach ((int index, string line) in lines.Select((line, index) => (index, line)))

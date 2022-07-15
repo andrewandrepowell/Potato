@@ -7,8 +7,10 @@ using System.Text;
 
 namespace Potato
 {
+    internal enum Alignment { Center, Left, Right };
     internal interface IMenu : IComponent, IControllable, IAppliable, IMovable, ISizable
-    {  
+    {
+        Alignment Align { get; set; }
     }
     internal interface IComponent : IDrawable, IUpdateable
     {

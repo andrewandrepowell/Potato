@@ -12,11 +12,13 @@ namespace Potato.Menu
     internal class ContainerMenu : IMenu
     {
         private IController controller;
+        public Alignment Align { get; set; }
         public ContainerMenu()
         {
             Items = new List<IMenu>();
             Position = Vector2.Zero;
             controller = null;
+            Align = Alignment.Left;
         }
         public List<IMenu> Items { get; private set; }
         public Vector2 Position { get; set; }
@@ -98,11 +100,26 @@ namespace Potato.Menu
         }
         public void ApplyChanges()
         {
+            Size2 size = Size;
             float heightOffset = 0;
             foreach (IMenu item in Items)
             {
+                item.Align = Align;
                 item.ApplyChanges();
-                item.Position = Position + new Vector2(0, heightOffset);
+                float widthOffset = 0;
+                switch (Align)
+                {
+                    case Alignment.Center:
+                        widthOffset = (size.Width - item.Size.Width) / 2;
+                        break;
+                    case Alignment.Right:
+                        widthOffset = size.Width - item.Size.Width;
+                        break;
+                    case Alignment.Left:
+                        widthOffset = 0;
+                        break;
+                }
+                item.Position = Position + new Vector2(widthOffset, heightOffset);
                 heightOffset += item.Size.Height;
             }
         }

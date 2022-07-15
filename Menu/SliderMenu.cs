@@ -30,7 +30,7 @@ namespace Potato.Menu
         public IController Controller { get; set; }
         public Vector2 Position { get; set; }
         public Size2 Size { get; set; }
-        public void Apply()
+        public void ApplyChanges()
         {
             apply = true;
         }
@@ -79,14 +79,14 @@ namespace Potato.Menu
                     Fill -= fillChangeRate;
                     if (Fill < 0.0f)
                         Fill = 0.0f;
-                    Apply();
+                    ApplyChanges();
                 }
                 if (Controller.RightPressed())
                 {
                     Fill += fillChangeRate;
                     if (Fill > 1.0f)
                         Fill = 1.0f;
-                    Apply();
+                    ApplyChanges();
                 }
             }
         }

@@ -12,12 +12,22 @@ namespace Potato.Menu
     internal class SelectMenu : IMenu
     {
         private static BitmapFont font;
-        private static readonly Color color = Color.Black;
+        private static readonly Color textColor = Color.Black;
         private readonly List<string> lines;
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement;
         private float alpha;
-        public void Apply()
+        private static readonly Color selectColor = Color.White;
+        private const float selectValueChangeRate = 8.0f;
+        private bool selectValueIncrement;
+        private float selectValue;
+        private static Color Add(Color color1, Color color2) => new Color(
+            color1.R + color2.R,
+            color1.G + color2.G,
+            color1.B + color2.B,
+            color1.A + color2.A);
+        public bool Selected { get; private set; }
+        public void ApplyChanges()
         {
             if (Size.Width < 0)
                 throw new ArgumentOutOfRangeException();
@@ -55,6 +65,9 @@ namespace Potato.Menu
             Controller = null;
             alpha = 1.0f;
             alphaIncrement = false;
+            Selected = false;
+            selectValueIncrement = true;
+            selectValue = 0.0f;
         }
         public string Text { get; set; }
         public IController Controller { get; set; }
@@ -67,11 +80,20 @@ namespace Potato.Menu
                     font: font,
                     text: line,
                     position: Position + new Vector2(0, index * font.LineHeight),
-                    color: alpha * color);
+                    color: alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
         }
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (Controller != null)
+            {
+                if (Controller.ActivatePressed())
+                {
+                    Selected = !Selected;
+                }
+            }
+
             if (Controller != null)
             {
                 alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
@@ -84,6 +106,20 @@ namespace Potato.Menu
             {
                 alpha = 1.0f;
                 alphaIncrement = false;
+            }
+
+            if (Selected)
+            {
+                selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;
+                if (selectValue > 1.0f)
+                    selectValueIncrement = false;
+                else if (selectValue < 0.0f)
+                    selectValueIncrement = true;
+            }
+            else
+            {
+                selectValue = 0.0f;
+                selectValueIncrement = true;
             }
         }
     }

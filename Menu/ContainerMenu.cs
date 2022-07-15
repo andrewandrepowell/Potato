@@ -96,12 +96,12 @@ namespace Potato.Menu
                 }
             }
         }
-        public void Apply()
+        public void ApplyChanges()
         {
             float heightOffset = 0;
             foreach (IMenu item in Items)
             {
-                item.Apply();
+                item.ApplyChanges();
                 item.Position = Position + new Vector2(0, heightOffset);
                 heightOffset += item.Size.Height;
             }

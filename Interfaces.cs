@@ -61,7 +61,7 @@ namespace Potato
     }
     internal interface IAppliable
     {
-        void Apply();
+        void ApplyChanges();
     }
     internal interface IControllable
     {

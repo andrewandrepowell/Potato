@@ -9,14 +9,16 @@ namespace Potato
     public class Potato : Game
     {
         public static Game Game { get; private set; }
-        private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
+        private const int gameWidth = 1280; // 720p
+        private const int gameHeight = 720; // 720p
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
         private ContainerMenu menu;
         KeyboardController keyboard;
 
         public Potato()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             Game = this;
@@ -52,13 +54,16 @@ namespace Potato
             menu.Items.Add(select1);
             menu.Position = new Vector2(x: 256, y: 0);
             menu.Controller = keyboard;
-            menu.Apply();
+            menu.ApplyChanges();
+            graphics.PreferredBackBufferWidth = gameWidth;
+            graphics.PreferredBackBufferHeight = gameHeight;
+            graphics.ApplyChanges();
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
         }
@@ -79,10 +84,10 @@ namespace Potato
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            _spriteBatch.Begin();
-            menu.Draw(_spriteBatch);
+            spriteBatch.Begin();
+            menu.Draw(spriteBatch);
             base.Draw(gameTime);
-            _spriteBatch.End();
+            spriteBatch.End();
         }
     }
 }

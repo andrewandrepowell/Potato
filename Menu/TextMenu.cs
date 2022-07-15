@@ -22,7 +22,7 @@ namespace Potato.Menu
             Position = Vector2.Zero;
             Size = Size2.Empty;
         }
-        public void Apply()
+        public void ApplyChanges()
         {
             if (Size.Width < 0)
                 throw new ArgumentOutOfRangeException();

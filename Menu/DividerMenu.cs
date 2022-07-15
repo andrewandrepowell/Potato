@@ -17,7 +17,7 @@ namespace Potato.Menu
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; }
         public Size2 Size { get; set; }
-        public void Apply()
+        public void ApplyChanges()
         {
         }
         public void Draw(SpriteBatch spriteBatch)

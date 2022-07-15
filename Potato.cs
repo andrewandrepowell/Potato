@@ -28,6 +28,7 @@ namespace Potato
             TextMenu text1 = new TextMenu();
             DividerMenu divider0 = new DividerMenu();
             SelectMenu select0 = new SelectMenu();
+            SliderMenu slider0 = new SliderMenu();
             text0.Text = "Hello! My name is Andrew, I am testing the menu out.";
             text0.Size = new Size2(width: 512, height: 0);
             text1.Text = "This is purely just a test to verify everything is working the way that I want.";
@@ -35,10 +36,13 @@ namespace Potato
             divider0.Size = new Size2(width: 512, height: 4);
             select0.Text = "This is a select menu. NOOOOIIIICE";
             select0.Size = new Size2(width: 512, height: 0);
+            slider0.Fill = 0.5f;
+            slider0.Size = new Size2(width: 512, height: 32);
             menu.Items.Add(text0);
             menu.Items.Add(text1);
             menu.Items.Add(divider0);
             menu.Items.Add(select0);
+            menu.Items.Add(slider0);
             menu.Position = new Vector2(x: 256, y: 0);
             menu.Apply();
             base.Initialize();

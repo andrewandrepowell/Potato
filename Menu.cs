@@ -9,9 +9,70 @@ using System.Collections.Generic;
 
 namespace Potato
 {
-    internal class SliderMenu
+    internal class SliderMenu : IMenu
     {
+        private static Texture2D texture;
+        private static readonly Color fillColor = Color.Black;
+        private static readonly Color emptyColor = Color.Transparent;
+        private const float alphaChangeRate = 1.0f;
+        private bool alphaIncrement;
+        private float alpha;
+        private bool apply;
+        public SliderMenu()
+        {
+            apply = false;
+            Fill = 0.0f;
+            Controller = null;
+            Position = Vector2.Zero;
+            Size = Size2.Empty;
+        }
+        public float Fill { get; set; }
+        public IController Controller { get; set; }
+        public Vector2 Position { get; set; }
+        public Size2 Size { get; set; }
+        public void Apply()
+        {
+            apply = true;
+        }
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            if (texture == null || apply)
+            {
+                texture = new Texture2D(
+                    graphicsDevice: spriteBatch.GraphicsDevice,
+                    width: (int)Size.Width,
+                    height: (int)Size.Height,
+                    mipmap: false,
+                    format: SurfaceFormat.Color);
+                texture.SetData(Enumerable
+                    .Range(0, texture.Width * texture.Height)
+                    .Select((x) => (((float)(x % texture.Width)/texture.Width) > Fill) ? emptyColor : fillColor)
+                    .ToArray());
+                apply = false;
+            }
+            spriteBatch.Draw(
+                texture: texture,
+                position: Position,
+                color: alpha * fillColor);
+        }
 
+        public void Update(GameTime gameTime)
+        {
+            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (Controller != null)
+            {
+                alpha += ((alphaIncrement) ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
+                if (alpha > 1.0f)
+                    alphaIncrement = false;
+                else if (alpha < 0.0f)
+                    alphaIncrement = true;
+            }
+            else
+            {
+                alpha = 1.0f;
+                alphaIncrement = false;
+            }
+        }
     }
     internal class SelectMenu : IMenu
     {
@@ -76,7 +137,7 @@ namespace Potato
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (Controller == null)
+            if (Controller != null)
             {
                 alpha += ((alphaIncrement) ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
                 if (alpha > 1.0f)
@@ -233,13 +294,23 @@ namespace Potato
         public IController Controller { get; set; }
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (IDrawable item in Items.OfType<IDrawable>())
+            foreach (IMenu item in Items)
                 item.Draw(spriteBatch);
         }
         public void Update(GameTime gameTime)
         {
-            foreach (IUpdateable item in Items.OfType<IUpdateable>())
+            foreach (IMenu item in Items)
                 item.Update(gameTime);
+
+            if (Controller != null)
+            {
+                int numberOfItemsWithAController = Items.Where((x) => x.Controller != null).Count();
+
+                if (numberOfItemsWithAController > 1)
+                    throw new Exception();
+                
+                //if ()
+            }
         }
         public void Apply()
         {

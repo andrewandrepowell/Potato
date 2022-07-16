@@ -4,6 +4,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Potato.Menu
@@ -12,16 +13,19 @@ namespace Potato.Menu
     {
         private static BitmapFont font;
         private static readonly Color color = Color.Black;
-        private readonly List<(string, float, float)> items;
+        private readonly List<(string, float, float)> items = new List<(string, float, float)>();
+        public string Text { get; set; } = "";
+        public IController Controller { get => null; set { } }
+        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Size2 Size { get; set; } = Size2.Empty;
+        public Alignment Align { get; set; } = Alignment.Left;
+        
         public TextMenu()
         {
             if (font == null)
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
-            items = new List<(string, float, float)>();
-            Text = "";
-            Position = Vector2.Zero;
-            Size = Size2.Empty;
         }
+        
         public void ApplyChanges()
         {
             if (Size.Width < 0)
@@ -33,6 +37,7 @@ namespace Potato.Menu
             {
                 if (font.MeasureString(currentLine + token.Value).Width > Size.Width)
                 {
+                    Debug.Assert(currentLine != "", $"Width {Size.Width} not large enough for token {token.Value}.");
                     string newLine = currentLine.Trim();
                     float widthOffset = 0;
                     switch (Align)
@@ -81,11 +86,6 @@ namespace Potato.Menu
                 width: Size.Width,
                 height: items.Count * font.LineHeight);
         }
-        public string Text { get; set; }
-        public IController Controller { get => null; set { } }
-        public Vector2 Position { get; set; }
-        public Size2 Size { get; set; }
-        public Alignment Align { get; set; }
         
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -96,6 +96,7 @@ namespace Potato.Menu
                     position: Position + new Vector2(widthOffset, heightOffset),
                     color: color);
         }
+        
         public void Update(GameTime gameTime)
         {
         }

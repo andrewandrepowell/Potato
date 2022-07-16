@@ -14,28 +14,22 @@ namespace Potato.Menu
         private static readonly Color fillColor = Color.Black;
         private static readonly Color emptyColor = Color.Transparent;
         private const float alphaChangeRate = 1.0f;
-        private bool alphaIncrement;
-        private float alpha;
-        private bool apply;
+        private bool alphaIncrement = false;
+        private float alpha = 1.0f;
+        private bool apply = false;
         private const float fillChangeRate = 0.1f;
-        public SliderMenu()
-        {
-            apply = false;
-            Fill = 0.0f;
-            Controller = null;
-            Position = Vector2.Zero;
-            Size = Size2.Empty;
-        }
-        public float Fill { get; set; }
-        public IController Controller { get; set; }
-        public Vector2 Position { get; set; }
-        public Size2 Size { get; set; }
-        public Alignment Align { get; set; }
+        public float Fill { get; set; } = 0.0f;
+        public IController Controller { get; set; } = null;
+        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Size2 Size { get; set; } = Size2.Empty;
+        public Alignment Align { get; set; } = Alignment.Left;
+        
 
         public void ApplyChanges()
         {
             apply = true;
         }
+        
         public void Draw(SpriteBatch spriteBatch)
         {
             if (texture == null || apply)

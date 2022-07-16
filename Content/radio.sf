@@ -1,0 +1,19 @@
+{
+  "textureAtlas": {
+    "texture": "radio.png",
+    "regionWidth": 32,
+    "regionHeight": 32
+  },
+  "cycles": {
+    "unselected": {
+      "frames": [0],
+      "isLooping": true,
+      "frameDuration": 0.2
+    },
+    "selected": {
+      "frames": [1],
+      "isLooping": true,
+      "frameDuration": 0.2
+    }
+  }
+}

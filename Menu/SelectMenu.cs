@@ -5,6 +5,7 @@ using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using System.Text;
 
 namespace Potato.Menu
@@ -13,20 +14,25 @@ namespace Potato.Menu
     {
         private static BitmapFont font;
         private static readonly Color textColor = Color.Black;
-        private readonly List<(string, float, float)> items;
+        private readonly List<(string, float, float)> items = new List<(string, float, float)>();
         private const float alphaChangeRate = 1.0f;
-        private bool alphaIncrement;
-        private float alpha;
+        private bool alphaIncrement = false;
+        private float alpha = 1.0f;
         private static readonly Color selectColor = Color.White;
         private const float selectValueChangeRate = 8.0f;
-        private bool selectValueIncrement;
-        private float selectValue;
+        private bool selectValueIncrement = true;
+        private float selectValue = 0.0f;
+        public bool Selected { get; private set; } = false;
+        public string Text { get; set; } = "";
+        public IController Controller { get; set; } = null;
+        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Size2 Size { get; set; } = Size2.Empty;
+        public Alignment Align { get; set; } = Alignment.Left;
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
             color1.G + color2.G,
             color1.B + color2.B,
             color1.A + color2.A);
-        public bool Selected { get; private set; }
         public void ApplyChanges()
         {
             if (Size.Width < 0)
@@ -38,6 +44,7 @@ namespace Potato.Menu
             {
                 if (font.MeasureString(currentLine + token.Value).Width > Size.Width)
                 {
+                    Debug.Assert(currentLine != "", $"Width {Size.Width} not large enough for token {token.Value}.");
                     string newLine = currentLine.Trim();
                     float widthOffset = 0;
                     switch (Align)
@@ -90,22 +97,7 @@ namespace Potato.Menu
         {
             if (font == null)
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
-            items = new List<(string, float, float)>();
-            Text = "";
-            Position = Vector2.Zero;
-            Size = Size2.Empty;
-            Controller = null;
-            alpha = 1.0f;
-            alphaIncrement = false;
-            Selected = false;
-            selectValueIncrement = true;
-            selectValue = 0.0f;
         }
-        public string Text { get; set; }
-        public IController Controller { get; set; }
-        public Vector2 Position { get; set; }
-        public Size2 Size { get; set; }
-        public Alignment Align { get; set; }
 
         public void Draw(SpriteBatch spriteBatch)
         {

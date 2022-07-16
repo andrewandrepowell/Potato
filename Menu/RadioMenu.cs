@@ -18,8 +18,10 @@ namespace Potato.Menu
         private static readonly Color fontColor = Color.Black;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
-        private readonly AnimatedSprite radioAnimatedSprite;
         private readonly List<(AnimatedSprite, string, float, float, float, float)> items = new List<(AnimatedSprite, string, float, float, float, float)>();
+        private const float alphaChangeRate = 1.0f;
+        private bool alphaIncrement = false;
+        private float alpha = 1.0f;
         public List<string> Options { get; private set; } = new List<string>();
         public int Selected { get; set; } = 0;
         public Alignment Align { get; set; } = Alignment.Left;
@@ -33,9 +35,6 @@ namespace Potato.Menu
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
             if (radioSpriteSheet == null)
                 radioSpriteSheet = Potato.Game.Content.Load<SpriteSheet>("radio.sf", new JsonContentLoader());
-            radioAnimatedSprite = new AnimatedSprite(
-                spriteSheet: radioSpriteSheet,
-                playAnimation: "unselected");
         }
 
         public void ApplyChanges()
@@ -44,7 +43,7 @@ namespace Potato.Menu
                 throw new ArgumentOutOfRangeException();
             items.Clear();
             List<(AnimatedSprite, string, float, float, float, float)> line = new List<(AnimatedSprite, string, float, float, float, float)>();
-            Size2 radioSize = radioAnimatedSprite.TextureRegion.Bounds.ToRectangleF().Size;
+            Size2 radioSize = radioSpriteSheet.TextureAtlas.First().Size;
             float height = Math.Max(radioSize.Height, font.LineHeight);
             float widthOffset = 0;
             float heightOffset = 0;
@@ -133,20 +132,26 @@ namespace Potato.Menu
                     float radioHeightOffset = heightOffset + Math.Max((height - radioSize.Height) / 2, 0) + radioSize.Height / 2;
                     float optionHeightOffset = heightOffset + Math.Max((height - optionSize.Height) / 2, 0);
                     AnimatedSprite radioSprite = new AnimatedSprite(
-                        spriteSheet: radioSpriteSheet,
-                        playAnimation: "unselected");
+                        spriteSheet: radioSpriteSheet);
                     line.Add((radioSprite, option.Value, radioWidthOffset, radioHeightOffset, optionWidthOffset, optionHeightOffset));
                 }
             }
             Size = new Size2(
                 width: Size.Width,
                 height: heightOffset);
+            ApplySelected();
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach ((AnimatedSprite radioSprite, string optionValue, float radioWidthOffset, float radioHeightOffset, float optionWidthOffset, float optionHeightOffset) in items)
+            foreach ((int index, var tuple) in items.Select((tuple, index) => (index, tuple)))
             {
+                AnimatedSprite radioSprite = tuple.Item1;
+                string optionValue = tuple.Item2;
+                float radioWidthOffset = tuple.Item3;
+                float radioHeightOffset = tuple.Item4;
+                float optionWidthOffset = tuple.Item5;
+                float optionHeightOffset = tuple.Item6;
                 spriteBatch.Draw(
                     sprite: radioSprite,
                     position: Position + new Vector2(radioWidthOffset, radioHeightOffset));
@@ -154,7 +159,7 @@ namespace Potato.Menu
                     font: font,
                     text: optionValue,
                     position: Position + new Vector2(optionWidthOffset, optionHeightOffset),
-                    color: fontColor);
+                    color: fontColor * ((index == Selected) ? alpha : 1.0f));
             }
         }
         
@@ -162,11 +167,51 @@ namespace Potato.Menu
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            if (Controller != null)
+            {
+                if (Controller.RightPressed())
+                {
+                    Selected = (Selected == items.Count - 1) ? 0 : Selected + 1;
+                    ApplySelected();
+                }
+                if (Controller.LeftPressed())
+                {
+                    Selected = (Selected == 0) ? items.Count - 1 : Selected - 1;
+                    ApplySelected();
+                }
+            }
+
+            if (Controller != null)
+            {
+                alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
+                if (alpha > 1.0f)
+                    alphaIncrement = false;
+                else if (alpha < 0.0f)
+                    alphaIncrement = true;
+            }
+            else
+            {
+                alpha = 1.0f;
+                alphaIncrement = false;
+            }
+
+            foreach (var tuple in items)
+            {
+                AnimatedSprite radioSprite = tuple.Item1;
+                radioSprite.Update(timeElapsed);
+            }
+        }
+
+        private void ApplySelected()
+        {
             foreach ((int index, var tuple) in items.Select((x, index) => (index, x)))
+            {
+                AnimatedSprite radioSprite = tuple.Item1;
                 if (index == Selected)
-                    tuple.Item1.Play("selected");
+                    radioSprite.Play("selected");
                 else
-                    tuple.Item1.Play("unselected");
+                    radioSprite.Play("unselected");
+            }
         }
     }
 }

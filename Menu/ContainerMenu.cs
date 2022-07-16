@@ -11,17 +11,10 @@ namespace Potato.Menu
 {
     internal class ContainerMenu : IMenu
     {
-        private IController controller;
-        public Alignment Align { get; set; }
-        public ContainerMenu()
-        {
-            Items = new List<IMenu>();
-            Position = Vector2.Zero;
-            controller = null;
-            Align = Alignment.Left;
-        }
-        public List<IMenu> Items { get; private set; }
-        public Vector2 Position { get; set; }
+        private IController controller = null;
+        public Alignment Align { get; set; } = Alignment.Left;
+        public List<IMenu> Items { get; private set; } = new List<IMenu>();
+        public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size
         {
             get => new Size2(

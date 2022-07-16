@@ -13,7 +13,8 @@ namespace Potato.Menu
     {
         private IController controller = null;
         private Texture2D backplaneTexture = null;
-        private static readonly Color backPlaneColor = Potato.ColorTheme2;
+        private static readonly Color backPlaneColor0 = Potato.ColorTheme2;
+        private static readonly Color backPlaneColor1 = Potato.ColorTheme3;
         private const float backPlaneEdgeRadius = 16;
         private Vector2 backPlaneOffset = Vector2.Zero;
         private bool applyChanges = false;
@@ -52,12 +53,13 @@ namespace Potato.Menu
                     controller = null;
             }
         }
-        
-        private void DrawBackplane(SpriteBatch spriteBatch)
-        {
-            
-        }
-        
+
+        private static Color Add(Color color1, Color color2) => new Color(
+            color1.R + color2.R,
+            color1.G + color2.G,
+            color1.B + color2.B,
+            color1.A + color2.A);
+
         public void Draw(SpriteBatch spriteBatch)
         {
             // Generate the backplane.
@@ -87,7 +89,12 @@ namespace Potato.Menu
                         else if (point.X < bounds.BottomLeft.X && point.Y > bounds.BottomLeft.Y && Vector2.Distance(bounds.BottomLeft, point) > backPlaneEdgeRadius)
                             colors[y * width + x] = Color.Transparent;
                         else
-                            colors[y * width + x] = backPlaneColor;
+                        {
+                            float fadeRatio = Vector2.Distance(bounds.BottomRight, point) / Vector2.Distance(bounds.BottomRight, bounds.TopLeft);
+                            colors[y * width + x] = Add(
+                                color1: fadeRatio * backPlaneColor0,
+                                color2: (1 - fadeRatio) * backPlaneColor1);
+                        }
                     }
                 backplaneTexture.SetData(colors);
                 backPlaneOffset = new Vector2(x: -backPlaneEdgeRadius, y: -backPlaneEdgeRadius);

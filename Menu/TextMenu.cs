@@ -12,14 +12,12 @@ namespace Potato.Menu
     {
         private static BitmapFont font;
         private static readonly Color color = Color.Black;
-        private readonly List<string> lines;
-        private readonly List<float> widthOffsets;
+        private readonly List<(string, float, float)> items;
         public TextMenu()
         {
             if (font == null)
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
-            lines = new List<string>();
-            widthOffsets = new List<float>();
+            items = new List<(string, float, float)>();
             Text = "";
             Position = Vector2.Zero;
             Size = Size2.Empty;
@@ -28,15 +26,14 @@ namespace Potato.Menu
         {
             if (Size.Width < 0)
                 throw new ArgumentOutOfRangeException();
-            lines.Clear();
-            widthOffsets.Clear();
+            items.Clear();
+            int heightIndex = 0;
             string currentLine = "";
             foreach (var token in Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Detailed())
             {
                 if (font.MeasureString(currentLine + token.Value).Width > Size.Width)
                 {
                     string newLine = currentLine.Trim();
-                    lines.Add(newLine);
                     float widthOffset = 0;
                     switch (Align)
                     {
@@ -50,14 +47,15 @@ namespace Potato.Menu
                             widthOffset = Size.Width - font.MeasureString(newLine).Width;
                             break;
                     }
-                    widthOffsets.Add(widthOffset);
+                    float heightOffset = heightIndex * font.LineHeight;
+                    items.Add((newLine, widthOffset, heightOffset));
+                    heightIndex++;
                     currentLine = token.Value + " ";
                 }
                 else if (token.IsLast)
                 {
                     currentLine += token.Value;
                     string newLine = currentLine.Trim();
-                    lines.Add(newLine);
                     float widthOffset = 0;
                     switch (Align)
                     {
@@ -71,7 +69,8 @@ namespace Potato.Menu
                             widthOffset = Size.Width - font.MeasureString(newLine).Width;
                             break;
                     }
-                    widthOffsets.Add(widthOffset);
+                    float heightOffset = heightIndex * font.LineHeight;
+                    items.Add((newLine, widthOffset, heightOffset));
                 }
                 else
                 {
@@ -80,23 +79,21 @@ namespace Potato.Menu
             }
             Size = new Size2(
                 width: Size.Width,
-                height: lines.Count * font.LineHeight);
+                height: items.Count * font.LineHeight);
         }
         public string Text { get; set; }
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; }
         public Size2 Size { get; set; }
         public Alignment Align { get; set; }
-
+        
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach ((int index, string line, float widthOffset) in lines
-                .Select((line, index) => (index, line))
-                .Zip(widthOffsets, (tuple, widthOffset) => (tuple.index, tuple.line, widthOffset)))
+            foreach ((string line, float widthOffset, float heightOffset) in items)
                 spriteBatch.DrawString(
                     font: font,
                     text: line,
-                    position: Position + new Vector2(widthOffset, index * font.LineHeight),
+                    position: Position + new Vector2(widthOffset, heightOffset),
                     color: color);
         }
         public void Update(GameTime gameTime)

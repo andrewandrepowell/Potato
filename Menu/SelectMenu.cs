@@ -13,7 +13,7 @@ namespace Potato.Menu
     {
         private static BitmapFont font;
         private static readonly Color textColor = Color.Black;
-        private readonly List<string> lines;
+        private readonly List<(string, float, float)> items;
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement;
         private float alpha;
@@ -31,19 +31,51 @@ namespace Potato.Menu
         {
             if (Size.Width < 0)
                 throw new ArgumentOutOfRangeException();
-            lines.Clear();
+            items.Clear();
+            int heightIndex = 0;
             string currentLine = "";
             foreach (var token in Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Detailed())
             {
                 if (font.MeasureString(currentLine + token.Value).Width > Size.Width)
                 {
-                    lines.Add(currentLine.Trim());
+                    string newLine = currentLine.Trim();
+                    float widthOffset = 0;
+                    switch (Align)
+                    {
+                        case Alignment.Left:
+                            widthOffset = 0;
+                            break;
+                        case Alignment.Center:
+                            widthOffset = (Size.Width - font.MeasureString(newLine).Width) / 2;
+                            break;
+                        case Alignment.Right:
+                            widthOffset = Size.Width - font.MeasureString(newLine).Width;
+                            break;
+                    }
+                    float heightOffset = heightIndex * font.LineHeight;
+                    items.Add((newLine, widthOffset, heightOffset));
+                    heightIndex++;
                     currentLine = token.Value + " ";
                 }
                 else if (token.IsLast)
                 {
                     currentLine += token.Value;
-                    lines.Add(currentLine.Trim());
+                    string newLine = currentLine.Trim();
+                    float widthOffset = 0;
+                    switch (Align)
+                    {
+                        case Alignment.Left:
+                            widthOffset = 0;
+                            break;
+                        case Alignment.Center:
+                            widthOffset = (Size.Width - font.MeasureString(newLine).Width) / 2;
+                            break;
+                        case Alignment.Right:
+                            widthOffset = Size.Width - font.MeasureString(newLine).Width;
+                            break;
+                    }
+                    float heightOffset = heightIndex * font.LineHeight;
+                    items.Add((newLine, widthOffset, heightOffset));
                 }
                 else
                 {
@@ -52,13 +84,13 @@ namespace Potato.Menu
             }
             Size = new Size2(
                 width: Size.Width,
-                height: lines.Count * font.LineHeight);
+                height: items.Count * font.LineHeight);
         }
         public SelectMenu()
         {
             if (font == null)
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
-            lines = new List<string>();
+            items = new List<(string, float, float)>();
             Text = "";
             Position = Vector2.Zero;
             Size = Size2.Empty;
@@ -77,11 +109,11 @@ namespace Potato.Menu
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach ((int index, string line) in lines.Select((line, index) => (index, line)))
+            foreach ((string line, float widthOffset, float heightOffset) in items)
                 spriteBatch.DrawString(
                     font: font,
                     text: line,
-                    position: Position + new Vector2(0, index * font.LineHeight),
+                    position: Position + new Vector2(widthOffset, heightOffset),
                     color: alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
         }
         public void Update(GameTime gameTime)

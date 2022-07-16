@@ -11,7 +11,7 @@ namespace Potato.Menu
     internal class SliderMenu : IMenu
     {
         private static Texture2D texture;
-        private static readonly Color fillColor = Color.Black;
+        private static readonly Color fillColor = Potato.ColorTheme0;
         private static readonly Color emptyColor = Color.Transparent;
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;

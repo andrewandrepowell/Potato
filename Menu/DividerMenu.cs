@@ -8,7 +8,7 @@ namespace Potato.Menu
     internal class DividerMenu : IMenu
     {
         private static Texture2D texture;
-        private static readonly Color color = Color.Black;
+        private static readonly Color color = Potato.ColorTheme0;
         public DividerMenu()
         {
             Position = Vector2.Zero;

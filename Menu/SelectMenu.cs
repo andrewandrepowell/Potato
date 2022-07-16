@@ -13,12 +13,12 @@ namespace Potato.Menu
     internal class SelectMenu : IMenu
     {
         private static BitmapFont font;
-        private static readonly Color textColor = Color.Black;
+        private static readonly Color textColor = Potato.ColorTheme0;
         private readonly List<(string, float, float)> items = new List<(string, float, float)>();
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
-        private static readonly Color selectColor = Color.White;
+        private static readonly Color selectColor = Potato.ColorTheme1;
         private const float selectValueChangeRate = 8.0f;
         private bool selectValueIncrement = true;
         private float selectValue = 0.0f;
@@ -28,11 +28,13 @@ namespace Potato.Menu
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get; set; } = Size2.Empty;
         public Alignment Align { get; set; } = Alignment.Left;
+        
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
             color1.G + color2.G,
             color1.B + color2.B,
             color1.A + color2.A);
+        
         public void ApplyChanges()
         {
             if (Size.Width < 0)
@@ -93,6 +95,7 @@ namespace Potato.Menu
                 width: Size.Width,
                 height: items.Count * font.LineHeight);
         }
+        
         public SelectMenu()
         {
             if (font == null)
@@ -108,6 +111,7 @@ namespace Potato.Menu
                     position: Position + new Vector2(widthOffset, heightOffset),
                     color: alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
         }
+        
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;

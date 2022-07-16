@@ -15,7 +15,7 @@ namespace Potato.Menu
     internal class RadioMenu : IMenu
     {
         private static BitmapFont font;
-        private static readonly Color fontColor = Color.Black;
+        private static readonly Color fontColor = Potato.ColorTheme0;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
         private readonly List<(AnimatedSprite, string, float, float, float, float)> items = new List<(AnimatedSprite, string, float, float, float, float)>();

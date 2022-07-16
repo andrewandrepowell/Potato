@@ -9,6 +9,10 @@ namespace Potato
     public class Potato : Game
     {
         public static Game Game { get; private set; }
+        public static readonly Color ColorTheme0 = Color.White;
+        public static readonly Color ColorTheme1 = Color.Yellow;
+        public static readonly Color ColorTheme2 = new Color(r: 63, g: 67, b: 52, alpha: 200);
+        public static readonly Color ColorTheme3 = Color.Black;
         private const int gameWidth = 1280; // 720p
         private const int gameHeight = 720; // 720p
         private GraphicsDeviceManager graphics;
@@ -60,7 +64,7 @@ namespace Potato
             menu.Items.Add(slider0);
             menu.Items.Add(select1);
             menu.Items.Add(radio0);
-            menu.Position = new Vector2(x: 256, y: 0);
+            menu.Position = new Vector2(x: 256, y: 64);
             menu.Controller = keyboard;
             menu.Align = Alignment.Right;
             menu.ApplyChanges();

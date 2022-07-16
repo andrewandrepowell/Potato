@@ -12,7 +12,7 @@ namespace Potato.Menu
     internal class TextMenu : IMenu
     {
         private static BitmapFont font;
-        private static readonly Color color = Color.Black;
+        private static readonly Color color = Potato.ColorTheme0;
         private readonly List<(string, float, float)> items = new List<(string, float, float)>();
         public string Text { get; set; } = "";
         public IController Controller { get => null; set { } }

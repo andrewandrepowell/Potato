@@ -18,7 +18,7 @@ namespace Potato.Menu
         private static readonly Color fontColor = Potato.ColorTheme0;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
-        private readonly List<(AnimatedSprite, string, float, float, float, float)> items = new List<(AnimatedSprite, string, float, float, float, float)>();
+        private readonly List<(AnimatedSprite, string, Vector2, Vector2)> items = new List<(AnimatedSprite, string, Vector2, Vector2)>();
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
@@ -42,7 +42,7 @@ namespace Potato.Menu
             if (Size.Width < 0)
                 throw new ArgumentOutOfRangeException();
             items.Clear();
-            List<(AnimatedSprite, string, float, float, float, float)> line = new List<(AnimatedSprite, string, float, float, float, float)>();
+            List<(AnimatedSprite, string, Vector2, Vector2)> line = new List<(AnimatedSprite, string, Vector2, Vector2)>();
             Size2 radioSize = radioSpriteSheet.TextureAtlas.First().Size;
             float height = Math.Max(radioSize.Height, font.LineHeight);
             float widthOffset = 0;
@@ -66,15 +66,13 @@ namespace Potato.Menu
                             lineWidthOffset = Size.Width - lineWidth;
                             break;
                     }
-                    foreach ((AnimatedSprite radioSprite, string optionValue, float radioWidthOffset, float radioHeightOffset, float optionWidthOffset, float optionHeightOffset) in line)
+                    foreach ((AnimatedSprite radioSprite, string optionValue, Vector2 radioOffset, Vector2 optionOffset) in line)
                     {
                         items.Add((
                             radioSprite,
-                            optionValue, 
-                            radioWidthOffset + lineWidthOffset, 
-                            radioHeightOffset, 
-                            optionWidthOffset + lineWidthOffset, 
-                            optionHeightOffset));
+                            optionValue,
+                            new Vector2(x: radioOffset.X + lineWidthOffset, y: radioOffset.Y),
+                            new Vector2(x: optionOffset.X + lineWidthOffset, y: optionOffset.Y)));
                     }
                     line.Clear();
                     widthOffset = 0;
@@ -93,7 +91,11 @@ namespace Potato.Menu
                         AnimatedSprite radioSprite = new AnimatedSprite(
                             spriteSheet: radioSpriteSheet,
                             playAnimation: "unselected");
-                        line.Add((radioSprite, option.Value, radioWidthOffset, radioHeightOffset, optionWidthOffset, optionHeightOffset));
+                        line.Add((
+                            radioSprite, 
+                            option.Value, 
+                            new Vector2(x: radioWidthOffset, y:radioHeightOffset), 
+                            new Vector2(x: optionWidthOffset, y:optionHeightOffset)));
                     }
 
                     {
@@ -111,14 +113,13 @@ namespace Potato.Menu
                                 lineWidthOffset = Size.Width - lineWidth;
                                 break;
                         }
-                        foreach ((AnimatedSprite radioSprite, string optionValue, float radioWidthOffset, float radioHeightOffset, float optionWidthOffset, float optionHeightOffset) in line)
+                        foreach ((AnimatedSprite radioSprite, string optionValue, Vector2 radioOffset, Vector2 optionOffset) in line)
                         {
                             items.Add((
-                                radioSprite, optionValue,
-                                radioWidthOffset + lineWidthOffset,
-                                radioHeightOffset,
-                                optionWidthOffset + lineWidthOffset,
-                                optionHeightOffset));
+                                radioSprite,
+                                optionValue,
+                                new Vector2(x: radioOffset.X + lineWidthOffset, y: radioOffset.Y),
+                                new Vector2(x: optionOffset.X + lineWidthOffset, y: optionOffset.Y)));
                         }
                     }
                 }
@@ -133,7 +134,11 @@ namespace Potato.Menu
                     float optionHeightOffset = heightOffset + Math.Max((height - optionSize.Height) / 2, 0);
                     AnimatedSprite radioSprite = new AnimatedSprite(
                         spriteSheet: radioSpriteSheet);
-                    line.Add((radioSprite, option.Value, radioWidthOffset, radioHeightOffset, optionWidthOffset, optionHeightOffset));
+                    line.Add((
+                        radioSprite,
+                        option.Value,
+                        new Vector2(x: radioWidthOffset, y: radioHeightOffset),
+                        new Vector2(x: optionWidthOffset, y: optionHeightOffset)));
                 }
             }
             Size = new Size2(
@@ -149,17 +154,15 @@ namespace Potato.Menu
             {
                 AnimatedSprite radioSprite = tuple.Item1;
                 string optionValue = tuple.Item2;
-                float radioWidthOffset = tuple.Item3;
-                float radioHeightOffset = tuple.Item4;
-                float optionWidthOffset = tuple.Item5;
-                float optionHeightOffset = tuple.Item6;
+                Vector2 radioOffset = tuple.Item3;
+                Vector2 optionOffset = tuple.Item4;
                 spriteBatch.Draw(
                     sprite: radioSprite,
-                    position: Position + new Vector2(radioWidthOffset, radioHeightOffset));
+                    position: Position + radioOffset);
                 spriteBatch.DrawString(
                     font: font,
                     text: optionValue,
-                    position: Position + new Vector2(optionWidthOffset, optionHeightOffset),
+                    position: Position + optionOffset,
                     color: fontColor * ((index == Selected) ? alpha : 1.0f));
             }
             spriteBatch.End();

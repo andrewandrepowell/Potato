@@ -12,9 +12,9 @@ namespace Potato.Menu
 {
     internal class SelectMenu : IMenu
     {
-        private static BitmapFont font;
+        private static SpriteFont font;
         private static readonly Color textColor = Potato.ColorTheme0;
-        private readonly List<(string, float, float)> items = new List<(string, float, float)>();
+        private readonly List<(string, Vector2, Texture2D, Vector2)> items = new List<(string, Vector2, Texture2D, Vector2)>();
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
@@ -44,7 +44,7 @@ namespace Potato.Menu
             string currentLine = "";
             foreach (var token in Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Detailed())
             {
-                if (font.MeasureString(currentLine + token.Value).Width > Size.Width)
+                if (font.MeasureString(currentLine + token.Value).X > Size.Width)
                 {
                     Debug.Assert(currentLine != "", $"Width {Size.Width} not large enough for token {token.Value}.");
                     string newLine = currentLine.Trim();
@@ -55,14 +55,20 @@ namespace Potato.Menu
                             widthOffset = 0;
                             break;
                         case Alignment.Center:
-                            widthOffset = (Size.Width - font.MeasureString(newLine).Width) / 2;
+                            widthOffset = (Size.Width - font.MeasureString(newLine).X) / 2;
                             break;
                         case Alignment.Right:
-                            widthOffset = Size.Width - font.MeasureString(newLine).Width;
+                            widthOffset = Size.Width - font.MeasureString(newLine).X;
                             break;
                     }
-                    float heightOffset = heightIndex * font.LineHeight;
-                    items.Add((newLine, widthOffset, heightOffset));
+                    float heightOffset = heightIndex * font.MeasureString(" ").Y;
+                    Vector2 newLineOffset = new Vector2(x: widthOffset, y: heightOffset);
+                    Texture2D glowTexture = font.CreateStandardGlow(newLine);
+                    Vector2 newLineSize = font.MeasureString(newLine);
+                    Vector2 glowOffset = new Vector2(
+                        x: newLineOffset.X - (glowTexture.Width - newLineSize.X) / 2,
+                        y: newLineOffset.Y - (glowTexture.Height - newLineSize.Y) / 2);
+                    items.Add((newLine, newLineOffset, glowTexture, glowOffset));
                     heightIndex++;
                     currentLine = token.Value + " ";
                 }
@@ -77,14 +83,20 @@ namespace Potato.Menu
                             widthOffset = 0;
                             break;
                         case Alignment.Center:
-                            widthOffset = (Size.Width - font.MeasureString(newLine).Width) / 2;
+                            widthOffset = (Size.Width - font.MeasureString(newLine).X) / 2;
                             break;
                         case Alignment.Right:
-                            widthOffset = Size.Width - font.MeasureString(newLine).Width;
+                            widthOffset = Size.Width - font.MeasureString(newLine).X;
                             break;
                     }
-                    float heightOffset = heightIndex * font.LineHeight;
-                    items.Add((newLine, widthOffset, heightOffset));
+                    float heightOffset = heightIndex * font.MeasureString(" ").Y;
+                    Vector2 newLineOffset = new Vector2(x: widthOffset, y: heightOffset);
+                    Texture2D glowTexture = font.CreateStandardGlow(newLine);
+                    Vector2 newLineSize = font.MeasureString(newLine);
+                    Vector2 glowOffset = new Vector2(
+                        x: newLineOffset.X - (glowTexture.Width - newLineSize.X) / 2,
+                        y: newLineOffset.Y - (glowTexture.Height - newLineSize.Y) / 2);
+                    items.Add((newLine, newLineOffset, glowTexture, glowOffset));
                 }
                 else
                 {
@@ -93,24 +105,30 @@ namespace Potato.Menu
             }
             Size = new Size2(
                 width: Size.Width,
-                height: items.Count * font.LineHeight);
+                height: items.Count * font.MeasureString(" ").Y);
         }
         
         public SelectMenu()
         {
             if (font == null)
-                font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
+                font = Potato.Game.Content.Load<SpriteFont>("font");
         }
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             spriteBatch.Begin(transformMatrix: transformMatrix);
-            foreach ((string line, float widthOffset, float heightOffset) in items)
+            foreach ((string newLine, Vector2 newLineOffset, Texture2D glowTexture, Vector2 glowOffset) in items)
+            {
+                spriteBatch.Draw(
+                    texture: glowTexture,
+                    position: Position + glowOffset,
+                    color: alpha * Color.White);
                 spriteBatch.DrawString(
-                    font: font,
-                    text: line,
-                    position: Position + new Vector2(widthOffset, heightOffset),
+                    spriteFont: font,
+                    text: newLine,
+                    position: Position + newLineOffset,
                     color: alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
+            }
             spriteBatch.End();
         }
         

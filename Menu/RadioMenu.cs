@@ -17,7 +17,8 @@ namespace Potato.Menu
         private static readonly Color fontColor = Potato.ColorTheme0;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
-        private readonly List<(AnimatedSprite, string, Vector2, Vector2)> items = new List<(AnimatedSprite, string, Vector2, Vector2)>();
+        private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items = 
+            new List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)>();
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
@@ -67,11 +68,18 @@ namespace Potato.Menu
                     }
                     foreach ((AnimatedSprite radioSprite, string optionValue, Vector2 radioOffset, Vector2 optionOffset) in line)
                     {
+                        Texture2D glowTexture = font.CreateStandardGlow(optionValue);
+                        Vector2 optionValueSize = font.MeasureString(optionValue);
+                        Vector2 glowOffset = new Vector2(
+                            x: optionOffset.X + lineWidthOffset - (glowTexture.Width - optionValueSize.X) / 2,
+                            y: optionOffset.Y - (glowTexture.Height - optionValueSize.Y) / 2);
                         items.Add((
                             radioSprite,
                             optionValue,
+                            glowTexture,
                             new Vector2(x: radioOffset.X + lineWidthOffset, y: radioOffset.Y),
-                            new Vector2(x: optionOffset.X + lineWidthOffset, y: optionOffset.Y)));
+                            new Vector2(x: optionOffset.X + lineWidthOffset, y: optionOffset.Y),
+                            glowOffset));
                     }
                     line.Clear();
                     widthOffset = 0;
@@ -114,11 +122,18 @@ namespace Potato.Menu
                         }
                         foreach ((AnimatedSprite radioSprite, string optionValue, Vector2 radioOffset, Vector2 optionOffset) in line)
                         {
+                            Texture2D glowTexture = font.CreateStandardGlow(optionValue);
+                            Vector2 optionValueSize = font.MeasureString(optionValue);
+                            Vector2 glowOffset = new Vector2(
+                                x: optionOffset.X + lineWidthOffset - (glowTexture.Width - optionValueSize.X) / 2,
+                                y: optionOffset.Y - (glowTexture.Height - optionValueSize.Y) / 2);
                             items.Add((
                                 radioSprite,
                                 optionValue,
+                                glowTexture,
                                 new Vector2(x: radioOffset.X + lineWidthOffset, y: radioOffset.Y),
-                                new Vector2(x: optionOffset.X + lineWidthOffset, y: optionOffset.Y)));
+                                new Vector2(x: optionOffset.X + lineWidthOffset, y: optionOffset.Y),
+                                glowOffset));
                         }
                     }
                 }
@@ -153,11 +168,17 @@ namespace Potato.Menu
             {
                 AnimatedSprite radioSprite = tuple.Item1;
                 string optionValue = tuple.Item2;
-                Vector2 radioOffset = tuple.Item3;
-                Vector2 optionOffset = tuple.Item4;
+                Texture2D glowTexture = tuple.Item3;
+                Vector2 radioOffset = tuple.Item4;
+                Vector2 optionOffset = tuple.Item5;
+                Vector2 glowOffset = tuple.Item6;
                 spriteBatch.Draw(
                     sprite: radioSprite,
                     position: Position + radioOffset);
+                spriteBatch.Draw(
+                    texture: glowTexture,
+                    position: Position + glowOffset,
+                    color: Color.White * ((index == Selected) ? alpha : 1.0f));
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: optionValue,

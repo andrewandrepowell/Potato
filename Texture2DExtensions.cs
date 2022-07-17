@@ -13,7 +13,7 @@ namespace Potato
             GlowEffect.CreateGlow(
                 src: texture,
                 color: Potato.ColorTheme3,
-                size: 2,
+                size: 4,
                 strength: 0.6f,
                 alphaIncreaser: 0.5f,
                 alphaReducer: 0.15f,

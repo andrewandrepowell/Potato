@@ -17,6 +17,8 @@ namespace Potato.Menu
         private static readonly Color backPlaneColor1 = Potato.ColorTheme3;
         private const float backPlaneEdgeRadius = 8;
         private Vector2 backPlaneOffset = Vector2.Zero;
+        private Texture2D glowTexure = null;
+        private Vector2 glowOffset = Vector2.Zero;
         private bool applyChanges = false;
         public Alignment Align { get; set; } = Alignment.Left;
         public List<IMenu> Items { get; private set; } = new List<IMenu>();
@@ -85,11 +87,19 @@ namespace Potato.Menu
                     edgeRadius: backPlaneEdgeRadius,
                     color: GetColor);
                 backPlaneOffset = new Vector2(x: -backPlaneEdgeRadius, y: -backPlaneEdgeRadius);
+                glowTexure = backplaneTexture.CreateStandardGlow0();
+                glowOffset = new Vector2(
+                    x: backPlaneOffset.X - (glowTexure.Width - backplaneTexture.Width) / 2,
+                    y: backPlaneOffset.Y - (glowTexure.Height - backplaneTexture.Height) / 2);
             }
             applyChanges = false;
 
             // Draw the backplane.
             spriteBatch.Begin(transformMatrix: transformMatrix);
+            spriteBatch.Draw(
+                texture: glowTexure,
+                position: Position + glowOffset,
+                color: Color.White);
             spriteBatch.Draw(
                 texture: backplaneTexture, 
                 position: Position + backPlaneOffset, 

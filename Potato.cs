@@ -66,7 +66,7 @@ namespace Potato
             menu.Items.Add(radio0);
             menu.Position = new Vector2(x: 256, y: 64);
             menu.Controller = keyboard;
-            menu.Align = Alignment.Right;
+            menu.Align = Alignment.Center;
             menu.ApplyChanges();
             graphics.PreferredBackBufferWidth = gameWidth;
             graphics.PreferredBackBufferHeight = gameHeight;

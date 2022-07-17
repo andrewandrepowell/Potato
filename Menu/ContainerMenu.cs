@@ -15,7 +15,7 @@ namespace Potato.Menu
         private Texture2D backplaneTexture = null;
         private static readonly Color backPlaneColor0 = Potato.ColorTheme2;
         private static readonly Color backPlaneColor1 = Potato.ColorTheme3;
-        private const float backPlaneEdgeRadius = 16;
+        private const float backPlaneEdgeRadius = 8;
         private Vector2 backPlaneOffset = Vector2.Zero;
         private bool applyChanges = false;
         public Alignment Align { get; set; } = Alignment.Left;
@@ -66,37 +66,24 @@ namespace Potato.Menu
             if (applyChanges || backplaneTexture == null)
             {
                 Size2 size = Size;
-                int width = (int)Math.Ceiling(size.Width + 2 * backPlaneEdgeRadius);
-                int height = (int)Math.Ceiling(size.Height + 2 * backPlaneEdgeRadius);
-                backplaneTexture = new Texture2D(
-                    graphicsDevice: spriteBatch.GraphicsDevice,
-                    width: width,
-                    height: height,
-                    mipmap: false,
-                    format: SurfaceFormat.Color);
-                Color[] colors = new Color[width * height];
-                RectangleF bounds = new RectangleF(x: backPlaneEdgeRadius, y: backPlaneEdgeRadius, width: size.Width, height: size.Height);
-                for (int y = 0; y < height; y++)
-                    for (int x = 0; x < width; x++)
-                    {
-                        Point2 point = new Point2(x, y);
-                        if (point.X < bounds.TopLeft.X && point.Y < bounds.TopLeft.Y && Vector2.Distance(bounds.TopLeft, point) > backPlaneEdgeRadius)
-                            colors[y * width + x] = Color.Transparent;
-                        else if (point.X > bounds.TopRight.X && point.Y < bounds.TopRight.Y && Vector2.Distance(bounds.TopRight, point) > backPlaneEdgeRadius)
-                            colors[y * width + x] = Color.Transparent;
-                        else if (point.X > bounds.BottomRight.X && point.Y > bounds.BottomRight.Y && Vector2.Distance(bounds.BottomRight, point) > backPlaneEdgeRadius)
-                            colors[y * width + x] = Color.Transparent;
-                        else if (point.X < bounds.BottomLeft.X && point.Y > bounds.BottomLeft.Y && Vector2.Distance(bounds.BottomLeft, point) > backPlaneEdgeRadius)
-                            colors[y * width + x] = Color.Transparent;
-                        else
-                        {
-                            float fadeRatio = Vector2.Distance(bounds.BottomRight, point) / Vector2.Distance(bounds.BottomRight, bounds.TopLeft);
-                            colors[y * width + x] = Add(
-                                color1: fadeRatio * backPlaneColor0,
-                                color2: (1 - fadeRatio) * backPlaneColor1);
-                        }
-                    }
-                backplaneTexture.SetData(colors);
+                Size fullSize = new Size(
+                    width: (int)Math.Ceiling(size.Width + backPlaneEdgeRadius * 2),
+                    height: (int)Math.Ceiling(size.Height + backPlaneEdgeRadius * 2));
+                float diagonalLength = (float)Math.Sqrt(fullSize.Width * fullSize.Width + fullSize.Height * fullSize.Height);
+                Color GetColor(Point point)
+                {
+                    float distanceFromTopLeft = Vector2.Distance(
+                        point.ToVector2(), 
+                        new Vector2(x: fullSize.Width, y: fullSize.Height));
+                    float fadeRatio = distanceFromTopLeft / diagonalLength;
+                    return Add(
+                        color1: fadeRatio * backPlaneColor0,
+                        color2: (1 - fadeRatio) * backPlaneColor1);
+                }
+                backplaneTexture = spriteBatch.GetCurvedRectangle(
+                    size: fullSize,
+                    edgeRadius: backPlaneEdgeRadius,
+                    color: GetColor);
                 backPlaneOffset = new Vector2(x: -backPlaneEdgeRadius, y: -backPlaneEdgeRadius);
             }
             applyChanges = false;

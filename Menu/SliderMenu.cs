@@ -33,19 +33,13 @@ namespace Potato.Menu
         public void Draw(SpriteBatch spriteBatch)
         {
             if (texture == null || apply)
-            {
-                texture = new Texture2D(
-                    graphicsDevice: spriteBatch.GraphicsDevice,
-                    width: (int)Size.Width,
-                    height: (int)Size.Height,
-                    mipmap: false,
-                    format: SurfaceFormat.Color);
-                texture.SetData(Enumerable
-                    .Range(0, texture.Width * texture.Height)
-                    .Select((x) => (float)(x % texture.Width) / texture.Width > Fill ? emptyColor : fillColor)
-                    .ToArray());
-                apply = false;
-            }
+                texture = spriteBatch.GetCurvedRectangle(
+                    size: new Size(
+                        width: Math.Max((int)MathHelper.Lerp(0, Size.Width, Fill), 1),
+                        height: (int)Size.Height), 
+                    edgeRadius: 10, 
+                    color: fillColor);
+            apply = false;
             spriteBatch.Draw(
                 texture: texture,
                 position: Position,

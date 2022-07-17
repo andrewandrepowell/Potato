@@ -7,14 +7,13 @@ using System.Linq;
 using MonoGame.Extended.Serialization;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using MonoGame.Extended.BitmapFonts;
 using System.Diagnostics;
 
 namespace Potato.Menu
 {
     internal class RadioMenu : IMenu
     {
-        private static BitmapFont font;
+        private static SpriteFont font;
         private static readonly Color fontColor = Potato.ColorTheme0;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
@@ -32,7 +31,7 @@ namespace Potato.Menu
         public RadioMenu()
         {
             if (font == null)
-                font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
+                font = Potato.Game.Content.Load<SpriteFont>("font");
             if (radioSpriteSheet == null)
                 radioSpriteSheet = Potato.Game.Content.Load<SpriteSheet>("radio.sf", new JsonContentLoader());
         }
@@ -44,12 +43,12 @@ namespace Potato.Menu
             items.Clear();
             List<(AnimatedSprite, string, Vector2, Vector2)> line = new List<(AnimatedSprite, string, Vector2, Vector2)>();
             Size2 radioSize = radioSpriteSheet.TextureAtlas.First().Size;
-            float height = Math.Max(radioSize.Height, font.LineHeight);
+            float height = Math.Max(radioSize.Height, font.MeasureString(" ").Y);
             float widthOffset = 0;
             float heightOffset = 0;
             foreach (var option in Options.Select((x)=>x.Trim()).Detailed())
             {
-                if (widthOffset + spaceBetweenOptions + radioSize.Width + font.MeasureString(option.Value).Width > Size.Width)
+                if (widthOffset + spaceBetweenOptions + radioSize.Width + font.MeasureString(option.Value).X > Size.Width)
                 {
                     Debug.Assert(line.Count != 0, $"Width {Size.Width} not large enough for option {option.Value}.");
                     float lineWidth = widthOffset - spaceBetweenOptions;
@@ -160,7 +159,7 @@ namespace Potato.Menu
                     sprite: radioSprite,
                     position: Position + radioOffset);
                 spriteBatch.DrawString(
-                    font: font,
+                    spriteFont: font,
                     text: optionValue,
                     position: Position + optionOffset,
                     color: fontColor * ((index == Selected) ? alpha : 1.0f));

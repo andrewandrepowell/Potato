@@ -14,6 +14,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin font.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:font.spritefont
+
 #begin montserrat-font.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor

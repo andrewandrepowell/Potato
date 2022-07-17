@@ -142,8 +142,9 @@ namespace Potato.Menu
             ApplySelected();
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
+            spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((int index, var tuple) in items.Select((tuple, index) => (index, tuple)))
             {
                 AnimatedSprite radioSprite = tuple.Item1;
@@ -161,6 +162,7 @@ namespace Potato.Menu
                     position: Position + new Vector2(optionWidthOffset, optionHeightOffset),
                     color: fontColor * ((index == Selected) ? alpha : 1.0f));
             }
+            spriteBatch.End();
         }
         
         public void Update(GameTime gameTime)

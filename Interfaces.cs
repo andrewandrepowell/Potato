@@ -17,7 +17,7 @@ namespace Potato
     }
     internal interface IDrawable
     {
-        void Draw(SpriteBatch spriteBatch);
+        void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null);
     }
     internal interface IUpdateable
     {

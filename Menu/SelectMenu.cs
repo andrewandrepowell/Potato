@@ -102,14 +102,16 @@ namespace Potato.Menu
                 font = Potato.Game.Content.Load<BitmapFont>("montserrat-font");
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
+            spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((string line, float widthOffset, float heightOffset) in items)
                 spriteBatch.DrawString(
                     font: font,
                     text: line,
                     position: Position + new Vector2(widthOffset, heightOffset),
                     color: alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
+            spriteBatch.End();
         }
         
         public void Update(GameTime gameTime)

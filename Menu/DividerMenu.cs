@@ -22,7 +22,7 @@ namespace Potato.Menu
         public void ApplyChanges()
         {
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             if (texture == null)
             {
@@ -34,12 +34,14 @@ namespace Potato.Menu
                     format: SurfaceFormat.Color);
                 texture.SetData(new Color[] { Color.White });
             }
+            spriteBatch.Begin(transformMatrix: transformMatrix);
             DrawLine(
                 spriteBatch: spriteBatch,
                 point1: Position,
                 point2: Position + new Vector2(x: Size.Width, y: 0),
                 color: color,
                 thickness: Size.Height);
+            spriteBatch.End();
         }
         public void Update(GameTime gameTime)
         {

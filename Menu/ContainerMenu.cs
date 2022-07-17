@@ -60,7 +60,7 @@ namespace Potato.Menu
             color1.B + color2.B,
             color1.A + color2.A);
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             // Generate the backplane.
             if (applyChanges || backplaneTexture == null)
@@ -89,14 +89,16 @@ namespace Potato.Menu
             applyChanges = false;
 
             // Draw the backplane.
+            spriteBatch.Begin(transformMatrix: transformMatrix);
             spriteBatch.Draw(
                 texture: backplaneTexture, 
                 position: Position + backPlaneOffset, 
                 color: Color.White);
+            spriteBatch.End();
 
             // Draw the other elements of the menu.
             foreach (IMenu item in Items)
-                item.Draw(spriteBatch);
+                item.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
         }
         
         public void Update(GameTime gameTime)

@@ -24,6 +24,9 @@ namespace Potato
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            IsFixedTimeStep = false;
+            graphics.SynchronizeWithVerticalRetrace = true;
+            graphics.GraphicsProfile = GraphicsProfile.HiDef;
             IsMouseVisible = true;
             Game = this;
         }
@@ -31,6 +34,17 @@ namespace Potato
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            graphics.PreferredBackBufferWidth = gameWidth;
+            graphics.PreferredBackBufferHeight = gameHeight;
+            graphics.ApplyChanges();
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // TODO: use this.Content to load your game content here
             keyboard = new KeyboardController();
             menu = new ContainerMenu();
             TextMenu text0 = new TextMenu();
@@ -68,17 +82,11 @@ namespace Potato
             menu.Controller = keyboard;
             menu.Align = Alignment.Center;
             menu.ApplyChanges();
-            graphics.PreferredBackBufferWidth = gameWidth;
-            graphics.PreferredBackBufferHeight = gameHeight;
-            graphics.ApplyChanges();
-            base.Initialize();
         }
 
-        protected override void LoadContent()
+        protected override void UnloadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            base.UnloadContent();
         }
 
         protected override void Update(GameTime gameTime)
@@ -94,13 +102,11 @@ namespace Potato
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
+            GraphicsDevice.Clear(Color.PowderBlue);
+            
             // TODO: Add your drawing code here
-            spriteBatch.Begin();
             menu.Draw(spriteBatch);
             base.Draw(gameTime);
-            spriteBatch.End();
         }
     }
 }

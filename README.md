@@ -10,6 +10,8 @@ dotnet add package MonoGame.Extended
 dotnet add package MonoGame.Extended.Content.Pipeline
 dotnet add package MonoGame.Extended.Input
 dotnet add package MonoGame.Extended.Animations
+dotnet add package MonoGame.ShaderEffects --version 1.0.2
+dotnet add package MonoGame.GlowEffect --version 1.0.4
 ```
 
 ## Tools

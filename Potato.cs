@@ -3,6 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using Potato.Menu;
+using System;
+using System.Linq;
+using System.Text;
+#if DEBUG
+using System.Runtime.InteropServices;
+#endif
 
 namespace Potato
 {
@@ -29,6 +35,9 @@ namespace Potato
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             IsMouseVisible = true;
             Game = this;
+#if DEBUG
+            AllocConsole();
+#endif
         }
 
         protected override void Initialize()
@@ -54,6 +63,7 @@ namespace Potato
             SliderMenu slider0 = new SliderMenu();
             SelectMenu select1 = new SelectMenu();
             RadioMenu radio0 = new RadioMenu();
+            TypingMenu typing0 = new TypingMenu();
             text0.Text = "Hello! My name is Andrew, I am testing the menu out.";
             text0.Size = new Size2(width: 512, height: 0);
             text1.Text = "This is purely just a test to verify everything is working the way that I want.";
@@ -71,6 +81,7 @@ namespace Potato
             radio0.Options.Add("OMMGG");
             radio0.Options.Add("This little piggy");
             radio0.Size = new Size2(width: 512, height: 0);
+            typing0.Size = new Size2(width: 512, height: 32);
             menu.Items.Add(text0);
             menu.Items.Add(text1);
             menu.Items.Add(divider0);
@@ -78,6 +89,7 @@ namespace Potato
             menu.Items.Add(slider0);
             menu.Items.Add(select1);
             menu.Items.Add(radio0);
+            menu.Items.Add(typing0);
             menu.Position = new Vector2(x: 256, y: 64);
             menu.Controller = keyboard;
             menu.Align = Alignment.Center;
@@ -97,8 +109,18 @@ namespace Potato
             // TODO: Add your update logic here
             menu.Update(gameTime);
             keyboard.Update(gameTime);
+            //keyboard.CollectKeys = true;
+            //var keysPressed = keyboard.KeysPressed;
+            //test.Append(keysPressed.Where((x) => x.Key != Keys.Back).Select((x) => x.Character).ToArray());
+            //var removeAmount = keysPressed.Where((x) => x.Key == Keys.Back).Count();
+            //test.Remove(test.Length - removeAmount, removeAmount);
+
+            //keysPressed.Clear();
+            //Console.WriteLine($"Current Text: {test}");
             base.Update(gameTime);
         }
+
+        private StringBuilder test = new StringBuilder();
 
         protected override void Draw(GameTime gameTime)
         {
@@ -108,5 +130,12 @@ namespace Potato
             menu.Draw(spriteBatch);
             base.Draw(gameTime);
         }
+
+#if DEBUG
+        // https://gamedev.stackexchange.com/questions/45107/input-output-console-window-in-xna#:~:text=Right%20click%20your%20game%20in%20the%20solution%20explorer,tab.%20Change%20the%20Output%20Type%20to%20Console%20Application.
+        // This opens a console window in the game.
+        [DllImport("kernel32")]
+        static extern bool AllocConsole();
+#endif
     }
 }

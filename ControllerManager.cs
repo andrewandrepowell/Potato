@@ -1,14 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Potato
 {
     internal class ControllerManager : IController
     {
         public ControllerManager() => Controllers = new List<IController>();
+        public List<TextInputEventArgs> KeysPressed { get; private set; } = null;
+        public bool CollectKeys { get; set; } = false;
         public List<IController> Controllers { get; private set; }
-
+        
         public bool ActivatePressed() => Controllers.Aggregate(false, (current, controller) => current | controller.ActivatePressed());
 
         public void ApplyDefaults() => Controllers.ForEach((x) => x.ApplyDefaults());

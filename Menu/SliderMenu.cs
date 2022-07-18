@@ -41,12 +41,11 @@ namespace Potato.Menu
                 textures = new List<(Texture2D, Texture2D, Vector2)>(capacity: resolution);
                 for (int i = 0; i < resolution; i++)
                 {
-                    Texture2D texture = spriteBatch.GetCurvedRectangle(
+                    Texture2D texture = spriteBatch.GetStandardCurvedRectangle0(
                         size: new Size(
                             width: Math.Max((int)MathHelper.Lerp(0, Size.Width, (float)(i + 1) / resolution), 1),
                             height: (int)Size.Height),
-                        edgeRadius: 10,
-                        color: fillColor);
+                        color: (_) => fillColor);
                     Texture2D glowTexure = texture.CreateStandardGlow0();
                     Vector2 glowOffset = new Vector2(
                         x: -(glowTexure.Width - texture.Width) / 2,

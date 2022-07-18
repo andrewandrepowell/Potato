@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ namespace Potato.Menu
 {
     internal class ContainerMenu : IMenu
     {
+        private List<(IMenu, Vector2)> items = new List<(IMenu, Vector2)>();
         private IController controller = null;
         private Texture2D backplaneTexture = null;
         private static readonly Color backPlaneColor0 = Potato.ColorTheme2;
@@ -107,14 +107,17 @@ namespace Potato.Menu
             spriteBatch.End();
 
             // Draw the other elements of the menu.
-            foreach (IMenu item in Items)
+            foreach ((IMenu item, _) in items)
                 item.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
         }
         
         public void Update(GameTime gameTime)
         {
-            foreach (IMenu item in Items)
+            foreach ((IMenu item, Vector2 itemOffset) in items)
+            {
+                item.Position = Position + itemOffset;
                 item.Update(gameTime);
+            }
 
             if (Controller != null)
             {
@@ -153,6 +156,7 @@ namespace Potato.Menu
         public void ApplyChanges()
         {
             // Apply changes to each of the menu items.
+            items.Clear();
             Size2 size = Size;
             float heightOffset = 0;
             foreach (IMenu item in Items)
@@ -172,7 +176,8 @@ namespace Potato.Menu
                         widthOffset = 0;
                         break;
                 }
-                item.Position = Position + new Vector2(widthOffset, heightOffset);
+                Vector2 itemOffset = new Vector2(widthOffset, heightOffset);
+                items.Add((item, itemOffset));
                 heightOffset += item.Size.Height;
             }
 

@@ -55,6 +55,8 @@ namespace Potato
         bool UpPressed();
         bool DownPressed();
         bool ActivatePressed();
+        bool CollectKeys { get; set; }
+        List<TextInputEventArgs> KeysPressed { get; }
     }
     internal interface IDefaultable
     {

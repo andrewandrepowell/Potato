@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Potato
@@ -25,8 +26,8 @@ namespace Potato
     internal class KeyboardController : IController, IDisposable, ISavable<KeyboardControllerSave>
     {
         private KeyboardStateExtended keyboardState = KeyboardExtended.GetState();
-        public StringBuilder Text { get ; private set; } = new StringBuilder();
-        public bool CollectText { get; set; } = false;
+        public List<TextInputEventArgs> KeysPressed { get; private set; } = new List<TextInputEventArgs>();
+        public bool CollectKeys { get; set; } = false;
         public KeyboardController()
         {
             Potato.Game.Window.TextInput += ServiceTextInput;
@@ -76,8 +77,8 @@ namespace Potato
         
         public void ServiceTextInput(object sender, TextInputEventArgs e)
         {
-            if (CollectText)
-                Text.Append(e.Character);
+            if (CollectKeys)
+                KeysPressed.Add(e);
         }
 
         public void Dispose() => Potato.Game.Window.TextInput -= ServiceTextInput;

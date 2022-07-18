@@ -44,5 +44,8 @@ namespace Potato
         }
         public static Texture2D GetCurvedRectangle(this SpriteBatch spriteBatch, Size size, float edgeRadius, Color color) =>
             spriteBatch.GetCurvedRectangle(size: size, edgeRadius: edgeRadius, color: (point) => color);
+        
+        public static Texture2D GetStandardCurvedRectangle0(this SpriteBatch spriteBatch, Size size, GetColorDelegate color) =>
+            spriteBatch.GetCurvedRectangle(size: size, edgeRadius: 10, color: color);
     }
 }

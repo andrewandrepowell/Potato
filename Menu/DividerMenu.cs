@@ -43,9 +43,11 @@ namespace Potato.Menu
                 thickness: Size.Height);
             spriteBatch.End();
         }
+        
         public void Update(GameTime gameTime)
         {
         }
+        
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness = 1f)
         {
             Vector2 origin = new Vector2(0f, 0.5f);

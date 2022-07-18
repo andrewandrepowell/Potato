@@ -23,10 +23,9 @@ namespace Potato
     {
         void Update(GameTime gameTime);
     }
-    internal interface IDestroyable
+    internal interface IDestroyable : IDisposable
     {
         bool Destroyed { get; }
-        void Destroy();
     }
     internal interface ISemiPausible
     {

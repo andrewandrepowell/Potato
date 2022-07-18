@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
+using System;
+using System.Text;
 
 namespace Potato
 {
@@ -20,12 +22,14 @@ namespace Potato
             DownKey = downKey;
         }
     }
-    internal class KeyboardController : IController, ISavable<KeyboardControllerSave>
+    internal class KeyboardController : IController, IDisposable, ISavable<KeyboardControllerSave>
     {
-        private KeyboardStateExtended keyboardState;
+        private KeyboardStateExtended keyboardState = KeyboardExtended.GetState();
+        public StringBuilder Text { get ; private set; } = new StringBuilder();
+        public bool CollectText { get; set; } = false;
         public KeyboardController()
         {
-            keyboardState = KeyboardExtended.GetState();
+            Potato.Game.Window.TextInput += ServiceTextInput;
             ApplyDefaults();
         }
         public Keys ActivateKey;
@@ -67,7 +71,15 @@ namespace Potato
         public float UpHeld() => (UpPressed()) ? 1.0f : 0.0f;
 
         public bool UpPressed() => keyboardState.WasKeyJustDown(UpKey);
-
+        
         public void Update(GameTime gameTime) => keyboardState = KeyboardExtended.GetState();
+        
+        public void ServiceTextInput(object sender, TextInputEventArgs e)
+        {
+            if (CollectText)
+                Text.Append(e.Character);
+        }
+
+        public void Dispose() => Potato.Game.Window.TextInput -= ServiceTextInput;
     }
 }

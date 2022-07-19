@@ -30,7 +30,7 @@ namespace Potato
         public bool CollectKeys { get; set; } = false;
         public KeyboardController()
         {
-            Potato.Game.Window.TextInput += ServiceTextInput;
+            Potato.Game.Window.TextInput += ServiceInput;
             ApplyDefaults();
         }
         public Keys ActivateKey;
@@ -57,30 +57,30 @@ namespace Potato
             DownKey = Keys.Down;
         }
         public bool ActivatePressed() => keyboardState.WasKeyJustDown(ActivateKey);
-        public float DownHeld() => (DownPressed()) ? 1.0f : 0.0f;
+        public float DownHeld() => (keyboardState.IsKeyDown(DownKey)) ? 1.0f : 0.0f;
 
         public bool DownPressed() => keyboardState.WasKeyJustDown(DownKey);
 
-        public float LeftHeld() => (LeftPressed()) ? 1.0f : 0.0f;
+        public float LeftHeld() => (keyboardState.IsKeyDown(LeftKey)) ? 1.0f : 0.0f;
 
         public bool LeftPressed() => keyboardState.WasKeyJustDown(LeftKey);
 
-        public float RightHeld() => (RightPressed()) ? 1.0f : 0.0f;
+        public float RightHeld() => (keyboardState.IsKeyDown(RightKey)) ? 1.0f : 0.0f;
 
         public bool RightPressed() => keyboardState.WasKeyJustDown(RightKey);
 
-        public float UpHeld() => (UpPressed()) ? 1.0f : 0.0f;
+        public float UpHeld() => (keyboardState.IsKeyDown(UpKey)) ? 1.0f : 0.0f;
 
         public bool UpPressed() => keyboardState.WasKeyJustDown(UpKey);
         
         public void Update(GameTime gameTime) => keyboardState = KeyboardExtended.GetState();
         
-        public void ServiceTextInput(object sender, TextInputEventArgs e)
+        public void ServiceInput(object sender, TextInputEventArgs e)
         {
             if (CollectKeys)
                 KeysPressed.Add(e);
         }
 
-        public void Dispose() => Potato.Game.Window.TextInput -= ServiceTextInput;
+        public void Dispose() => Potato.Game.Window.TextInput -= ServiceInput;
     }
 }

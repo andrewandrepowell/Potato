@@ -18,7 +18,13 @@ namespace Potato.Menu
         private Vector2 glowOffset = Vector2.Zero;
         private IController controller = null;
         private int cursor = 0;
+        private const string cursorString = "|";
         private Vector2 cursorOffset = Vector2.Zero;
+        private const float cursorVisibleTimerThreshold = 0.5f;
+        private float cursorVisibleTimer = cursorVisibleTimerThreshold;
+        private bool cursorVisible = true;
+        private TrackKey cursorTrackLeft = new TrackKey();
+        private TrackKey cursorTrackRight = new TrackKey();
         private Vector2 textOffset = Vector2.Zero;
         private static readonly Color textColor = Potato.ColorTheme3;
         public Alignment Align { get; set; } = Alignment.Left;
@@ -30,13 +36,19 @@ namespace Potato.Menu
                 if (value == null)
                 {
                     if (controller != null)
+                    {
                         controller.CollectKeys = false;
+                        cursorTrackLeft.KeyHeld = null;
+                        cursorTrackRight.KeyHeld = null;
+                    }
                 }
                 else
                 {
-                    controller = value;
-                    controller.CollectKeys = true;
+                    value.CollectKeys = true;
+                    cursorTrackLeft.KeyHeld = value.LeftHeld;
+                    cursorTrackRight.KeyHeld = value.RightHeld;
                 }
+                controller = value;
             }
         }
         public Vector2 Position { get; set; }
@@ -93,9 +105,9 @@ namespace Potato.Menu
                 color: textColor);
             spriteBatch.DrawString(
                 spriteFont: font,
-                text: "|",
+                text: cursorString,
                 position: Position + cursorOffset,
-                color: textColor);
+                color: ((cursorVisible) ? 1.0f : 0.0f) * textColor);
             spriteBatch.End();
         }
 
@@ -103,6 +115,10 @@ namespace Potato.Menu
         {
             if (Controller != null)
             {
+                // Previous is kept to determine if it's visibility should persist.
+                int previousCursor = cursor;
+                
+                // Update text.
                 List<TextInputEventArgs> keysPressed = Controller.KeysPressed;
                 if (keysPressed.Count > 0)
                 {
@@ -119,18 +135,123 @@ namespace Potato.Menu
                         else if (e.Character == '\r')
                         {
                         }
-                        else
+                        else if (font.MeasureString(Text.ToString() + e.Character).X <= Size.Width)
                         {
                             Text.Insert(cursor, e.Character);
                             cursor++;
                         }
                     }
                     keysPressed.Clear();
+                }
 
-                    Vector2 textSize = font.MeasureString((cursor > 0) ? Text.ToString().Substring(0, cursor) : " ");
-                    cursorOffset = new Vector2(
-                        x: (cursor > 0) ? textSize.X : 0, 
-                        y: (Size.Height - textSize.Y) / 2);
+                // Move cursor left or right.
+                cursorTrackLeft.Update(gameTime);
+                cursorTrackRight.Update(gameTime);
+                if (cursorTrackLeft.Check())
+                {
+                    if (cursor > 0)
+                    {
+                        cursor--;
+                    }
+                }
+                if (cursorTrackRight.Check())
+                {
+                    if (cursor < Text.Length)
+                    {
+                        cursor++;
+                    }
+                }
+
+                // Update cursor position.
+                Vector2 textSize = font.MeasureString((cursor > 0) ? Text.ToString().Substring(0, cursor) : " ");
+                cursorOffset = new Vector2(
+                    x: (cursor > 0) ? (textSize.X - 4) : 0,
+                    y: (Size.Height - textSize.Y) / 2 + - 2);
+
+                // Cursor blinking.
+                if (previousCursor != cursor)
+                {
+                    cursorVisible = true;
+                    cursorVisibleTimer = cursorVisibleTimerThreshold;
+                }
+                else
+                {
+                    cursorVisibleTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    if (cursorVisibleTimer < 0)
+                    {
+                        cursorVisible = !cursorVisible;
+                        cursorVisibleTimer = cursorVisibleTimerThreshold;
+                    }
+                }
+            }
+            else
+            {
+                // Cursor isn't availble if there's no controller.
+                cursorVisible = false;
+            }
+        }
+
+        private class TrackKey : IUpdateable
+        {
+            public delegate float KeyHeldDelegate();
+            public KeyHeldDelegate KeyHeld { get; set; }
+            public enum State { Idle, Held, Repeat }
+            private State state = State.Idle;
+            private bool activate = false;
+            private float holdTimer = 0.0f;
+            private const float holdTimerThreshold0 = 0.5f;
+            private const float holdTimerThreshold1 = 0.1f;
+            public bool Check()
+            {
+                bool result = activate;
+                activate = false;
+                return result;
+            }
+
+            public void Update(GameTime gameTime)
+            {   
+                float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                switch (state)
+                {
+                    case State.Idle:
+                        if (KeyHeld() == 1.0f)
+                        {
+                            activate = true;
+                            state = State.Held;
+                            holdTimer = holdTimerThreshold0;
+                        }
+                        break;
+                    case State.Held:
+                        if (KeyHeld() == 1.0f)
+                        {
+                            holdTimer -= timeElapsed;
+                            if (holdTimer < 0.0f)
+                            {
+                                activate = true;
+                                state = State.Repeat;
+                                holdTimer = holdTimerThreshold1;
+                            }
+                        }
+                        else
+                        {
+                            state = State.Idle;
+                        }
+                        break;
+                    case State.Repeat:
+                        if (KeyHeld() == 1.0f)
+                        {
+                            holdTimer -= timeElapsed;
+                            if (holdTimer < 0.0f)
+                            {
+                                activate = true;
+                                holdTimer = holdTimerThreshold1;
+                            }
+                        }
+                        else
+                        {
+                            state = State.Idle;
+                        }
+                        break; 
                 }
             }
         }

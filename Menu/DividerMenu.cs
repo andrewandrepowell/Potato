@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
+using System.Diagnostics;
 
 namespace Potato.Menu
 {
@@ -9,19 +10,20 @@ namespace Potato.Menu
     {
         private static Texture2D texture;
         private static readonly Color color = Potato.ColorTheme0;
-        public DividerMenu()
+        private Size2 size;
+        private float width, height;
+        public DividerMenu(float width, float height)
         {
-            Position = Vector2.Zero;
-            Size = Size2.Empty;
+            Debug.Assert(width > 0);
+            Debug.Assert(height > 0);
+            this.width = width;
+            this.height = height;
+            size = new Size2(width: width, height: height + 4);
         }
         public IController Controller { get => null; set { } }
-        public Vector2 Position { get; set; }
-        public Size2 Size { get; set; }
+        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Size2 Size { get => size; set { } }
         public Alignment Align { get => Alignment.Left; set { } }
-
-        public void ApplyChanges()
-        {
-        }
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             if (texture == null)
@@ -38,9 +40,9 @@ namespace Potato.Menu
             DrawLine(
                 spriteBatch: spriteBatch,
                 point1: Position,
-                point2: Position + new Vector2(x: Size.Width, y: 0),
+                point2: Position + new Vector2(x: width, y: 0),
                 color: color,
-                thickness: Size.Height);
+                thickness: height);
             spriteBatch.End();
         }
         

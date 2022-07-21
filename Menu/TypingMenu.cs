@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,6 @@ namespace Potato.Menu
     internal class TypingMenu : IMenu
     {
         private static SpriteFont font = null;
-        private bool applyChanges = false;
         private Texture2D fieldTexture = null;
         private static readonly Color fieldColor = Potato.ColorTheme0;
         private Texture2D glowTexture = null;
@@ -25,8 +25,10 @@ namespace Potato.Menu
         private bool cursorVisible = true;
         private TrackKey cursorTrackLeft = new TrackKey();
         private TrackKey cursorTrackRight = new TrackKey();
-        private Vector2 textOffset = Vector2.Zero;
+        private Vector2 textOffset;
         private static readonly Color textColor = Potato.ColorTheme3;
+        private Size2 size;
+        private float fieldHeight, fieldWidth;
         public Alignment Align { get; set; } = Alignment.Left;
         public IController Controller 
         { 
@@ -52,30 +54,29 @@ namespace Potato.Menu
             }
         }
         public Vector2 Position { get; set; }
-        public Size2 Size { get; set; }
+        public Size2 Size { get => size; set { } }
         public StringBuilder Text { get; private set; } = new StringBuilder("");
 
-        public TypingMenu()
+        public TypingMenu(float width)
         {
+            Debug.Assert(width > 0);
             if (font == null)
                 font = Potato.Game.Content.Load<SpriteFont>("font");
-        }
-
-        public void ApplyChanges()
-        {
             float textHeight = font.MeasureString(" ").Y;
-            textOffset = new Vector2(x: 0, y: (Size.Height - textHeight) / 2);
-            applyChanges = true;
+            fieldWidth = width;
+            fieldHeight = textHeight + 4;
+            size = new Size2(width: fieldWidth + 8, height: fieldHeight + 8);
+            textOffset = new Vector2(x: 0, y: (fieldHeight - textHeight) / 2);
         }
         
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
-            if (fieldTexture == null || applyChanges)
+            if (fieldTexture == null)
             {
                 fieldTexture = new Texture2D(
                     graphicsDevice: spriteBatch.GraphicsDevice,
-                    width: (int)Size.Width,
-                    height: (int)Size.Height,
+                    width: (int)fieldWidth,
+                    height: (int)fieldHeight,
                     mipmap: false,
                     format: SurfaceFormat.Color);
                 fieldTexture.SetData(Enumerable
@@ -87,7 +88,6 @@ namespace Potato.Menu
                     x: -(glowTexture.Width - fieldTexture.Width) / 2,
                     y: -(glowTexture.Height - fieldTexture.Height) / 2);
             }
-            applyChanges = false;
 
             spriteBatch.Begin(transformMatrix: transformMatrix);
             spriteBatch.Draw(
@@ -135,7 +135,7 @@ namespace Potato.Menu
                         else if (e.Character == '\r')
                         {
                         }
-                        else if (font.MeasureString(Text.ToString() + e.Character).X <= Size.Width)
+                        else if (font.MeasureString(Text.ToString() + e.Character).X <= fieldWidth)
                         {
                             Text.Insert(cursor, e.Character);
                             cursor++;
@@ -166,7 +166,7 @@ namespace Potato.Menu
                 Vector2 textSize = font.MeasureString((cursor > 0) ? Text.ToString().Substring(0, cursor) : " ");
                 cursorOffset = new Vector2(
                     x: (cursor > 0) ? (textSize.X - 4) : 0,
-                    y: (Size.Height - textSize.Y) / 2 + - 2);
+                    y: (Size.Height - textSize.Y) / 2 - 7);
 
                 // Cursor blinking.
                 if (previousCursor != cursor)

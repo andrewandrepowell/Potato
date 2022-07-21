@@ -6,6 +6,7 @@ using Potato.Menu;
 using System;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 #if DEBUG
 using System.Runtime.InteropServices;
 #endif
@@ -55,45 +56,25 @@ namespace Potato
 
             // TODO: use this.Content to load your game content here
             keyboard = new KeyboardController();
-            menu = new ContainerMenu();
-            TextMenu text0 = new TextMenu();
-            TextMenu text1 = new TextMenu();
-            DividerMenu divider0 = new DividerMenu();
-            SelectMenu select0 = new SelectMenu();
-            SliderMenu slider0 = new SliderMenu();
-            SelectMenu select1 = new SelectMenu();
-            RadioMenu radio0 = new RadioMenu();
-            TypingMenu typing0 = new TypingMenu();
-            text0.Text = "Hello! My name is Andrew, I am testing the menu out.";
-            text0.Size = new Size2(width: 512, height: 0);
-            text1.Text = "This is purely just a test to verify everything is working the way that I want.";
-            text1.Size = new Size2(width: 512, height: 0);
-            divider0.Size = new Size2(width: 512, height: 4);
-            select0.Text = "This is a select menu. NOOOOIIIICE";
-            select0.Size = new Size2(width: 512, height: 0);
-            slider0.Fill = 0.5f;
-            slider0.Size = new Size2(width: 512, height: 32);
-            select1.Text = "This is another select item. WOo";
-            select1.Size = new Size2(width: 512, height: 0);
-            radio0.Options.Add("Hello");
-            radio0.Options.Add("Dad");
-            radio0.Options.Add("What is");
-            radio0.Options.Add("OMMGG");
-            radio0.Options.Add("This little piggy");
-            radio0.Size = new Size2(width: 512, height: 0);
-            typing0.Size = new Size2(width: 512, height: 32);
-            menu.Items.Add(text0);
-            menu.Items.Add(text1);
-            menu.Items.Add(divider0);
-            menu.Items.Add(select0);
-            menu.Items.Add(slider0);
-            menu.Items.Add(select1);
-            menu.Items.Add(radio0);
-            menu.Items.Add(typing0);
-            menu.Position = new Vector2(x: 256, y: 64);
+            menu = new ContainerMenu(
+                components: new List<IMenu>()
+                {
+                    new TextMenu(text: "Hello! My name is Andrew, I am testing the menu out.", align: Alignment.Center, width: 512),
+                    new TextMenu(text: "This is purely just a test to verify everything is working the way that I want.", align: Alignment.Center, width: 512),
+                    new DividerMenu(width: 256, height: 4),
+                    new SelectMenu(text: "This is a select menu. NOOOOIIIICE", align: Alignment.Center, width: 256),
+                    new SelectMenu(text: "Blah blah blah blah", align: Alignment.Center, width: 256),
+                    new SliderMenu(width: 512, height: 32, fill: 0.25f),
+                    new SliderMenu(width: 512, height: 32, fill: 0.75f),
+                    new RadioMenu(
+                        options: new List<string>(){ "Option1", "Option2"},
+                        align: Alignment.Center, width: 512, selected: 1),
+                    new TypingMenu(width: 512),
+                    new TypingMenu(width: 128)
+                },
+                align: Alignment.Center);
+            menu.Position = new Vector2(x: 128, y: 128);
             menu.Controller = keyboard;
-            menu.Align = Alignment.Center;
-            menu.ApplyChanges();
         }
 
         protected override void UnloadContent()

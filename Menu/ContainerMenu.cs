@@ -10,7 +10,7 @@ namespace Potato.Menu
 {
     internal class ContainerMenu : IMenu
     {
-        private List<(IMenu, Vector2)> items = new List<(IMenu, Vector2)>();
+        private List<(IMenu, Vector2)> items;
         private IController controller = null;
         private Texture2D backplaneTexture = null;
         private static readonly Color backPlaneColor0 = Potato.ColorTheme2;
@@ -19,24 +19,18 @@ namespace Potato.Menu
         private Vector2 backPlaneOffset = Vector2.Zero;
         private Texture2D glowTexure = null;
         private Vector2 glowOffset = Vector2.Zero;
-        private bool applyChanges = false;
+        private Size2 size;
+        private Alignment align;
         public Alignment Align { get; set; } = Alignment.Left;
-        public List<IMenu> Items { get; private set; } = new List<IMenu>();
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size
-        {
-            get => new Size2(
-                width: Items.Select((item) => item.Size.Width).Max(),
-                height: Items.Select((item) => item.Size.Height).Sum());
-            set { }
-        }
+        public Size2 Size { get => size; set { } }
         public IController Controller
         {
             get => controller;
             set
             {
                 bool controllerSet = false;
-                foreach (IMenu item in Items)
+                foreach ((IMenu item, _) in items)
                 {
                     if (controllerSet)
                     {
@@ -62,10 +56,41 @@ namespace Potato.Menu
             color1.B + color2.B,
             color1.A + color2.A);
 
+        public ContainerMenu(IList<IMenu> components, Alignment align)
+        {
+            size = new Size2(
+                width: components.Select((component) => component.Size.Width).Max(),
+                height: components.Select((component) => component.Size.Height).Sum());
+            this.align = align;
+
+            items = new List<(IMenu, Vector2)>(capacity: components.Count);
+            float heightOffset = 0;
+            foreach (IMenu component in components)
+            {
+                float widthOffset = 0;
+                switch (align)
+                {
+                    case Alignment.Center:
+                        widthOffset = (size.Width - component.Size.Width) / 2;
+                        break;
+                    case Alignment.Right:
+                        widthOffset = size.Width - component.Size.Width;
+                        break;
+                    case Alignment.Left:
+                        widthOffset = 0;
+                        break;
+                }
+                Vector2 itemOffset = new Vector2(widthOffset, heightOffset);
+                items.Add((component, itemOffset));
+                heightOffset += component.Size.Height;
+            }
+
+        }
+
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             // Generate the backplane.
-            if (applyChanges || backplaneTexture == null)
+            if (backplaneTexture == null)
             {
                 Size2 size = Size;
                 Size fullSize = new Size(
@@ -92,7 +117,6 @@ namespace Potato.Menu
                     x: backPlaneOffset.X - (glowTexure.Width - backplaneTexture.Width) / 2,
                     y: backPlaneOffset.Y - (glowTexure.Height - backplaneTexture.Height) / 2);
             }
-            applyChanges = false;
 
             // Draw the backplane.
             spriteBatch.Begin(transformMatrix: transformMatrix);
@@ -123,66 +147,35 @@ namespace Potato.Menu
             {
                 if (Controller.DownPressed())
                 {
-                    int indexWithController = Items.FindIndex((item) => item.Controller == Controller);
+                    int indexWithController = items.FindIndex((tuple) => tuple.Item1.Controller == Controller);
                     if (indexWithController >= 0)
                     {
-                        Items[indexWithController].Controller = null;
-                        for (int index = 0; index < Items.Count; index++)
+                        items[indexWithController].Item1.Controller = null;
+                        for (int index = 0; index < items.Count; index++)
                         {
-                            int nextIndex = (indexWithController + 1 + index) % Items.Count;
-                            Items[nextIndex].Controller = Controller;
-                            if (Items[nextIndex].Controller == Controller)
+                            int nextIndex = (indexWithController + 1 + index) % items.Count;
+                            items[nextIndex].Item1.Controller = Controller;
+                            if (items[nextIndex].Item1.Controller == Controller)
                                 break;
                         }
                     }
                 }
                 if (Controller.UpPressed())
                 {
-                    int indexWithController = Items.FindIndex((item) => item.Controller == Controller);
+                    int indexWithController = items.FindIndex((item) => item.Item1.Controller == Controller);
                     if (indexWithController >= 0)
                     {
-                        Items[indexWithController].Controller = null;
-                        for (int index = 0; index < Items.Count; index++)
+                        items[indexWithController].Item1.Controller = null;
+                        for (int index = 0; index < items.Count; index++)
                         {
-                            int prevIndex = ((indexWithController - (1 + index)) % Items.Count + Items.Count) % Items.Count;
-                            Items[prevIndex].Controller = Controller;
-                            if (Items[prevIndex].Controller == Controller)
+                            int prevIndex = ((indexWithController - (1 + index)) % items.Count + items.Count) % items.Count;
+                            items[prevIndex].Item1.Controller = Controller;
+                            if (items[prevIndex].Item1.Controller == Controller)
                                 break;
                         }
                     }
                 }
             }
-        }
-        public void ApplyChanges()
-        {
-            // Apply changes to each of the menu items.
-            items.Clear();
-            Size2 size = Size;
-            float heightOffset = 0;
-            foreach (IMenu item in Items)
-            {
-                item.Align = Align;
-                item.ApplyChanges();
-                float widthOffset = 0;
-                switch (Align)
-                {
-                    case Alignment.Center:
-                        widthOffset = (size.Width - item.Size.Width) / 2;
-                        break;
-                    case Alignment.Right:
-                        widthOffset = size.Width - item.Size.Width;
-                        break;
-                    case Alignment.Left:
-                        widthOffset = 0;
-                        break;
-                }
-                Vector2 itemOffset = new Vector2(widthOffset, heightOffset);
-                items.Add((item, itemOffset));
-                heightOffset += item.Size.Height;
-            }
-
-            // Set the apply flag so that changes that can only be in drawing can occur.
-            applyChanges = true;
         }
     }
 }

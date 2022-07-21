@@ -14,7 +14,7 @@ namespace Potato.Menu
     {
         private static SpriteFont font;
         private static readonly Color textColor = Potato.ColorTheme0;
-        private readonly List<(string, Vector2, Texture2D, Vector2)> items = new List<(string, Vector2, Texture2D, Vector2)>();
+        private readonly List<(string, Vector2, Texture2D, Vector2)> items;
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
@@ -22,43 +22,50 @@ namespace Potato.Menu
         private const float selectValueChangeRate = 8.0f;
         private bool selectValueIncrement = true;
         private float selectValue = 0.0f;
-        public bool Selected { get; private set; } = false;
-        public string Text { get; set; } = "";
+        private Size2 size;
+        private Alignment align;
+        public bool Selected { get; set; } = false;
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get; set; } = Size2.Empty;
-        public Alignment Align { get; set; } = Alignment.Left;
+        public Size2 Size { get => size; set { } }
+        public Alignment Align { get => align; set { } }
         
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
             color1.G + color2.G,
             color1.B + color2.B,
             color1.A + color2.A);
-        
-        public void ApplyChanges()
+
+        public SelectMenu(string text, Alignment align, float width)
         {
-            if (Size.Width < 0)
-                throw new ArgumentOutOfRangeException();
-            items.Clear();
+            Debug.Assert(width > 0);
+            
+            // Initialize font.
+            if (font == null)
+                font = Potato.Game.Content.Load<SpriteFont>("font");
+
+            // Initialize items. The text is split into lines depending on width.
+            // Text textures, glow textures, and their respectives offsets are also created and stored.
+            items = new List<(string, Vector2, Texture2D, Vector2)>();
             int heightIndex = 0;
             string currentLine = "";
-            foreach (var token in Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Detailed())
+            foreach (var token in text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Detailed())
             {
-                if (font.MeasureString(currentLine + token.Value).X > Size.Width)
+                if (font.MeasureString(currentLine + token.Value).X > width)
                 {
-                    Debug.Assert(currentLine != "", $"Width {Size.Width} not large enough for token {token.Value}.");
+                    Debug.Assert(currentLine != "", $"Width {width} not large enough for token {token.Value}.");
                     string newLine = currentLine.Trim();
                     float widthOffset = 0;
-                    switch (Align)
+                    switch (align)
                     {
                         case Alignment.Left:
                             widthOffset = 0;
                             break;
                         case Alignment.Center:
-                            widthOffset = (Size.Width - font.MeasureString(newLine).X) / 2;
+                            widthOffset = (width - font.MeasureString(newLine).X) / 2;
                             break;
                         case Alignment.Right:
-                            widthOffset = Size.Width - font.MeasureString(newLine).X;
+                            widthOffset = width - font.MeasureString(newLine).X;
                             break;
                     }
                     float heightOffset = heightIndex * font.MeasureString(" ").Y;
@@ -77,16 +84,16 @@ namespace Potato.Menu
                     currentLine += token.Value;
                     string newLine = currentLine.Trim();
                     float widthOffset = 0;
-                    switch (Align)
+                    switch (align)
                     {
                         case Alignment.Left:
                             widthOffset = 0;
                             break;
                         case Alignment.Center:
-                            widthOffset = (Size.Width - font.MeasureString(newLine).X) / 2;
+                            widthOffset = (width - font.MeasureString(newLine).X) / 2;
                             break;
                         case Alignment.Right:
-                            widthOffset = Size.Width - font.MeasureString(newLine).X;
+                            widthOffset = width - font.MeasureString(newLine).X;
                             break;
                     }
                     float heightOffset = heightIndex * font.MeasureString(" ").Y;
@@ -97,25 +104,22 @@ namespace Potato.Menu
                         x: newLineOffset.X - (glowTexture.Width - newLineSize.X) / 2,
                         y: newLineOffset.Y - (glowTexture.Height - newLineSize.Y) / 2);
                     items.Add((newLine, newLineOffset, glowTexture, glowOffset));
+                    heightIndex++;
                 }
                 else
                 {
                     currentLine += token.Value + " ";
                 }
             }
-            Size = new Size2(
-                width: Size.Width,
-                height: items.Count * font.MeasureString(" ").Y);
-        }
-        
-        public SelectMenu()
-        {
-            if (font == null)
-                font = Potato.Game.Content.Load<SpriteFont>("font");
+            size = new Size2(
+                width: width,
+                height: items.Count * font.MeasureString(" ").Y + 8);
+            this.align = align;
         }
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
+            // Draw the lines.
             spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((string newLine, Vector2 newLineOffset, Texture2D glowTexture, Vector2 glowOffset) in items)
             {
@@ -136,16 +140,16 @@ namespace Potato.Menu
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            // The following are operations if the controller is set.
             if (Controller != null)
             {
+                // If the controller activate is pressed, toggle select.
                 if (Controller.ActivatePressed())
                 {
                     Selected = !Selected;
                 }
-            }
-
-            if (Controller != null)
-            {
+                
+                // Flash the textures.
                 alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
                 if (alpha > 1.0f)
                     alphaIncrement = false;
@@ -154,10 +158,12 @@ namespace Potato.Menu
             }
             else
             {
+                // When there's no controller, don't flash.
                 alpha = 1.0f;
                 alphaIncrement = false;
             }
 
+            // If selected, flash with select color.
             if (Selected)
             {
                 selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;

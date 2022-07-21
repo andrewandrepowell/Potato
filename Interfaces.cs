@@ -8,7 +8,7 @@ using System.Text;
 namespace Potato
 {
     internal enum Alignment { Center, Left, Right };
-    internal interface IMenu : IComponent, IControllable, IAppliable, IMovable, ISizable
+    internal interface IMenu : IComponent, IControllable, IMovable, ISizable
     {
         Alignment Align { get; set; }
     }
@@ -61,10 +61,6 @@ namespace Potato
     internal interface IDefaultable
     {
         void ApplyDefaults();
-    }
-    internal interface IAppliable
-    {
-        void ApplyChanges();
     }
     internal interface IControllable
     {

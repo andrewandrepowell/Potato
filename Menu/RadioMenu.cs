@@ -17,53 +17,54 @@ namespace Potato.Menu
         private static readonly Color fontColor = Potato.ColorTheme0;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
-        private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items = 
-            new List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)>();
+        private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
-        public List<string> Options { get; private set; } = new List<string>();
-        public int Selected { get; set; } = 0;
-        public Alignment Align { get; set; } = Alignment.Left;
+        private Alignment align;
+        private Size2 size;
+        public int Selected { get; set; }
+        public Alignment Align { get => align; set { } }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get; set; } = Size2.Empty;
+        public Size2 Size { get => size; set { } }
 
-        public RadioMenu()
+        public RadioMenu(IList<string> options, Alignment align, float width, int selected)
         {
+            Debug.Assert(width > 0);
+            
+            // Initialize the font and sprite sheet for the radio buttons.
             if (font == null)
                 font = Potato.Game.Content.Load<SpriteFont>("font");
             if (radioSpriteSheet == null)
                 radioSpriteSheet = Potato.Game.Content.Load<SpriteSheet>("radio.sf", new JsonContentLoader());
-        }
 
-        public void ApplyChanges()
-        {
-            if (Size.Width < 0)
-                throw new ArgumentOutOfRangeException();
-            items.Clear();
+            // Initialize the items. 
+            // Each item includes an animated sprite, the option as string, a glow texture,
+            // and offset positions for the sprite, option, and flow.
+            items = new List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)>();
             List<(AnimatedSprite, string, Vector2, Vector2)> line = new List<(AnimatedSprite, string, Vector2, Vector2)>();
             Size2 radioSize = radioSpriteSheet.TextureAtlas.First().Size;
             float height = Math.Max(radioSize.Height, font.MeasureString(" ").Y);
             float widthOffset = 0;
             float heightOffset = 0;
-            foreach (var option in Options.Select((x)=>x.Trim()).Detailed())
+            foreach (var option in options.Select((x) => x.Trim()).Detailed())
             {
-                if (widthOffset + spaceBetweenOptions + radioSize.Width + font.MeasureString(option.Value).X > Size.Width)
+                if (widthOffset + spaceBetweenOptions + radioSize.Width + font.MeasureString(option.Value).X > width)
                 {
-                    Debug.Assert(line.Count != 0, $"Width {Size.Width} not large enough for option {option.Value}.");
+                    Debug.Assert(line.Count != 0, $"Width {width} not large enough for option {option.Value}.");
                     float lineWidth = widthOffset - spaceBetweenOptions;
                     float lineWidthOffset = 0;
-                    switch (Align)
+                    switch (align)
                     {
                         case Alignment.Left:
                             lineWidthOffset = 0;
                             break;
                         case Alignment.Center:
-                            lineWidthOffset = (Size.Width - lineWidth) / 2;
+                            lineWidthOffset = (width - lineWidth) / 2;
                             break;
                         case Alignment.Right:
-                            lineWidthOffset = Size.Width - lineWidth;
+                            lineWidthOffset = width - lineWidth;
                             break;
                     }
                     foreach ((AnimatedSprite radioSprite, string optionValue, Vector2 radioOffset, Vector2 optionOffset) in line)
@@ -99,25 +100,25 @@ namespace Potato.Menu
                             spriteSheet: radioSpriteSheet,
                             playAnimation: "unselected");
                         line.Add((
-                            radioSprite, 
-                            option.Value, 
-                            new Vector2(x: radioWidthOffset, y:radioHeightOffset), 
-                            new Vector2(x: optionWidthOffset, y:optionHeightOffset)));
+                            radioSprite,
+                            option.Value,
+                            new Vector2(x: radioWidthOffset, y: radioHeightOffset),
+                            new Vector2(x: optionWidthOffset, y: optionHeightOffset)));
                     }
 
                     {
                         float lineWidth = widthOffset - spaceBetweenOptions;
                         float lineWidthOffset = 0;
-                        switch (Align)
+                        switch (align)
                         {
                             case Alignment.Left:
                                 lineWidthOffset = 0;
                                 break;
                             case Alignment.Center:
-                                lineWidthOffset = (Size.Width - lineWidth) / 2;
+                                lineWidthOffset = (width - lineWidth) / 2;
                                 break;
                             case Alignment.Right:
-                                lineWidthOffset = Size.Width - lineWidth;
+                                lineWidthOffset = width - lineWidth;
                                 break;
                         }
                         foreach ((AnimatedSprite radioSprite, string optionValue, Vector2 radioOffset, Vector2 optionOffset) in line)
@@ -136,6 +137,8 @@ namespace Potato.Menu
                                 glowOffset));
                         }
                     }
+                    widthOffset = 0;
+                    heightOffset += height;
                 }
                 else
                 {
@@ -155,14 +158,17 @@ namespace Potato.Menu
                         new Vector2(x: optionWidthOffset, y: optionHeightOffset)));
                 }
             }
-            Size = new Size2(
-                width: Size.Width,
-                height: heightOffset);
+            size = new Size2(
+                width: width,
+                height: heightOffset + 8);
+            this.align = align;
+            Selected = selected;
             ApplySelected();
         }
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
+            // Draw the items.
             spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((int index, var tuple) in items.Select((tuple, index) => (index, tuple)))
             {

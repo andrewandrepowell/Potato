@@ -70,7 +70,8 @@ namespace Potato
                         options: new List<string>(){ "Option1", "Option2"},
                         align: Alignment.Center, width: 512, selected: 1),
                     new TypingMenu(width: 512),
-                    new TypingMenu(width: 128)
+                    new TypingMenu(width: 128),
+                    new ImageMenu(texture: Content.Load<Texture2D>("potato"))
                 },
                 align: Alignment.Center);
             menu.Position = new Vector2(x: 128, y: 128);

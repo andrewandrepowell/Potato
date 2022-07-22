@@ -22,6 +22,7 @@ namespace Potato.Menu
         private Size2 size;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
+        public MenuState State { get; private set; } = MenuState.Closed;
         public IController Controller
         {
             get => controller;
@@ -80,7 +81,22 @@ namespace Potato.Menu
                 items.Add((component, itemOffset));
                 heightOffset += component.Size.Height;
             }
+        }
 
+        public void OpenMenu()
+        {
+            foreach ((IMenu item, _) in items)
+            {
+                item.OpenMenu();
+            }
+        }
+
+        public void CloseMenu()
+        {
+            foreach ((IMenu item, _) in items)
+            {
+                item.CloseMenu();
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)

@@ -15,9 +15,9 @@ namespace Potato.Menu
         private const int resolution = 64;
         private static List<(Texture2D, Texture2D, Vector2)> items = null;
         private static readonly Color fillColor = Potato.ColorTheme0;
-        private const float alphaChangeRate = 1.0f;
-        private bool alphaIncrement = false;
-        private float alpha = 1.0f;
+        private const float controllerAlphaChangeRate = 1.0f;
+        private bool controllerAlphaIncrement = false;
+        private float controllerAlpha = 1.0f;
         private const float fillChangeRate = 0.1f;
         private Texture2D texture = null;
         private Texture2D glowTexure = null;
@@ -26,11 +26,13 @@ namespace Potato.Menu
         private float width, height;
         private Size2 size;
         private bool initialize = true;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
         public float Fill { get; set; } = 0.0f;
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        
+        public MenuState State { get => state.State; }
+
         public SliderMenu(float width, float height, float fill)
         {
             Debug.Assert(width > 0);
@@ -40,6 +42,10 @@ namespace Potato.Menu
             size = new Size2(width: width + 8, height: height + 8);
             Fill = fill;
         }
+
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
@@ -75,11 +81,11 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: glowTexure,
                 position: Position + glowOffset,
-                color: alpha * Color.White);
+                color: state.Alpha * controllerAlpha * Color.White);
             spriteBatch.Draw(
                 texture: texture,
                 position: Position,
-                color: alpha * Color.White);
+                color: state.Alpha * controllerAlpha * Color.White);
             spriteBatch.End();
         }
 
@@ -105,18 +111,21 @@ namespace Potato.Menu
                 }
 
                 // Flash the textures.
-                alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
-                if (alpha > 1.0f)
-                    alphaIncrement = false;
-                else if (alpha < 0.0f)
-                    alphaIncrement = true;
+                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
+                if (controllerAlpha > 1.0f)
+                    controllerAlphaIncrement = false;
+                else if (controllerAlpha < 0.0f)
+                    controllerAlphaIncrement = true;
             }
             else
             {
                 // Don't flash textures if not selected.
-                alpha = 1.0f;
-                alphaIncrement = false;
+                controllerAlpha = 1.0f;
+                controllerAlphaIncrement = false;
             }
+
+            // Update state.
+            state.Update(gameTime);
         }
     }
 }

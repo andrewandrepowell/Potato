@@ -9,32 +9,39 @@ namespace Potato.Menu
 {
     internal class SelectImageMenu : IMenu
     {
-        private const float alphaChangeRate = 1.0f;
-        private bool alphaIncrement = false;
-        private float alpha = 1.0f;
+        private const float controllerAlphaChangeRate = 1.0f;
+        private bool controllerAlphaIncrement = false;
+        private float controllerAlpha = 1.0f;
         private static readonly Color selectColor = Potato.ColorTheme1;
         private const float selectValueChangeRate = 8.0f;
         private bool selectValueIncrement = true;
         private float selectValue = 0.0f;
         private Texture2D texture;
         private Size2 size;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public bool Selected { get; set; } = false;
+        public MenuState State { get => state.State; }
 
         public SelectImageMenu(Texture2D texture)
         {
             this.texture = texture;
             size = new Size2(texture.Width, texture.Height);
         }
+
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
+        
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             spriteBatch.Begin(transformMatrix: transformMatrix);
             spriteBatch.Draw(
                 texture: texture, 
                 position: Position, 
-                color: alpha * (Add((1.0f - selectValue) * Color.White, selectValue * selectColor)));
+                color: state.Alpha * controllerAlpha * (Add((1.0f - selectValue) * Color.White, selectValue * selectColor)));
             spriteBatch.End();
         }
 
@@ -52,17 +59,17 @@ namespace Potato.Menu
                 }
 
                 // Flash the textures.
-                alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
-                if (alpha > 1.0f)
-                    alphaIncrement = false;
-                else if (alpha < 0.0f)
-                    alphaIncrement = true;
+                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
+                if (controllerAlpha > 1.0f)
+                    controllerAlphaIncrement = false;
+                else if (controllerAlpha < 0.0f)
+                    controllerAlphaIncrement = true;
             }
             else
             {
                 // When there's no controller, don't flash.
-                alpha = 1.0f;
-                alphaIncrement = false;
+                controllerAlpha = 1.0f;
+                controllerAlphaIncrement = false;
             }
 
             // If selected, flash with select color.
@@ -79,6 +86,9 @@ namespace Potato.Menu
                 selectValue = 0.0f;
                 selectValueIncrement = true;
             }
+
+            // Update state.
+            state.Update(gameTime);
         }
 
         private static Color Add(Color color1, Color color2) => new Color(

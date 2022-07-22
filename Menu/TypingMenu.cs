@@ -29,7 +29,8 @@ namespace Potato.Menu
         private static readonly Color textColor = Potato.ColorTheme3;
         private float fieldHeight, fieldWidth;
         private Size2 size;
-        
+        private VisibilityStateChanger state = new VisibilityStateChanger();
+
         public IController Controller 
         { 
             get => controller; 
@@ -56,6 +57,7 @@ namespace Potato.Menu
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public StringBuilder Text { get; private set; } = new StringBuilder("");
+        public MenuState State { get => state.State; }
 
         public TypingMenu(float width)
         {
@@ -68,7 +70,12 @@ namespace Potato.Menu
             size = new Size2(width: fieldWidth + 8, height: fieldHeight + 8);
             textOffset = new Vector2(x: 0, y: (fieldHeight - textHeight) / 2);
         }
+
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
         
+
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             if (fieldTexture == null)
@@ -93,26 +100,28 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: glowTexture,
                 position: Position + glowOffset,
-                color: Color.White);
+                color: state.Alpha * Color.White);
             spriteBatch.Draw(
                 texture: fieldTexture,
                 position: Position,
-                color: Color.White);
+                color: state.Alpha * Color.White);
             spriteBatch.DrawString(
                 spriteFont: font, 
                 text: Text, 
                 position: Position + textOffset, 
-                color: textColor);
+                color: state.Alpha * textColor);
             spriteBatch.DrawString(
                 spriteFont: font,
                 text: cursorString,
                 position: Position + cursorOffset,
-                color: ((cursorVisible) ? 1.0f : 0.0f) * textColor);
+                color: state.Alpha * ((cursorVisible) ? 1.0f : 0.0f) * textColor);
             spriteBatch.End();
         }
 
         public void Update(GameTime gameTime)
         {
+            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             if (Controller != null)
             {
                 // Previous is kept to determine if it's visibility should persist.
@@ -189,6 +198,9 @@ namespace Potato.Menu
                 // Cursor isn't availble if there's no controller.
                 cursorVisible = false;
             }
+
+            // Update state
+            state.Update(gameTime);
         }
 
         private class TrackKey : IUpdateable
@@ -201,6 +213,7 @@ namespace Potato.Menu
             private float holdTimer = 0.0f;
             private const float holdTimerThreshold0 = 0.5f;
             private const float holdTimerThreshold1 = 0.1f;
+            
             public bool Check()
             {
                 bool result = activate;

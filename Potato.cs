@@ -75,8 +75,9 @@ namespace Potato
                     new ImageMenu(texture: Content.Load<Texture2D>("potato"))
                 },
                 align: Alignment.Center);
-            menu.Position = new Vector2(x: 128, y: 128);
+            menu.Position = new Vector2(x: 128, y: 32);
             menu.Controller = keyboard;
+            menu.OpenMenu();
         }
 
         protected override void UnloadContent()

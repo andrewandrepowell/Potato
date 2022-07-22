@@ -12,6 +12,12 @@ namespace Potato.Menu
         private static readonly Color color = Potato.ColorTheme0;
         private Size2 size;
         private float width, height;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
+        public IController Controller { get => null; set { } }
+        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
+        public MenuState State { get => state.State; }
+
         public DividerMenu(float width, float height)
         {
             Debug.Assert(width > 0);
@@ -20,9 +26,11 @@ namespace Potato.Menu
             this.height = height;
             size = new Size2(width: width, height: height + 4);
         }
-        public IController Controller { get => null; set { } }
-        public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
+
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
+
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             if (texture == null)
@@ -40,13 +48,14 @@ namespace Potato.Menu
                 spriteBatch: spriteBatch,
                 point1: Position,
                 point2: Position + new Vector2(x: width, y: 0),
-                color: color,
+                color: state.Alpha * color,
                 thickness: height);
             spriteBatch.End();
         }
         
         public void Update(GameTime gameTime)
         {
+            state.Update(gameTime);
         }
         
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness = 1f)

@@ -15,19 +15,21 @@ namespace Potato.Menu
         private static SpriteFont font;
         private static readonly Color textColor = Potato.ColorTheme0;
         private readonly List<(string, Vector2, Texture2D, Vector2)> items;
-        private const float alphaChangeRate = 1.0f;
-        private bool alphaIncrement = false;
-        private float alpha = 1.0f;
+        private const float controllerAlphaChangeRate = 1.0f;
+        private bool controllerAlphaIncrement = false;
+        private float controllerAlpha = 1.0f;
         private static readonly Color selectColor = Potato.ColorTheme1;
         private const float selectValueChangeRate = 8.0f;
         private bool selectValueIncrement = true;
         private float selectValue = 0.0f;
         private Size2 size;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
         public bool Selected { get; set; } = false;
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { throw new NotImplementedException();  } }
-        
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
+        public MenuState State { get => state.State; }
+
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
             color1.G + color2.G,
@@ -114,6 +116,10 @@ namespace Potato.Menu
                 height: items.Count * font.MeasureString(" ").Y + 8);
         }
 
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
+        
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             // Draw the lines.
@@ -123,12 +129,12 @@ namespace Potato.Menu
                 spriteBatch.Draw(
                     texture: glowTexture,
                     position: Position + glowOffset,
-                    color: alpha * Color.White);
+                    color: state.Alpha * controllerAlpha * Color.White);
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: newLine,
                     position: Position + newLineOffset,
-                    color: alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
+                    color: state.Alpha * controllerAlpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
             }
             spriteBatch.End();
         }
@@ -147,17 +153,17 @@ namespace Potato.Menu
                 }
                 
                 // Flash the textures.
-                alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
-                if (alpha > 1.0f)
-                    alphaIncrement = false;
-                else if (alpha < 0.0f)
-                    alphaIncrement = true;
+                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
+                if (controllerAlpha > 1.0f)
+                    controllerAlphaIncrement = false;
+                else if (controllerAlpha < 0.0f)
+                    controllerAlphaIncrement = true;
             }
             else
             {
                 // When there's no controller, don't flash.
-                alpha = 1.0f;
-                alphaIncrement = false;
+                controllerAlpha = 1.0f;
+                controllerAlphaIncrement = false;
             }
 
             // If selected, flash with select color.
@@ -174,6 +180,9 @@ namespace Potato.Menu
                 selectValue = 0.0f;
                 selectValueIncrement = true;
             }
+
+            // Update state.
+            state.Update(gameTime);
         }
     }
 }

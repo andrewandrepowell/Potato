@@ -13,10 +13,12 @@ namespace Potato.Menu
         private static readonly Color color = Potato.ColorTheme0;
         private readonly List<(string, Vector2, Texture2D, Vector2)> items;
         private Size2 size;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set => size = value; }
-        
+        public MenuState State { get => state.State; }
+
         public TextMenu(string text, Alignment align, float width)
         {
             Debug.Assert(width > 0);
@@ -95,7 +97,11 @@ namespace Potato.Menu
                 width: width,
                 height: items.Count * font.MeasureString(" ").Y + 8);
         }
-        
+
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
+
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             // Draw the each line with glow.
@@ -105,18 +111,22 @@ namespace Potato.Menu
                 spriteBatch.Draw(
                     texture: glowTexture, 
                     position: Position + glowOffset, 
-                    color: Color.White);
+                    color: state.Alpha * Color.White);
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: newLine,
                     position: Position + newLineOffset,
-                    color: color);
+                    color: state.Alpha * color);
             }
             spriteBatch.End();
         }
         
         public void Update(GameTime gameTime)
         {
+            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            // Update state.
+            state.Update(gameTime);
         }
     }
 }

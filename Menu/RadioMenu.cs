@@ -18,14 +18,16 @@ namespace Potato.Menu
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
         private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
-        private const float alphaChangeRate = 1.0f;
-        private bool alphaIncrement = false;
-        private float alpha = 1.0f;
+        private const float controllerAlphaChangeRate = 1.0f;
+        private bool controllerAlphaIncrement = false;
+        private float controllerAlpha = 1.0f;
         private Size2 size;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
         public int Selected { get; set; }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
+        public MenuState State { get => state.State; }
 
         public RadioMenu(IList<string> options, Alignment align, float width, int selected)
         {
@@ -163,6 +165,10 @@ namespace Potato.Menu
             ApplySelected();
         }
 
+        public void OpenMenu() => state.OpenMenu();
+
+        public void CloseMenu() => state.CloseMenu();
+
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             // Draw the items.
@@ -175,18 +181,19 @@ namespace Potato.Menu
                 Vector2 radioOffset = tuple.Item4;
                 Vector2 optionOffset = tuple.Item5;
                 Vector2 glowOffset = tuple.Item6;
+                radioSprite.Color = state.Alpha * Color.White;
                 spriteBatch.Draw(
                     sprite: radioSprite,
                     position: Position + radioOffset);
                 spriteBatch.Draw(
                     texture: glowTexture,
                     position: Position + glowOffset,
-                    color: Color.White * ((index == Selected) ? alpha : 1.0f));
+                    color: state.Alpha * Color.White * ((index == Selected) ? controllerAlpha : 1.0f));
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: optionValue,
                     position: Position + optionOffset,
-                    color: fontColor * ((index == Selected) ? alpha : 1.0f));
+                    color: state.Alpha * fontColor * ((index == Selected) ? controllerAlpha : 1.0f));
             }
             spriteBatch.End();
         }
@@ -211,16 +218,16 @@ namespace Potato.Menu
 
             if (Controller != null)
             {
-                alpha += (alphaIncrement ? 1.0f : -1.0f) * alphaChangeRate * timeElapsed;
-                if (alpha > 1.0f)
-                    alphaIncrement = false;
-                else if (alpha < 0.0f)
-                    alphaIncrement = true;
+                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
+                if (controllerAlpha > 1.0f)
+                    controllerAlphaIncrement = false;
+                else if (controllerAlpha < 0.0f)
+                    controllerAlphaIncrement = true;
             }
             else
             {
-                alpha = 1.0f;
-                alphaIncrement = false;
+                controllerAlpha = 1.0f;
+                controllerAlphaIncrement = false;
             }
 
             foreach (var tuple in items)
@@ -228,6 +235,8 @@ namespace Potato.Menu
                 AnimatedSprite radioSprite = tuple.Item1;
                 radioSprite.Update(timeElapsed);
             }
+
+            state.Update(gameTime);
         }
 
         private void ApplySelected()

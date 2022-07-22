@@ -11,10 +11,9 @@ namespace Potato.Menu
     {
         private Texture2D texture;
         private Size2 size;
-        public Alignment Align { get => Alignment.Left; set { } }
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
 
         public ImageMenu(Texture2D texture)
         {

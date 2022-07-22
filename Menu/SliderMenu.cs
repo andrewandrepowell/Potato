@@ -29,8 +29,7 @@ namespace Potato.Menu
         public float Fill { get; set; } = 0.0f;
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
-        public Alignment Align { get; set; } = Alignment.Left;
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         
         public SliderMenu(float width, float height, float fill)
         {

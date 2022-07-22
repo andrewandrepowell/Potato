@@ -13,11 +13,9 @@ namespace Potato.Menu
         private static readonly Color color = Potato.ColorTheme0;
         private readonly List<(string, Vector2, Texture2D, Vector2)> items;
         private Size2 size;
-        private Alignment align;
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
-        public Alignment Align { get => align; set { } }
+        public Size2 Size { get => size; set => size = value; }
         
         public TextMenu(string text, Alignment align, float width)
         {
@@ -96,7 +94,6 @@ namespace Potato.Menu
             size = new Size2(
                 width: width,
                 height: items.Count * font.MeasureString(" ").Y + 8);
-            this.align = align;
         }
         
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)

@@ -21,13 +21,11 @@ namespace Potato.Menu
         private const float alphaChangeRate = 1.0f;
         private bool alphaIncrement = false;
         private float alpha = 1.0f;
-        private Alignment align;
         private Size2 size;
         public int Selected { get; set; }
-        public Alignment Align { get => align; set { } }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
 
         public RadioMenu(IList<string> options, Alignment align, float width, int selected)
         {
@@ -161,7 +159,6 @@ namespace Potato.Menu
             size = new Size2(
                 width: width,
                 height: heightOffset + 8);
-            this.align = align;
             Selected = selected;
             ApplySelected();
         }

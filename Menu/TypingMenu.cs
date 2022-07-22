@@ -27,9 +27,9 @@ namespace Potato.Menu
         private TrackKey cursorTrackRight = new TrackKey();
         private Vector2 textOffset;
         private static readonly Color textColor = Potato.ColorTheme3;
-        private Size2 size;
         private float fieldHeight, fieldWidth;
-        public Alignment Align { get; set; } = Alignment.Left;
+        private Size2 size;
+        
         public IController Controller 
         { 
             get => controller; 
@@ -54,7 +54,7 @@ namespace Potato.Menu
             }
         }
         public Vector2 Position { get; set; }
-        public Size2 Size { get => size; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public StringBuilder Text { get; private set; } = new StringBuilder("");
 
         public TypingMenu(float width)

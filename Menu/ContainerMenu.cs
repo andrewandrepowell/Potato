@@ -20,10 +20,8 @@ namespace Potato.Menu
         private Texture2D glowTexure = null;
         private Vector2 glowOffset = Vector2.Zero;
         private Size2 size;
-        private Alignment align;
-        public Alignment Align { get; set; } = Alignment.Left;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public IController Controller
         {
             get => controller;
@@ -61,8 +59,6 @@ namespace Potato.Menu
             size = new Size2(
                 width: components.Select((component) => component.Size.Width).Max(),
                 height: components.Select((component) => component.Size.Height).Sum());
-            this.align = align;
-
             items = new List<(IMenu, Vector2)>(capacity: components.Count);
             float heightOffset = 0;
             foreach (IMenu component in components)

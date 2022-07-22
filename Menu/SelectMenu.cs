@@ -23,12 +23,10 @@ namespace Potato.Menu
         private bool selectValueIncrement = true;
         private float selectValue = 0.0f;
         private Size2 size;
-        private Alignment align;
         public bool Selected { get; set; } = false;
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
-        public Alignment Align { get => align; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException();  } }
         
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
@@ -114,7 +112,6 @@ namespace Potato.Menu
             size = new Size2(
                 width: width,
                 height: items.Count * font.MeasureString(" ").Y + 8);
-            this.align = align;
         }
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)

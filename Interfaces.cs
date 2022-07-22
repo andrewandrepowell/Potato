@@ -10,7 +10,6 @@ namespace Potato
     internal enum Alignment { Center, Left, Right };
     internal interface IMenu : IComponent, IControllable, IMovable, ISizable
     {
-        Alignment Align { get; set; }
     }
     internal interface IComponent : IDrawable, IUpdateable
     {
@@ -65,5 +64,10 @@ namespace Potato
     internal interface IControllable
     {
         IController Controller { get; set; }
+    }
+
+    internal interface ISized
+    {
+        Size2 Size { get; }
     }
 }

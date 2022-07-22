@@ -18,10 +18,9 @@ namespace Potato.Menu
         private float selectValue = 0.0f;
         private Texture2D texture;
         private Size2 size;
-        public Alignment Align { get => Alignment.Left; set { } }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public bool Selected { get; set; } = false;
 
         public SelectImageMenu(Texture2D texture)

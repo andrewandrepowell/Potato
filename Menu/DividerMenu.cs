@@ -22,8 +22,7 @@ namespace Potato.Menu
         }
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { } }
-        public Alignment Align { get => Alignment.Left; set { } }
+        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
             if (texture == null)

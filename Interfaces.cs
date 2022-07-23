@@ -18,6 +18,10 @@ namespace Potato
         void OpenMenu();
         void CloseMenu();
     }
+    internal interface ISelectable
+    {
+        bool Selected { get; set; }
+    }
     internal interface IComponent : IDrawable, IUpdateable
     {
     }
@@ -61,6 +65,7 @@ namespace Potato
         bool UpPressed();
         bool DownPressed();
         bool ActivatePressed();
+        bool BackPressed();
         bool CollectKeys { get; set; }
         List<TextInputEventArgs> KeysPressed { get; }
     }

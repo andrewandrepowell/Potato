@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class SelectMenu : IMenu
+    internal class SelectMenu : IMenu, ISelectable
     {
         private static SpriteFont font;
         private static readonly Color textColor = Potato.ColorTheme0;

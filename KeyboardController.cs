@@ -10,13 +10,15 @@ namespace Potato
     internal struct KeyboardControllerSave
     {
         public Keys ActivateKey;
+        public Keys BackKey;
         public Keys LeftKey;
         public Keys RightKey;
         public Keys UpKey;
         public Keys DownKey;
-        public KeyboardControllerSave(Keys activateKey, Keys leftKey, Keys rightKey, Keys upKey, Keys downKey)
+        public KeyboardControllerSave(Keys activateKey, Keys backKey, Keys leftKey, Keys rightKey, Keys upKey, Keys downKey)
         {
             ActivateKey = activateKey;
+            BackKey = backKey;
             LeftKey = leftKey;
             RightKey = rightKey;
             UpKey = upKey;
@@ -34,15 +36,23 @@ namespace Potato
             ApplyDefaults();
         }
         public Keys ActivateKey;
+        public Keys BackKey;
         public Keys LeftKey;
         public Keys RightKey;
         public Keys UpKey;
         public Keys DownKey;
-        public KeyboardControllerSave Save() => new KeyboardControllerSave(ActivateKey, LeftKey, RightKey, UpKey, DownKey);
+        public KeyboardControllerSave Save() => new KeyboardControllerSave(
+            activateKey: ActivateKey,
+            backKey: BackKey,
+            leftKey: LeftKey,
+            rightKey: RightKey,
+            upKey: UpKey,
+            downKey: DownKey);
 
         public void Load(KeyboardControllerSave save)
         {
             ActivateKey = save.ActivateKey;
+            BackKey = save.BackKey;
             LeftKey = save.LeftKey;
             RightKey = save.RightKey;
             UpKey = save.UpKey;
@@ -51,12 +61,15 @@ namespace Potato
         public void ApplyDefaults()
         {
             ActivateKey = Keys.Enter;
+            BackKey = Keys.Back;
             LeftKey = Keys.Left;
             RightKey = Keys.Right;
             UpKey = Keys.Up;
             DownKey = Keys.Down;
         }
         public bool ActivatePressed() => keyboardState.WasKeyJustDown(ActivateKey);
+
+        public bool BackPressed() => keyboardState.WasKeyJustDown(BackKey);
         public float DownHeld() => (keyboardState.IsKeyDown(DownKey)) ? 1.0f : 0.0f;
 
         public bool DownPressed() => keyboardState.WasKeyJustDown(DownKey);

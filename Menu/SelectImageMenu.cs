@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class SelectImageMenu : IMenu
+    internal class SelectImageMenu : IMenu, ISelectable
     {
         private ControllerAlphaChanger controllerAlphaChanger;
         private static readonly Color selectColor = Potato.ColorTheme1;

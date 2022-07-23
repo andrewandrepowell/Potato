@@ -43,10 +43,7 @@ namespace Potato.Menu
                             controllerSet = true;
                     }
                 }
-                if (controllerSet)
-                    controller = value;
-                else
-                    controller = null;
+                controller = value;
             }
         }
 

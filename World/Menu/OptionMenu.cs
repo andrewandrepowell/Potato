@@ -10,32 +10,30 @@ namespace Potato.World.Menu
 {
     internal class OptionMenu : IMenu
     {
-        private MenuState transitionState;
         private const float outerWidth = 512f;
         private const float innerWidth = outerWidth * .90f;
         private const float dividerWidth = innerWidth * .90f;
         private const float defaultSliderFill = 0.5f;
         private ContainerMenu mainContainerMenu;
         private ContainerMenu keybindContainerMenu;
-        private ContainerMenu currentContainerMenu;
-        private ContainerMenu nextContainerMenu;
+        private TransitionMenu transitionMenu;
         private SliderMenu masterVolumeSliderMenu;
         private SliderMenu musicVolumeSliderMenu;
         private SliderMenu effectVolumeSliderMenu;
         private RadioMenu displayModeRadioMenu;
-        private SelectMenu keyBindingsSelectMenu;
-        public MenuState State => currentContainerMenu.State;
+        private SelectMenu keybindSelectMenu;
+        public MenuState State => transitionMenu.State;
 
-        public IController Controller { get => currentContainerMenu.Controller; set => currentContainerMenu.Controller = value; }
-        public Vector2 Position { get => currentContainerMenu.Position; set => currentContainerMenu.Position = value; }
-        public Size2 Size { get => currentContainerMenu.Size; set => currentContainerMenu.Size = value; }
+        public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
+        public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
+        public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
 
         public OptionMenu()
         {
             masterVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: defaultSliderFill);
             musicVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: defaultSliderFill);
             effectVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: defaultSliderFill);
-            keyBindingsSelectMenu = new SelectMenu(text: "Configure Key Bindings", align: Alignment.Center, width: innerWidth);
+            keybindSelectMenu = new SelectMenu(text: "Configure Key Bindings", align: Alignment.Center, width: innerWidth);
             displayModeRadioMenu = new RadioMenu(
                 options: new List<string>()
                 {
@@ -60,7 +58,7 @@ namespace Potato.World.Menu
                     new TextMenu(text: "Display Mode:", align: Alignment.Center, width: outerWidth),
                     displayModeRadioMenu,
                     new DividerMenu(width: dividerWidth),
-                    keyBindingsSelectMenu,
+                    keybindSelectMenu,
                 }, 
                 align: Alignment.Center);
             keybindContainerMenu = new ContainerMenu(
@@ -70,50 +68,19 @@ namespace Potato.World.Menu
                     new DividerMenu(width: dividerWidth),
                 },
                 align: Alignment.Center);
-            currentContainerMenu = mainContainerMenu;
-            nextContainerMenu = null;
-            transitionState = MenuState.Opened;
+
+            var mainNodes = new List<TransitionMenu.Node>();
+            mainNodes.Add(new TransitionMenu.Node(selectable: keybindSelectMenu, container: keybindContainerMenu));
+            transitionMenu = new TransitionMenu(nodes: mainNodes, container: mainContainerMenu, backEnable: true);
         }
-        public void CloseMenu() => currentContainerMenu.CloseMenu();
+        public void CloseMenu() => transitionMenu.CloseMenu();
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null) =>
-            currentContainerMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+            transitionMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
 
-        public void OpenMenu() => currentContainerMenu.OpenMenu();
+        public void OpenMenu() => transitionMenu.OpenMenu();
 
-        public void Update(GameTime gameTime)
-        {
-            switch (transitionState)
-            { 
-                case MenuState.Opened:
-                    if (currentContainerMenu == mainContainerMenu)
-                    {
-                        if (keyBindingsSelectMenu.Selected)
-                        {
-                            nextContainerMenu = keybindContainerMenu;
-                            currentContainerMenu.CloseMenu();
-                            transitionState = MenuState.Closing;
-                        }
-                    }
-                    break;
-                case MenuState.Closing:
-                    if (currentContainerMenu.State == MenuState.Closed)
-                    {
-                        keyBindingsSelectMenu.Selected = false;
-                        
-                        nextContainerMenu.Controller = currentContainerMenu.Controller;
-                        nextContainerMenu.Position = new Vector2(
-                            x: currentContainerMenu.Position.X + (currentContainerMenu.Size.Width - nextContainerMenu.Size.Width) / 2,
-                            y: currentContainerMenu.Position.Y + (currentContainerMenu.Size.Height - nextContainerMenu.Size.Height) / 2);
-                        currentContainerMenu.Controller = null;
-                        currentContainerMenu = nextContainerMenu;
-                        currentContainerMenu.OpenMenu();
-                        transitionState = MenuState.Opened;
-                    }
-                    break;
-            }
-            
-            currentContainerMenu.Update(gameTime: gameTime);
-        }
+        public void Update(GameTime gameTime) =>
+            transitionMenu.Update(gameTime: gameTime);
     }
 }

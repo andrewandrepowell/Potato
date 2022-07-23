@@ -10,6 +10,7 @@ namespace Potato.Menu
         public MenuState State { get; private set; } = MenuState.Closed;
         public float Alpha { get; private set; } = 0.0f;
         private const float stateAlphaChangeRate = 1.0f;
+        
         public void OpenMenu()
         {
             Alpha = 0.0f;

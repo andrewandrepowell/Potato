@@ -20,6 +20,7 @@ namespace Potato.Menu
         private Texture2D glowTexure = null;
         private Vector2 glowOffset = Vector2.Zero;
         private Size2 size;
+        private VisibilityStateChanger state = new VisibilityStateChanger();
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public MenuState State { get; private set; } = MenuState.Closed;
@@ -29,16 +30,16 @@ namespace Potato.Menu
             set
             {
                 bool controllerSet = false;
-                foreach ((IMenu item, _) in items)
+                foreach ((IMenu component, _) in items)
                 {
                     if (controllerSet)
                     {
-                        item.Controller = null;
+                        component.Controller = null;
                     }
                     else
                     {
-                        item.Controller = value;
-                        if (item.Controller == value)
+                        component.Controller = value;
+                        if (component.Controller == value)
                             controllerSet = true;
                     }
                 }
@@ -85,17 +86,21 @@ namespace Potato.Menu
 
         public void OpenMenu()
         {
-            foreach ((IMenu item, _) in items)
+            State = MenuState.Opening;
+            state.OpenMenu();
+            foreach ((IMenu component, _) in items)
             {
-                item.OpenMenu();
+                component.OpenMenu();
             }
         }
 
         public void CloseMenu()
         {
-            foreach ((IMenu item, _) in items)
+            State = MenuState.Closing;
+            state.CloseMenu();
+            foreach ((IMenu component, _) in items)
             {
-                item.CloseMenu();
+                component.CloseMenu();
             }
         }
 
@@ -135,11 +140,11 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: glowTexure,
                 position: Position + glowOffset,
-                color: Color.White);
+                color: state.Alpha * Color.White);
             spriteBatch.Draw(
                 texture: backplaneTexture, 
                 position: Position + backPlaneOffset, 
-                color: Color.White);
+                color: state.Alpha * Color.White);
             spriteBatch.End();
 
             // Draw the other elements of the menu.
@@ -149,12 +154,14 @@ namespace Potato.Menu
         
         public void Update(GameTime gameTime)
         {
-            foreach ((IMenu item, Vector2 itemOffset) in items)
+            // For every component, set its position and runs its update function.
+            foreach ((IMenu component, Vector2 itemOffset) in items)
             {
-                item.Position = Position + itemOffset;
-                item.Update(gameTime);
+                component.Position = Position + itemOffset;
+                component.Update(gameTime);
             }
 
+            // If the controller is set, the up and down buttons can be used to move through each controllable component.
             if (Controller != null)
             {
                 if (Controller.DownPressed())
@@ -188,6 +195,13 @@ namespace Potato.Menu
                     }
                 }
             }
+
+            // Update state.
+            if (State == MenuState.Opening && items.Select((item) => item.Item1.State).All((x) => x == MenuState.Opened))
+                State = MenuState.Opened;
+            if (State == MenuState.Closing && items.Select((item) => item.Item1.State).All((x) => x == MenuState.Closed))
+                State = MenuState.Closed;
+            state.Update(gameTime);
         }
     }
 }

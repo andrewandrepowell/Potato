@@ -11,19 +11,18 @@ namespace Potato.Menu
         private static Texture2D texture;
         private static readonly Color color = Potato.ColorTheme0;
         private Size2 size;
-        private float width, height;
+        private const float height = 4;
+        private float width;
         private VisibilityStateChanger state = new VisibilityStateChanger();
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public MenuState State { get => state.State; }
 
-        public DividerMenu(float width, float height)
+        public DividerMenu(float width)
         {
             Debug.Assert(width > 0);
-            Debug.Assert(height > 0);
             this.width = width;
-            this.height = height;
             size = new Size2(width: width, height: height + 4);
         }
 

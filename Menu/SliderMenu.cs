@@ -23,7 +23,8 @@ namespace Potato.Menu
         private Texture2D glowTexure = null;
         private Vector2 glowOffset = Vector2.Zero;
         private float currentFill = 0.0f;
-        private float width, height;
+        private const float height = 16;
+        private float width;
         private Size2 size;
         private bool initialize = true;
         private VisibilityStateChanger state = new VisibilityStateChanger();
@@ -33,12 +34,10 @@ namespace Potato.Menu
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public MenuState State { get => state.State; }
 
-        public SliderMenu(float width, float height, float fill)
+        public SliderMenu(float width, float fill)
         {
             Debug.Assert(width > 0);
-            Debug.Assert(height > 0);
             this.width = width;
-            this.height = height;
             size = new Size2(width: width + 8, height: height + 8);
             Fill = fill;
         }

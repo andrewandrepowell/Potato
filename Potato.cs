@@ -26,6 +26,7 @@ namespace Potato
         private SpriteBatch spriteBatch;
         private ContainerMenu menu;
         KeyboardController keyboard;
+        private float timer = 10.0f;
 
         public Potato()
         {
@@ -61,11 +62,11 @@ namespace Potato
                 {
                     new TextMenu(text: "Hello! My name is Andrew, I am testing the menu out.", align: Alignment.Center, width: 512),
                     new TextMenu(text: "This is purely just a test to verify everything is working the way that I want.", align: Alignment.Center, width: 512),
-                    new DividerMenu(width: 256, height: 4),
+                    new DividerMenu(width: 256),
                     new SelectMenu(text: "This is a select menu. NOOOOIIIICE", align: Alignment.Center, width: 256),
                     new SelectMenu(text: "Blah blah blah blah", align: Alignment.Center, width: 256),
-                    new SliderMenu(width: 512, height: 32, fill: 0.25f),
-                    new SliderMenu(width: 512, height: 32, fill: 0.75f),
+                    new SliderMenu(width: 512, fill: 0.25f),
+                    new SliderMenu(width: 512, fill: 0.75f),
                     new RadioMenu(
                         options: new List<string>(){ "Option1", "Option2"},
                         align: Alignment.Center, width: 512, selected: 1),
@@ -101,6 +102,13 @@ namespace Potato
 
             //keysPressed.Clear();
             //Console.WriteLine($"Current Text: {test}");
+
+            timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (timer < 0)
+            {
+                timer = 10.0f;
+                menu.CloseMenu();
+            }
             base.Update(gameTime);
         }
 
@@ -108,7 +116,7 @@ namespace Potato
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.PowderBlue);
+            GraphicsDevice.Clear(Color.RosyBrown);
             
             // TODO: Add your drawing code here
             menu.Draw(spriteBatch);

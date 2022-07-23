@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Potato
 {
+    internal interface IRoom : IComponent, IControllable
+    { 
+    }
     internal enum Alignment { Center, Left, Right };
     internal enum MenuState { Opening, Opened, Closing, Closed };
     internal interface IMenu : IComponent, IControllable, IMovable, ISizable
@@ -68,10 +71,5 @@ namespace Potato
     internal interface IControllable
     {
         IController Controller { get; set; }
-    }
-
-    internal interface ISized
-    {
-        Size2 Size { get; }
     }
 }

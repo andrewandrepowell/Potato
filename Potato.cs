@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using Potato.Menu;
+using Potato.World.Menu;
 using System;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,8 @@ namespace Potato
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private ContainerMenu menu;
-        KeyboardController keyboard;
+        private OptionMenu optionMenu;
+        private KeyboardController keyboard;
         private float timer = 10.0f;
 
         public Potato()
@@ -78,7 +80,12 @@ namespace Potato
                 align: Alignment.Center);
             menu.Position = new Vector2(x: 128, y: 32);
             menu.Controller = keyboard;
-            menu.OpenMenu();
+            //menu.OpenMenu();
+
+            optionMenu = new OptionMenu();
+            optionMenu.Position = new Vector2(x: (gameWidth - optionMenu.Size.Width) / 2, y: 32);
+            optionMenu.Controller = keyboard;
+            optionMenu.OpenMenu();
         }
 
         protected override void UnloadContent()
@@ -94,6 +101,7 @@ namespace Potato
             // TODO: Add your update logic here
             menu.Update(gameTime);
             keyboard.Update(gameTime);
+            optionMenu.Update(gameTime);
             //keyboard.CollectKeys = true;
             //var keysPressed = keyboard.KeysPressed;
             //test.Append(keysPressed.Where((x) => x.Key != Keys.Back).Select((x) => x.Character).ToArray());
@@ -103,12 +111,12 @@ namespace Potato
             //keysPressed.Clear();
             //Console.WriteLine($"Current Text: {test}");
 
-            timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (timer < 0)
-            {
-                timer = 10.0f;
-                menu.CloseMenu();
-            }
+            //timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //if (timer < 0)
+            //{
+            //    timer = 10.0f;
+            //    menu.CloseMenu();
+            //}
             base.Update(gameTime);
         }
 
@@ -120,6 +128,7 @@ namespace Potato
             
             // TODO: Add your drawing code here
             menu.Draw(spriteBatch);
+            optionMenu.Draw(spriteBatch);
             base.Draw(gameTime);
         }
 

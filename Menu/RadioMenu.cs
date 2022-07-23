@@ -18,9 +18,7 @@ namespace Potato.Menu
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
         private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
-        private const float controllerAlphaChangeRate = 1.0f;
-        private bool controllerAlphaIncrement = false;
-        private float controllerAlpha = 1.0f;
+        private ControllerAlphaChanger controllerAlphaChanger;
         private Size2 size;
         private VisibilityStateChanger state = new VisibilityStateChanger();
         public int Selected { get; set; }
@@ -158,9 +156,12 @@ namespace Potato.Menu
                         new Vector2(x: optionWidthOffset, y: optionHeightOffset)));
                 }
             }
+            
             size = new Size2(
                 width: width,
                 height: heightOffset + 8);
+            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            
             Selected = selected;
             ApplySelected();
         }
@@ -188,12 +189,12 @@ namespace Potato.Menu
                 spriteBatch.Draw(
                     texture: glowTexture,
                     position: Position + glowOffset,
-                    color: state.Alpha * Color.White * ((index == Selected) ? controllerAlpha : 1.0f));
+                    color: state.Alpha * Color.White * ((index == Selected) ? controllerAlphaChanger.Alpha : 1.0f));
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: optionValue,
                     position: Position + optionOffset,
-                    color: state.Alpha * fontColor * ((index == Selected) ? controllerAlpha : 1.0f));
+                    color: state.Alpha * fontColor * ((index == Selected) ? controllerAlphaChanger.Alpha : 1.0f));
             }
             spriteBatch.End();
         }
@@ -216,20 +217,6 @@ namespace Potato.Menu
                 }
             }
 
-            if (Controller != null)
-            {
-                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
-                if (controllerAlpha > 1.0f)
-                    controllerAlphaIncrement = false;
-                else if (controllerAlpha < 0.0f)
-                    controllerAlphaIncrement = true;
-            }
-            else
-            {
-                controllerAlpha = 1.0f;
-                controllerAlphaIncrement = false;
-            }
-
             foreach (var tuple in items)
             {
                 AnimatedSprite radioSprite = tuple.Item1;
@@ -237,6 +224,7 @@ namespace Potato.Menu
             }
 
             state.Update(gameTime);
+            controllerAlphaChanger.Update(gameTime);
         }
 
         private void ApplySelected()

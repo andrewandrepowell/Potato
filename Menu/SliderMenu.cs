@@ -15,9 +15,7 @@ namespace Potato.Menu
         private const int resolution = 64;
         private static List<(Texture2D, Texture2D, Vector2)> items = null;
         private static readonly Color fillColor = Potato.ColorTheme0;
-        private const float controllerAlphaChangeRate = 1.0f;
-        private bool controllerAlphaIncrement = false;
-        private float controllerAlpha = 1.0f;
+        private ControllerAlphaChanger controllerAlphaChanger;
         private const float fillChangeRate = 0.1f;
         private Texture2D texture = null;
         private Texture2D glowTexure = null;
@@ -40,6 +38,7 @@ namespace Potato.Menu
             this.width = width;
             size = new Size2(width: width + 8, height: height + 8);
             Fill = fill;
+            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
         }
 
         public void OpenMenu() => state.OpenMenu();
@@ -80,11 +79,11 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: glowTexure,
                 position: Position + glowOffset,
-                color: state.Alpha * controllerAlpha * Color.White);
+                color: state.Alpha * controllerAlphaChanger.Alpha * Color.White);
             spriteBatch.Draw(
                 texture: texture,
                 position: Position,
-                color: state.Alpha * controllerAlpha * Color.White);
+                color: state.Alpha * controllerAlphaChanger.Alpha * Color.White);
             spriteBatch.End();
         }
 
@@ -108,23 +107,10 @@ namespace Potato.Menu
                     if (Fill > 1.0f)
                         Fill = 1.0f;
                 }
-
-                // Flash the textures.
-                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
-                if (controllerAlpha > 1.0f)
-                    controllerAlphaIncrement = false;
-                else if (controllerAlpha < 0.0f)
-                    controllerAlphaIncrement = true;
-            }
-            else
-            {
-                // Don't flash textures if not selected.
-                controllerAlpha = 1.0f;
-                controllerAlphaIncrement = false;
             }
 
-            // Update state.
             state.Update(gameTime);
+            controllerAlphaChanger.Update(gameTime);
         }
     }
 }

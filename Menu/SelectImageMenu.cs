@@ -9,9 +9,7 @@ namespace Potato.Menu
 {
     internal class SelectImageMenu : IMenu
     {
-        private const float controllerAlphaChangeRate = 1.0f;
-        private bool controllerAlphaIncrement = false;
-        private float controllerAlpha = 1.0f;
+        private ControllerAlphaChanger controllerAlphaChanger;
         private static readonly Color selectColor = Potato.ColorTheme1;
         private const float selectValueChangeRate = 8.0f;
         private bool selectValueIncrement = true;
@@ -29,6 +27,7 @@ namespace Potato.Menu
         {
             this.texture = texture;
             size = new Size2(texture.Width, texture.Height);
+            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
         }
 
         public void OpenMenu() => state.OpenMenu();
@@ -41,7 +40,7 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: texture, 
                 position: Position, 
-                color: state.Alpha * controllerAlpha * (Add((1.0f - selectValue) * Color.White, selectValue * selectColor)));
+                color: state.Alpha * controllerAlphaChanger.Alpha * (Add((1.0f - selectValue) * Color.White, selectValue * selectColor)));
             spriteBatch.End();
         }
 
@@ -57,19 +56,6 @@ namespace Potato.Menu
                 {
                     Selected = !Selected;
                 }
-
-                // Flash the textures.
-                controllerAlpha += (controllerAlphaIncrement ? 1.0f : -1.0f) * controllerAlphaChangeRate * timeElapsed;
-                if (controllerAlpha > 1.0f)
-                    controllerAlphaIncrement = false;
-                else if (controllerAlpha < 0.0f)
-                    controllerAlphaIncrement = true;
-            }
-            else
-            {
-                // When there's no controller, don't flash.
-                controllerAlpha = 1.0f;
-                controllerAlphaIncrement = false;
             }
 
             // If selected, flash with select color.
@@ -89,6 +75,7 @@ namespace Potato.Menu
 
             // Update state.
             state.Update(gameTime);
+            controllerAlphaChanger.Update(gameTime);
         }
 
         private static Color Add(Color color1, Color color2) => new Color(

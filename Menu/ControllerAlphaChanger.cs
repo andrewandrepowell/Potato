@@ -5,18 +5,23 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class ControllerAlphaChanger : IUpdateable, IControllable
+    internal class ControllerAlphaChanger : IUpdateable
     {
         private const float changeRate = 1.0f;
         private bool increment = false;
-        public IController Controller { get; set; } = null;
+        private IControllable controllable;
         public float Alpha { get; private set; } = 0.0f;
 
+        public ControllerAlphaChanger(IControllable controllable)
+        {
+            this.controllable = controllable;
+        }
+        
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (Controller != null)
+            if (controllable.Controller != null)
             {
                 Alpha += (increment ? 1.0f : -1.0f) * changeRate * timeElapsed;
                 if (Alpha > 1.0f)

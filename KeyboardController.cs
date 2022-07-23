@@ -15,15 +15,6 @@ namespace Potato
         public Keys RightKey;
         public Keys UpKey;
         public Keys DownKey;
-        public KeyboardControllerSave(Keys activateKey, Keys backKey, Keys leftKey, Keys rightKey, Keys upKey, Keys downKey)
-        {
-            ActivateKey = activateKey;
-            BackKey = backKey;
-            LeftKey = leftKey;
-            RightKey = rightKey;
-            UpKey = upKey;
-            DownKey = downKey;
-        }
     }
     internal class KeyboardController : IController, IDisposable, ISavable<KeyboardControllerSave>
     {
@@ -41,13 +32,15 @@ namespace Potato
         public Keys RightKey;
         public Keys UpKey;
         public Keys DownKey;
-        public KeyboardControllerSave Save() => new KeyboardControllerSave(
-            activateKey: ActivateKey,
-            backKey: BackKey,
-            leftKey: LeftKey,
-            rightKey: RightKey,
-            upKey: UpKey,
-            downKey: DownKey);
+        public KeyboardControllerSave Save() => new KeyboardControllerSave()
+        {
+            ActivateKey = ActivateKey,
+            BackKey = BackKey,
+            LeftKey = LeftKey,
+            RightKey = RightKey,
+            UpKey = UpKey,
+            DownKey = DownKey,
+        };
 
         public void Load(KeyboardControllerSave save)
         {

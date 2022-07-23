@@ -59,30 +59,43 @@ namespace Potato
 
             // TODO: use this.Content to load your game content here
             keyboard = new KeyboardController();
-            menu = new ContainerMenu(
-                components: new List<IMenu>()
-                {
-                    new TextMenu(text: "Hello! My name is Andrew, I am testing the menu out.", align: Alignment.Center, width: 512),
-                    new TextMenu(text: "This is purely just a test to verify everything is working the way that I want.", align: Alignment.Center, width: 512),
-                    new DividerMenu(width: 256),
-                    new SelectMenu(text: "This is a select menu. NOOOOIIIICE", align: Alignment.Center, width: 256),
-                    new SelectMenu(text: "Blah blah blah blah", align: Alignment.Center, width: 256),
-                    new SliderMenu(width: 512, fill: 0.25f),
-                    new SliderMenu(width: 512, fill: 0.75f),
-                    new RadioMenu(
-                        options: new List<string>(){ "Option1", "Option2"},
-                        align: Alignment.Center, width: 512, selected: 1),
-                    new TypingMenu(width: 512),
-                    new SelectImageMenu(texture: Content.Load<Texture2D>("potato")),
-                    new TypingMenu(width: 128),
-                    new ImageMenu(texture: Content.Load<Texture2D>("potato"))
-                },
-                align: Alignment.Center);
-            menu.Position = new Vector2(x: 128, y: 32);
-            menu.Controller = keyboard;
+            //menu = new ContainerMenu(
+            //    components: new List<IMenu>()
+            //    {
+            //        new TextMenu(text: "Hello! My name is Andrew, I am testing the menu out.", align: Alignment.Center, width: 512),
+            //        new TextMenu(text: "This is purely just a test to verify everything is working the way that I want.", align: Alignment.Center, width: 512),
+            //        new DividerMenu(width: 256),
+            //        new SelectMenu(text: "This is a select menu. NOOOOIIIICE", align: Alignment.Center, width: 256),
+            //        new SelectMenu(text: "Blah blah blah blah", align: Alignment.Center, width: 256),
+            //        new SliderMenu(width: 512, fill: 0.25f),
+            //        new SliderMenu(width: 512, fill: 0.75f),
+            //        new RadioMenu(
+            //            options: new List<string>(){ "Option1", "Option2"},
+            //            align: Alignment.Center, width: 512, selected: 1),
+            //        new TypingMenu(width: 512),
+            //        new SelectImageMenu(texture: Content.Load<Texture2D>("potato")),
+            //        new TypingMenu(width: 128),
+            //        new ImageMenu(texture: Content.Load<Texture2D>("potato"))
+            //    },
+            //    align: Alignment.Center);
+            //menu.Position = new Vector2(x: 128, y: 32);
+            //menu.Controller = keyboard;
             //menu.OpenMenu();
 
-            optionMenu = new OptionMenu();
+            OptionMenuSave optionMenuSave = new OptionMenuSave()
+            {
+                MasterVolume = 0.5f,
+                MusicVolume = 0.1f,
+                EffectVolume = 1.0f,
+                DisplayMode = DisplayModeType.Windowed,
+                ActivateKey = Keys.Enter,
+                BackKey = Keys.Back,
+                LeftKey = Keys.Left,
+                RightKey = Keys.Right,
+                UpKey = Keys.Up,
+                DownKey = Keys.Down
+            };
+            optionMenu = new OptionMenu(save: optionMenuSave);
             optionMenu.Position = new Vector2(x: (gameWidth - optionMenu.Size.Width) / 2, y: 32);
             optionMenu.Controller = keyboard;
             optionMenu.OpenMenu();
@@ -99,7 +112,7 @@ namespace Potato
                 Exit();
 
             // TODO: Add your update logic here
-            menu.Update(gameTime);
+            //menu.Update(gameTime);
             keyboard.Update(gameTime);
             optionMenu.Update(gameTime);
             //keyboard.CollectKeys = true;
@@ -127,7 +140,7 @@ namespace Potato
             GraphicsDevice.Clear(Color.RosyBrown);
             
             // TODO: Add your drawing code here
-            menu.Draw(spriteBatch);
+            //menu.Draw(spriteBatch);
             optionMenu.Draw(spriteBatch);
             base.Draw(gameTime);
         }

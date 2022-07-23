@@ -13,7 +13,7 @@ namespace Potato.Menu
     internal class SliderMenu : IMenu
     {
         private const int resolution = 64;
-        private static List<(Texture2D, Texture2D, Vector2)> items = null;
+        private List<(Texture2D, Texture2D, Vector2)> items = null;
         private static readonly Color fillColor = Potato.ColorTheme0;
         private ControllerAlphaChanger controllerAlphaChanger;
         private const float fillChangeRate = 0.1f;
@@ -36,7 +36,7 @@ namespace Potato.Menu
         {
             Debug.Assert(width > 0);
             this.width = width;
-            size = new Size2(width: width + 8, height: height + 8);
+            size = new Size2(width: width, height: height + 8);
             Fill = fill;
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
         }
@@ -55,7 +55,7 @@ namespace Potato.Menu
                 {
                     Texture2D texture = spriteBatch.GetStandardCurvedRectangle0(
                         size: new Size(
-                            width: Math.Max((int)MathHelper.Lerp(0, width, (float)(i + 1) / resolution), 1),
+                            width: Math.Max((int)MathHelper.Lerp(0, width, (float)(i) / resolution), 1),
                             height: (int)height),
                         color: (_) => fillColor);
                     Texture2D glowTexure = texture.CreateStandardGlow0();

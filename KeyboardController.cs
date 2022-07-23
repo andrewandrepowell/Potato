@@ -19,6 +19,7 @@ namespace Potato
     internal class KeyboardController : IController, IDisposable, ISavable<KeyboardControllerSave>
     {
         private KeyboardStateExtended keyboardState = KeyboardExtended.GetState();
+        public KeyboardStateExtended KeyboardState => keyboardState;
         public List<TextInputEventArgs> KeysPressed { get; private set; } = new List<TextInputEventArgs>();
         public bool CollectKeys { get; set; } = false;
         public KeyboardController()

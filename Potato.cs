@@ -98,6 +98,7 @@ namespace Potato
             optionMenu = new OptionMenu(save: optionMenuSave);
             optionMenu.Position = new Vector2(x: (gameWidth - optionMenu.Size.Width) / 2, y: 32);
             optionMenu.Controller = keyboard;
+            optionMenu.Keyboard = keyboard;
             optionMenu.OpenMenu();
         }
 

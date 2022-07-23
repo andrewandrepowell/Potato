@@ -85,13 +85,14 @@ namespace Potato.Menu
                         widthOffset = size.Width - font.MeasureString(currentText).X;
                         break;
                 }
+                Vector2 textSize = font.MeasureString(currentText);
                 textOffset = new Vector2(
                     x: widthOffset,
-                    y: (size.Height - font.MeasureString(currentText).Y) / 2);
+                    y: (size.Height - textSize.Y) / 2);
                 glowTexture = font.CreateStandardGlow(currentText);
                 glowOffset = new Vector2(
-                    x: widthOffset + glowTexture.Width / 2,
-                    y: (size.Height - glowTexture.Height) / 2);
+                    x: textOffset.X - (glowTexture.Width - textSize.X) / 2,
+                    y: textOffset.Y - (glowTexture.Height - textSize.Y) / 2);
                 updateText = false;
             }
             if (currentText != null)

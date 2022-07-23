@@ -12,98 +12,104 @@ namespace Potato.Menu
         public class Node
         {
             public ISelectable Selectable { get; private set; }
-            public ContainerMenu Container { get; private set; }
+            public IMenu Menu { get; private set; }
             public ICollection<Node> Nodes { get; private set; }
             
-            public Node(ISelectable selectable, ContainerMenu container)
+            public Node(ISelectable selectable, IMenu menu)
             {
                 Selectable = selectable;
-                Container = container;
+                Menu = menu;
                 Nodes = new List<Node>();
             }
         }
         private enum TransitionState { Idle, Transitioning, Reversing };
-        private Stack<(ICollection<Node>, ContainerMenu)> stack;
+        private Stack<(ICollection<Node>, IMenu)> stack;
         private TransitionState transitionState;
         private Node nextNode;
-        private ICollection<Node> currentNodes => stack.Peek().Item1;
-        private ContainerMenu currentMenu => stack.Peek().Item2;
-        private bool backEnable;
-        public MenuState State => currentMenu.State;
-        public IController Controller { get => currentMenu.Controller; set => currentMenu.Controller = value; }
-        public Vector2 Position { get => currentMenu.Position; set => currentMenu.Position = value; }
-        public Size2 Size { get => currentMenu.Size; set => currentMenu.Size = value; }
+        private bool forceBack;
+        public ICollection<Node> CurrentNodes => stack.Peek().Item1;
+        public IMenu CurrentMenu => stack.Peek().Item2;
+        
+        public bool BackEnable { get; set; }
+        public MenuState State => CurrentMenu.State;
+        public IController Controller { get => CurrentMenu.Controller; set => CurrentMenu.Controller = value; }
+        public Vector2 Position { get => CurrentMenu.Position; set => CurrentMenu.Position = value; }
+        public Size2 Size { get => CurrentMenu.Size; set => CurrentMenu.Size = value; }
 
-        public TransitionMenu(ICollection<Node> nodes, ContainerMenu container, bool backEnable)
+        public TransitionMenu(ICollection<Node> nodes, IMenu menu)
         {
-            stack = new Stack<(ICollection<Node>, ContainerMenu)>();
-            stack.Push((nodes, container));
+            stack = new Stack<(ICollection<Node>, IMenu)>();
+            stack.Push((nodes, menu));
             transitionState = TransitionState.Idle;
-            this.backEnable = backEnable;
+            forceBack = false;
+            BackEnable = false;
         }
 
-        public void CloseMenu() => currentMenu.CloseMenu();
+        public void CloseMenu() => CurrentMenu.CloseMenu();
 
-        public void OpenMenu() => currentMenu.OpenMenu();
+        public void OpenMenu() => CurrentMenu.OpenMenu();
+
+        public void ForceBack() => forceBack = true;
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null) =>
-            currentMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+            CurrentMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
 
         public void Update(GameTime gameTime)
         {            
             switch (transitionState)
             {
                 case TransitionState.Idle:
-                    foreach (Node node in currentNodes)
+                    foreach (Node node in CurrentNodes)
                     {
                         if (node.Selectable.Selected)
                         {
                             nextNode = node;
-                            currentMenu.CloseMenu();
+                            CurrentMenu.CloseMenu();
                             transitionState = TransitionState.Transitioning;
                         }
                     }
-                    if (backEnable && currentMenu.Controller.BackPressed() && stack.Count > 1)
+                    if (forceBack || (BackEnable && CurrentMenu.Controller.BackPressed() && stack.Count > 1))
                     {
-                        currentMenu.CloseMenu();
+                        forceBack = false;
+                        CurrentMenu.CloseMenu();
                         transitionState = TransitionState.Reversing;
                     }
                     break;
                 case TransitionState.Transitioning:
-                    if (currentMenu.State == MenuState.Closed)
+                    if (CurrentMenu.State == MenuState.Closed)
                     {
-                        foreach (Node node in currentNodes)
+                        foreach (Node node in CurrentNodes)
                             node.Selectable.Selected = false;
-                        nextNode.Container.Controller = currentMenu.Controller;
-                        currentMenu.Controller = null;
-                        nextNode.Container.Position = new Vector2(
-                            x: currentMenu.Position.X + (currentMenu.Size.Width - nextNode.Container.Size.Width) / 2,
-                            y: currentMenu.Position.Y + (currentMenu.Size.Height - nextNode.Container.Size.Height) / 2);
-                        nextNode.Container.OpenMenu();
-                        stack.Push((nextNode.Nodes, nextNode.Container));
+                        nextNode.Menu.Controller = CurrentMenu.Controller;
+                        CurrentMenu.Controller = null;
+                        nextNode.Menu.Position = new Vector2(
+                            x: CurrentMenu.Position.X + (CurrentMenu.Size.Width - nextNode.Menu.Size.Width) / 2,
+                            y: CurrentMenu.Position.Y + (CurrentMenu.Size.Height - nextNode.Menu.Size.Height) / 2);
+                        nextNode.Menu.OpenMenu();
+                        stack.Push((nextNode.Nodes, nextNode.Menu));
                         nextNode = null;
                         transitionState = TransitionState.Idle;
                     }
                     break;
                 case TransitionState.Reversing:
-                    if (currentMenu.State == MenuState.Closed)
+                    if (CurrentMenu.State == MenuState.Closed)
                     {
-                        foreach (Node node in currentNodes)
+                        foreach (Node node in CurrentNodes)
                             node.Selectable.Selected = false;
-                        ContainerMenu previousMenu = currentMenu;
+                        IMenu previousMenu = CurrentMenu;
                         stack.Pop();
-                        currentMenu.Controller = previousMenu.Controller;
+                        CurrentMenu.Controller = previousMenu.Controller;
                         previousMenu.Controller = null;
-                        currentMenu.Position = new Vector2(
-                            x: previousMenu.Position.X + (previousMenu.Size.Width - currentMenu.Size.Width) / 2,
-                            y: previousMenu.Position.Y + (previousMenu.Size.Height - currentMenu.Size.Height) / 2);
-                        currentMenu.OpenMenu();
+                        CurrentMenu.Position = new Vector2(
+                            x: previousMenu.Position.X + (previousMenu.Size.Width - CurrentMenu.Size.Width) / 2,
+                            y: previousMenu.Position.Y + (previousMenu.Size.Height - CurrentMenu.Size.Height) / 2);
+                        CurrentMenu.OpenMenu();
                         transitionState = TransitionState.Idle;
                     }
                     break;
             }
 
-            currentMenu.Update(gameTime: gameTime);
+            CurrentMenu.Update(gameTime: gameTime);
         }
     }
 }

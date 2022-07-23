@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Input;
 using Potato.Menu;
 
 namespace Potato.World.Menu
@@ -26,12 +27,34 @@ namespace Potato.World.Menu
     }
     internal class OptionMenu : IMenu, ISavable<OptionMenuSave>
     {
+        private class ConfigureKeybindMenu : IMenu
+        {
+            private ContainerMenu containerMenu;
+            public ConfigureKeybindMenu()
+            {
+                containerMenu = new ContainerMenu(
+                    components: new List<IMenu>()
+                    {
+                        new TextMenu(text: "Hit a key to set new binding.", align: Alignment.Center, width: innerWidth),
+                    },
+                    align: Alignment.Center);
+            }
+            public ModifiableSelectMenu SelectMenu { get; set; }
+            public MenuState State => containerMenu.State;
+            public IController Controller {  get => containerMenu.Controller; set => containerMenu.Controller = value; }
+            public Vector2 Position { get => containerMenu.Position; set => containerMenu.Position = value; }
+            public Size2 Size { get => containerMenu.Size; set => containerMenu.Size = value; }
+            public void CloseMenu() => containerMenu.CloseMenu();
+            public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null) =>
+                containerMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+            public void OpenMenu() => containerMenu.OpenMenu();
+            public void Update(GameTime gameTime) => containerMenu.Update(gameTime);
+        }
         private static readonly Dictionary<Keys,string> keyToStringDict;
         private static readonly Dictionary<string, Keys> stringToKeyDict;
         private const float outerWidth = 512f;
         private const float innerWidth = outerWidth * .90f;
         private const float dividerWidth = innerWidth * .90f;
-        private const float defaultSliderFill = 0.5f;
         private ContainerMenu mainContainerMenu;
         private ContainerMenu keybindContainerMenu;
         private TransitionMenu transitionMenu;
@@ -40,13 +63,18 @@ namespace Potato.World.Menu
         private SliderMenu effectVolumeSliderMenu;
         private RadioMenu displayModeRadioMenu;
         private SelectMenu keybindSelectMenu;
+        private SelectMenu applyChangesSelectMenu;
+        private ModifiableSelectMenu activateKeyBindSelectMenu;
+        private ModifiableSelectMenu backKeyBindSelectMenu;
         private ModifiableSelectMenu leftKeyBindSelectMenu;
         private ModifiableSelectMenu rightKeyBindSelectMenu;
         private ModifiableSelectMenu upKeyBindSelectMenu;
         private ModifiableSelectMenu downKeyBindSelectMenu;
+        private bool lockOutOfKeybindConfig;
         public MenuState State => transitionMenu.State;
 
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
+        public KeyboardController Keyboard { get; set; }
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
         public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
 
@@ -61,13 +89,56 @@ namespace Potato.World.Menu
 
         public void OpenMenu() => transitionMenu.OpenMenu();
 
-        public void Update(GameTime gameTime) =>
-            transitionMenu.Update(gameTime: gameTime);
-
-        public OptionMenuSave Save()
+        public void Update(GameTime gameTime)
         {
-            throw new NotImplementedException();
+            ConfigureKeybindMenu configureKeybindMenu = transitionMenu.CurrentMenu as ConfigureKeybindMenu;
+            if (configureKeybindMenu != null)
+            {
+                if (!lockOutOfKeybindConfig)
+                {
+                    KeyboardStateExtended keyboardState = Keyboard.KeyboardState;
+                    transitionMenu.BackEnable = false;
+                    foreach ((Keys key, string keyString) in keyToStringDict)
+                    {
+                        if (keyboardState.WasKeyJustDown(key))
+                        {
+                            string[] tokens = configureKeybindMenu.SelectMenu.Text.Split(' ');
+                            configureKeybindMenu.SelectMenu.Text = $"{tokens[0]} {keyString}";
+                            transitionMenu.BackEnable = true;
+                            transitionMenu.ForceBack();
+                            lockOutOfKeybindConfig = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                transitionMenu.BackEnable = true;
+                lockOutOfKeybindConfig = false;
+            }
+
+
+
+            transitionMenu.Update(gameTime: gameTime);
         }
+
+        public OptionMenuSave Save() => new OptionMenuSave()
+        {
+            MasterVolume = masterVolumeSliderMenu.Fill,
+            MusicVolume = musicVolumeSliderMenu.Fill,
+            EffectVolume = effectVolumeSliderMenu.Fill,
+            DisplayMode =
+                (displayModeRadioMenu.Selected == 0) ? DisplayModeType.Fullscreen :
+                (displayModeRadioMenu.Selected == 1) ? DisplayModeType.Windowed :
+                throw new ArgumentException(),
+            ActivateKey = stringToKeyDict[activateKeyBindSelectMenu.Text.Split(' ')[1]],
+            BackKey = stringToKeyDict[backKeyBindSelectMenu.Text.Split(' ')[1]],
+            LeftKey = stringToKeyDict[leftKeyBindSelectMenu.Text.Split(' ')[1]],
+            RightKey = stringToKeyDict[rightKeyBindSelectMenu.Text.Split(' ')[1]],
+            UpKey = stringToKeyDict[upKeyBindSelectMenu.Text.Split(' ')[1]],
+            DownKey = stringToKeyDict[downKeyBindSelectMenu.Text.Split(' ')[1]]
+        };
 
         public void Load(OptionMenuSave save)
         {
@@ -85,7 +156,9 @@ namespace Potato.World.Menu
                 width: innerWidth,
                 selected: 
                     (save.DisplayMode == DisplayModeType.Windowed) ? 0 :
-                    (save.DisplayMode == DisplayModeType.Fullscreen) ? 1 : -1);
+                    (save.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
+                    throw new ArgumentException());
+            applyChangesSelectMenu = new SelectMenu(text: "Apply Changes", align: Alignment.Center, width: innerWidth);
             mainContainerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
@@ -102,8 +175,12 @@ namespace Potato.World.Menu
                     displayModeRadioMenu,
                     new DividerMenu(width: dividerWidth),
                     keybindSelectMenu,
+                    new DividerMenu(width: dividerWidth),
+                    applyChangesSelectMenu,
                 },
                 align: Alignment.Center);
+            activateKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Activate: {keyToStringDict[save.ActivateKey]}" };
+            backKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Back: {keyToStringDict[save.BackKey]}" };
             leftKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Left: {keyToStringDict[save.LeftKey]}"  };
             rightKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Right: {keyToStringDict[save.RightKey]}" };
             upKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Up: {keyToStringDict[save.UpKey]}" };
@@ -113,16 +190,36 @@ namespace Potato.World.Menu
                 {
                     new TextMenu(text: "-Key Bindings-", align: Alignment.Center, width: outerWidth),
                     new DividerMenu(width: dividerWidth),
+                    activateKeyBindSelectMenu,
+                    backKeyBindSelectMenu,
                     leftKeyBindSelectMenu,
                     rightKeyBindSelectMenu,
                     upKeyBindSelectMenu,
                     downKeyBindSelectMenu,
                 },
                 align: Alignment.Center);
+            ContainerMenu configureKeybindContainerMenu = new ContainerMenu(
+                components: new List<IMenu>()
+                {
+                    new TextMenu(text: "Hit a key to set new binding.", align: Alignment.Center, width: innerWidth),
+                },
+                align: Alignment.Center);
 
-            var mainNodes = new List<TransitionMenu.Node>();
-            mainNodes.Add(new TransitionMenu.Node(selectable: keybindSelectMenu, container: keybindContainerMenu));
-            transitionMenu = new TransitionMenu(nodes: mainNodes, container: mainContainerMenu, backEnable: true);
+            var activateKeybindNode = new TransitionMenu.Node(selectable: activateKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = activateKeyBindSelectMenu });
+            var backKeybindNode = new TransitionMenu.Node(selectable: backKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = backKeyBindSelectMenu });
+            var leftKeybindNode = new TransitionMenu.Node(selectable: leftKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = leftKeyBindSelectMenu });
+            var rightKeybindNode = new TransitionMenu.Node(selectable: rightKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = rightKeyBindSelectMenu });
+            var upKeybindNode = new TransitionMenu.Node(selectable: upKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = upKeyBindSelectMenu });
+            var downKeybindNode = new TransitionMenu.Node(selectable: downKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = downKeyBindSelectMenu });
+            var keybindNode = new TransitionMenu.Node(selectable: keybindSelectMenu, menu: keybindContainerMenu);
+            keybindNode.Nodes.Add(activateKeybindNode);
+            keybindNode.Nodes.Add(backKeybindNode);
+            keybindNode.Nodes.Add(leftKeybindNode);
+            keybindNode.Nodes.Add(rightKeybindNode);
+            keybindNode.Nodes.Add(upKeybindNode);
+            keybindNode.Nodes.Add(downKeybindNode);
+            transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode  }, menu: mainContainerMenu) { BackEnable = true };
+            lockOutOfKeybindConfig = false;
         }
 
         static OptionMenu()

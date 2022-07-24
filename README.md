@@ -35,6 +35,7 @@ The user interface will consist of a mixture of menus and a hud. A menu can cons
 - Preferred Controller 
 
 ## Rough Protagonist Control Summary
+Protagonist will be able to move and interact with the world. Movement will include running left and right, with some limited capacity to run up inclined surfaces. Upward vertical movement will consist of jumping and firing blunderbuss, whereas downward vertical movement is falling. The main tools the farmer has at his disposal is a rake and a blunderbuss. The rake performs close-range, quicker melee attacks, whereas the blunderbuss performs close-to-medium-range powerful shot attacks. They both will have special mechanics integral to the gameplay. Successfully hitting enemies with the rake will build a hype meter. The rake will have a three hit combo, where the final strike will do the most damage and build the most hype, however its recovery locks the player in place. The rake can also be used to rake the ground, where enemies will get momentarily slowed if they run over the raked ground. A full hype meter allows for a single shot of the blunderbuss, an attack that does the most damage and pushes enemies back in the direction of the blast, and also pushes the protagonist back in the opposite direction of the blast.
 
 ## Game States
 - Semi-Paused
@@ -49,5 +50,3 @@ The user interface will consist of a mixture of menus and a hud. A menu can cons
 - Game Over 
 - Game Completion 
 - Debug Level Editor 
-
-

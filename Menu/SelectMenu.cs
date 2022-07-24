@@ -16,17 +16,15 @@ namespace Potato.Menu
         private static readonly Color textColor = Potato.ColorTheme0;
         private readonly List<(string, Vector2, Texture2D, Vector2)> items;
         private ControllerAlphaChanger controllerAlphaChanger;
-        private static readonly Color selectColor = Potato.ColorTheme1;
-        private const float selectValueChangeRate = 8.0f;
-        private bool selectValueIncrement = true;
-        private float selectValue = 0.0f;
+        private VisibilityStateChanger visibilityStateChanger;
+        private SelectChanger selectChanger;
         private Size2 size;
-        private VisibilityStateChanger state = new VisibilityStateChanger();
+        
         public bool Selected { get; set; } = false;
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public MenuState State { get => state.State; }
+        public MenuState State { get => visibilityStateChanger.State; }
 
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
@@ -115,62 +113,41 @@ namespace Potato.Menu
                 width: width,
                 height: items.Count * font.MeasureString(" ").Y + 8);
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            visibilityStateChanger = new VisibilityStateChanger();
+            selectChanger = new SelectChanger(selectable: this);
         }
 
-        public void OpenMenu() => state.OpenMenu();
+        public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
-        public void CloseMenu() => state.CloseMenu();
+        public void CloseMenu() => visibilityStateChanger.CloseMenu();
         
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
-            // Draw the lines.
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((string newLine, Vector2 newLineOffset, Texture2D glowTexture, Vector2 glowOffset) in items)
             {
                 spriteBatch.Draw(
                     texture: glowTexture,
                     position: Position + glowOffset,
-                    color: state.Alpha * controllerAlphaChanger.Alpha * Color.White);
+                    color: visibilityStateChanger.Alpha * controllerAlphaChanger.Alpha * Color.White);
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: newLine,
                     position: Position + newLineOffset,
-                    color: state.Alpha * controllerAlphaChanger.Alpha * (Add((1.0f - selectValue) * textColor, selectValue * selectColor)));
+                    color: visibilityStateChanger.Alpha * controllerAlphaChanger.Alpha * selectChanger.ApplySelect(textColor: textColor));
             }
             spriteBatch.End();
         }
         
         public void Update(GameTime gameTime)
         {
-            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (Controller != null && Controller.ActivatePressed())
+                Selected = !Selected;
 
-            // The following are operations if the controller is set.
-            if (Controller != null)
-            {
-                // If the controller activate is pressed, toggle select.
-                if (Controller.ActivatePressed())
-                {
-                    Selected = !Selected;
-                }
-            }
-
-            // If selected, flash with select color.
-            if (Selected)
-            {
-                selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;
-                if (selectValue > 1.0f)
-                    selectValueIncrement = false;
-                else if (selectValue < 0.0f)
-                    selectValueIncrement = true;
-            }
-            else
-            {
-                selectValue = 0.0f;
-                selectValueIncrement = true;
-            }
-
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
+            selectChanger.Update(gameTime);
         }
     }
 }

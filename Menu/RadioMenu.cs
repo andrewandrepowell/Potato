@@ -20,7 +20,7 @@ namespace Potato.Menu
         private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
         private ControllerAlphaChanger controllerAlphaChanger;
         private Size2 size;
-        private VisibilityStateChanger state = new VisibilityStateChanger();
+        private VisibilityStateChanger state;
         public int Selected { get; set; }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
@@ -161,7 +161,8 @@ namespace Potato.Menu
                 width: width,
                 height: heightOffset + 8);
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
-            
+            state = new VisibilityStateChanger();
+
             Selected = selected;
             ApplySelected();
         }
@@ -170,9 +171,9 @@ namespace Potato.Menu
 
         public void CloseMenu() => state.CloseMenu();
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
-            // Draw the items.
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((int index, var tuple) in items.Select((tuple, index) => (index, tuple)))
             {

@@ -29,7 +29,7 @@ namespace Potato.Menu
         private static readonly Color textColor = Potato.ColorTheme3;
         private float fieldHeight, fieldWidth;
         private Size2 size;
-        private VisibilityStateChanger state = new VisibilityStateChanger();
+        private VisibilityStateChanger visibilityStateChanger = new VisibilityStateChanger();
 
         public IController Controller 
         { 
@@ -57,7 +57,7 @@ namespace Potato.Menu
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public StringBuilder Text { get; private set; } = new StringBuilder("");
-        public MenuState State { get => state.State; }
+        public MenuState State { get => visibilityStateChanger.State; }
 
         public TypingMenu(float width)
         {
@@ -69,52 +69,50 @@ namespace Potato.Menu
             fieldHeight = textHeight + 4;
             size = new Size2(width: fieldWidth + 8, height: fieldHeight + 8);
             textOffset = new Vector2(x: 0, y: (fieldHeight - textHeight) / 2);
+
+            fieldTexture = new Texture2D(
+                graphicsDevice: Potato.SpriteBatch.GraphicsDevice,
+                width: (int)fieldWidth,
+                height: (int)fieldHeight,
+                mipmap: false,
+                format: SurfaceFormat.Color);
+            fieldTexture.SetData(Enumerable
+                .Range(0, fieldTexture.Width * fieldTexture.Height)
+                .Select((x) => fieldColor)
+                .ToArray());
+            glowTexture = fieldTexture.CreateStandardGlow0();
+            glowOffset = new Vector2(
+                x: -(glowTexture.Width - fieldTexture.Width) / 2,
+                y: -(glowTexture.Height - fieldTexture.Height) / 2);
         }
 
-        public void OpenMenu() => state.OpenMenu();
+        public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
-        public void CloseMenu() => state.CloseMenu();
+        public void CloseMenu() => visibilityStateChanger.CloseMenu();
         
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
-            if (fieldTexture == null)
-            {
-                fieldTexture = new Texture2D(
-                    graphicsDevice: spriteBatch.GraphicsDevice,
-                    width: (int)fieldWidth,
-                    height: (int)fieldHeight,
-                    mipmap: false,
-                    format: SurfaceFormat.Color);
-                fieldTexture.SetData(Enumerable
-                    .Range(0, fieldTexture.Width * fieldTexture.Height)
-                    .Select((x) => fieldColor)
-                    .ToArray());
-                glowTexture = fieldTexture.CreateStandardGlow0();
-                glowOffset = new Vector2(
-                    x: -(glowTexture.Width - fieldTexture.Width) / 2,
-                    y: -(glowTexture.Height - fieldTexture.Height) / 2);
-            }
-
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
             spriteBatch.Draw(
                 texture: glowTexture,
                 position: Position + glowOffset,
-                color: state.Alpha * Color.White);
+                color: visibilityStateChanger.Alpha * Color.White);
             spriteBatch.Draw(
                 texture: fieldTexture,
                 position: Position,
-                color: state.Alpha * Color.White);
+                color: visibilityStateChanger.Alpha * Color.White);
             spriteBatch.DrawString(
                 spriteFont: font, 
                 text: Text, 
                 position: Position + textOffset, 
-                color: state.Alpha * textColor);
+                color: visibilityStateChanger.Alpha * textColor);
             spriteBatch.DrawString(
                 spriteFont: font,
                 text: cursorString,
                 position: Position + cursorOffset,
-                color: state.Alpha * ((cursorVisible) ? 1.0f : 0.0f) * textColor);
+                color: visibilityStateChanger.Alpha * ((cursorVisible) ? 1.0f : 0.0f) * textColor);
             spriteBatch.End();
         }
 
@@ -156,20 +154,10 @@ namespace Potato.Menu
                 // Move cursor left or right.
                 cursorTrackLeft.Update(gameTime);
                 cursorTrackRight.Update(gameTime);
-                if (cursorTrackLeft.Check())
-                {
-                    if (cursor > 0)
-                    {
-                        cursor--;
-                    }
-                }
-                if (cursorTrackRight.Check())
-                {
-                    if (cursor < Text.Length)
-                    {
-                        cursor++;
-                    }
-                }
+                if (cursorTrackLeft.Check() && cursor > 0)
+                    cursor--;
+                if (cursorTrackRight.Check() && cursor < Text.Length)
+                    cursor++;
 
                 // Update cursor position.
                 Vector2 textSize = font.MeasureString((cursor > 0) ? Text.ToString().Substring(0, cursor) : " ");
@@ -200,7 +188,7 @@ namespace Potato.Menu
             }
 
             // Update state
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
         }
 
         private class TrackKey : IUpdateable

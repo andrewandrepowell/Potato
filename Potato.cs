@@ -142,8 +142,8 @@ namespace Potato
             GraphicsDevice.Clear(Color.RosyBrown);
             
             // TODO: Add your drawing code here
-            //menu.Draw(spriteBatch);
-            optionMenu.Draw(SpriteBatch);
+            //menu.Draw();
+            optionMenu.Draw();
             base.Draw(gameTime);
         }
 

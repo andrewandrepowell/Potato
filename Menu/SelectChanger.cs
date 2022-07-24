@@ -28,7 +28,7 @@ namespace Potato.Menu
 
         public void Update(GameTime gameTime)
         {
-            float timeElapsed = (float)gameTime.ElapsedGameTime.Seconds;
+            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             
             // If selected, flash with select color.
             if (selectable.Selected)

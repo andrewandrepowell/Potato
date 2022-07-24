@@ -24,24 +24,23 @@ namespace Potato.Menu
             Debug.Assert(width > 0);
             this.width = width;
             size = new Size2(width: width, height: height + 4);
+
+            texture = new Texture2D(
+                graphicsDevice: Potato.SpriteBatch.GraphicsDevice,
+                width: 1,
+                height: 1,
+                mipmap: false,
+                format: SurfaceFormat.Color);
+            texture.SetData(new Color[] { Color.White });
         }
 
         public void OpenMenu() => state.OpenMenu();
 
         public void CloseMenu() => state.CloseMenu();
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
-            if (texture == null)
-            {
-                texture = new Texture2D(
-                    graphicsDevice: spriteBatch.GraphicsDevice,
-                    width: 1,
-                    height: 1,
-                    mipmap: false,
-                    format: SurfaceFormat.Color);
-                texture.SetData(new Color[] { Color.White });
-            }
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
             DrawLine(
                 spriteBatch: spriteBatch,

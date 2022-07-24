@@ -12,12 +12,12 @@ namespace Potato.Menu
         private static SpriteFont font;
         private static readonly Color color = Potato.ColorTheme0;
         private readonly List<(string, Vector2, Texture2D, Vector2)> items;
+        private readonly VisibilityStateChanger visibilityStateChanger;
         private Size2 size;
-        private VisibilityStateChanger state = new VisibilityStateChanger();
         public IController Controller { get => null; set { } }
-        public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set => size = value; }
-        public MenuState State { get => state.State; }
+        public Vector2 Position { get; set; }
+        public Size2 Size { get => size; set => throw new NotImplementedException(); }
+        public MenuState State { get => visibilityStateChanger.State; }
 
         public TextMenu(string text, Alignment align, float width)
         {
@@ -96,27 +96,29 @@ namespace Potato.Menu
             size = new Size2(
                 width: width,
                 height: items.Count * font.MeasureString(" ").Y + 8);
+            visibilityStateChanger = new VisibilityStateChanger();
+            Position = Vector2.Zero;
         }
 
-        public void OpenMenu() => state.OpenMenu();
+        public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
-        public void CloseMenu() => state.CloseMenu();
+        public void CloseMenu() => visibilityStateChanger.CloseMenu();
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
-            // Draw the each line with glow.
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
             foreach ((string newLine, Vector2 newLineOffset, Texture2D glowTexture, Vector2 glowOffset) in items)
             {
                 spriteBatch.Draw(
                     texture: glowTexture, 
                     position: Position + glowOffset, 
-                    color: state.Alpha * Color.White);
+                    color: visibilityStateChanger.Alpha * Color.White);
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: newLine,
                     position: Position + newLineOffset,
-                    color: state.Alpha * color);
+                    color: visibilityStateChanger.Alpha * color);
             }
             spriteBatch.End();
         }
@@ -126,7 +128,7 @@ namespace Potato.Menu
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Update state.
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
         }
     }
 }

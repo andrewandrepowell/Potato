@@ -126,7 +126,7 @@ namespace Potato.Menu
 
         public void CloseMenu() => visibilityStateChanger.CloseMenu();
 
-        public void Draw(SpriteBatch _, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
             SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);

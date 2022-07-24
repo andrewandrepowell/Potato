@@ -45,8 +45,8 @@ namespace Potato.World.Menu
             public Vector2 Position { get => containerMenu.Position; set => containerMenu.Position = value; }
             public Size2 Size { get => containerMenu.Size; set => containerMenu.Size = value; }
             public void CloseMenu() => containerMenu.CloseMenu();
-            public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null) =>
-                containerMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+            public void Draw(Matrix? transformMatrix) =>
+                containerMenu.Draw(transformMatrix: transformMatrix);
             public void OpenMenu() => containerMenu.OpenMenu();
             public void Update(GameTime gameTime) => containerMenu.Update(gameTime);
         }
@@ -85,8 +85,8 @@ namespace Potato.World.Menu
         }
         public void CloseMenu() => transitionMenu.CloseMenu();
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null) =>
-            transitionMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+        public void Draw(Matrix? transformMatrix = null) =>
+            transitionMenu.Draw(transformMatrix: transformMatrix);
 
         public void OpenMenu() => transitionMenu.OpenMenu();
 

@@ -51,8 +51,8 @@ namespace Potato.Menu
 
         public void ForceBack() => forceBack = true;
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null) =>
-            CurrentMenu.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+        public void Draw(Matrix? transformMatrix = null) =>
+            CurrentMenu.Draw(transformMatrix: transformMatrix);
 
         public void Update(GameTime gameTime)
         {            

@@ -125,8 +125,9 @@ namespace Potato.Menu
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
+        public void Draw(Matrix? transformMatrix = null)
         {
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
 
             // Draw the backplane.
             spriteBatch.Begin(transformMatrix: transformMatrix);
@@ -142,7 +143,7 @@ namespace Potato.Menu
 
             // Draw the other elements of the menu.
             foreach ((IMenu item, _) in items)
-                item.Draw(spriteBatch: spriteBatch, transformMatrix: transformMatrix);
+                item.Draw(transformMatrix: transformMatrix);
         }
         
         public void Update(GameTime gameTime)

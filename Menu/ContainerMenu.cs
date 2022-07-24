@@ -79,6 +79,30 @@ namespace Potato.Menu
                 items.Add((component, itemOffset));
                 heightOffset += component.Size.Height;
             }
+
+            Size fullSize = new Size(
+                width: (int)Math.Ceiling(size.Width + backPlaneEdgeRadius * 2),
+                height: (int)Math.Ceiling(size.Height + backPlaneEdgeRadius * 2));
+            float diagonalLength = (float)Math.Sqrt(fullSize.Width * fullSize.Width + fullSize.Height * fullSize.Height);
+            Color GetColor(Point point)
+            {
+                float distanceFromTopLeft = Vector2.Distance(
+                    point.ToVector2(),
+                    new Vector2(x: fullSize.Width, y: fullSize.Height));
+                float fadeRatio = distanceFromTopLeft / diagonalLength;
+                return Add(
+                    color1: fadeRatio * backPlaneColor0,
+                    color2: (1 - fadeRatio) * backPlaneColor1);
+            }
+            backplaneTexture = Potato.SpriteBatch.GetCurvedRectangle(
+                size: fullSize,
+                edgeRadius: backPlaneEdgeRadius,
+                color: GetColor);
+            backPlaneOffset = new Vector2(x: -backPlaneEdgeRadius, y: -backPlaneEdgeRadius);
+            glowTexure = backplaneTexture.CreateStandardGlow0();
+            glowOffset = new Vector2(
+                x: backPlaneOffset.X - (glowTexure.Width - backplaneTexture.Width) / 2,
+                y: backPlaneOffset.Y - (glowTexure.Height - backplaneTexture.Height) / 2);
         }
 
         public void OpenMenu()
@@ -103,34 +127,6 @@ namespace Potato.Menu
 
         public void Draw(SpriteBatch spriteBatch, Matrix? transformMatrix = null)
         {
-            // Generate the backplane.
-            if (backplaneTexture == null)
-            {
-                Size2 size = Size;
-                Size fullSize = new Size(
-                    width: (int)Math.Ceiling(size.Width + backPlaneEdgeRadius * 2),
-                    height: (int)Math.Ceiling(size.Height + backPlaneEdgeRadius * 2));
-                float diagonalLength = (float)Math.Sqrt(fullSize.Width * fullSize.Width + fullSize.Height * fullSize.Height);
-                Color GetColor(Point point)
-                {
-                    float distanceFromTopLeft = Vector2.Distance(
-                        point.ToVector2(), 
-                        new Vector2(x: fullSize.Width, y: fullSize.Height));
-                    float fadeRatio = distanceFromTopLeft / diagonalLength;
-                    return Add(
-                        color1: fadeRatio * backPlaneColor0,
-                        color2: (1 - fadeRatio) * backPlaneColor1);
-                }
-                backplaneTexture = spriteBatch.GetCurvedRectangle(
-                    size: fullSize,
-                    edgeRadius: backPlaneEdgeRadius,
-                    color: GetColor);
-                backPlaneOffset = new Vector2(x: -backPlaneEdgeRadius, y: -backPlaneEdgeRadius);
-                glowTexure = backplaneTexture.CreateStandardGlow0();
-                glowOffset = new Vector2(
-                    x: backPlaneOffset.X - (glowTexure.Width - backplaneTexture.Width) / 2,
-                    y: backPlaneOffset.Y - (glowTexure.Height - backplaneTexture.Height) / 2);
-            }
 
             // Draw the backplane.
             spriteBatch.Begin(transformMatrix: transformMatrix);

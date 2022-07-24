@@ -39,7 +39,7 @@ namespace Potato.World.Menu
                     },
                     align: Alignment.Center);
             }
-            public ModifiableSelectMenu SelectMenu { get; set; }
+            public CacheTextMenu SelectMenu { get; set; }
             public MenuState State => containerMenu.State;
             public IController Controller {  get => containerMenu.Controller; set => containerMenu.Controller = value; }
             public Vector2 Position { get => containerMenu.Position; set => containerMenu.Position = value; }
@@ -64,13 +64,14 @@ namespace Potato.World.Menu
         private RadioMenu displayModeRadioMenu;
         private SelectMenu keybindSelectMenu;
         private SelectMenu applyChangesSelectMenu;
-        private ModifiableSelectMenu activateKeyBindSelectMenu;
-        private ModifiableSelectMenu backKeyBindSelectMenu;
-        private ModifiableSelectMenu leftKeyBindSelectMenu;
-        private ModifiableSelectMenu rightKeyBindSelectMenu;
-        private ModifiableSelectMenu upKeyBindSelectMenu;
-        private ModifiableSelectMenu downKeyBindSelectMenu;
+        private CacheTextMenu activateKeyBindSelectMenu;
+        private CacheTextMenu backKeyBindSelectMenu;
+        private CacheTextMenu leftKeyBindSelectMenu;
+        private CacheTextMenu rightKeyBindSelectMenu;
+        private CacheTextMenu upKeyBindSelectMenu;
+        private CacheTextMenu downKeyBindSelectMenu;
         private bool lockOutOfKeybindConfig;
+        private Keys[] previousKeyPresses;
         public MenuState State => transitionMenu.State;
 
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
@@ -97,25 +98,32 @@ namespace Potato.World.Menu
                 if (!lockOutOfKeybindConfig)
                 {
                     KeyboardStateExtended keyboardState = Keyboard.KeyboardState;
+                    Keys[] pressedKeys = keyboardState.GetPressedKeys();
                     transitionMenu.BackEnable = false;
-                    foreach ((Keys key, string keyString) in keyToStringDict)
+                    if (previousKeyPresses != null)
                     {
-                        if (keyboardState.WasKeyJustDown(key))
+                        foreach (Keys key in previousKeyPresses)
                         {
-                            string[] tokens = configureKeybindMenu.SelectMenu.Text.Split(' ');
-                            configureKeybindMenu.SelectMenu.Text = $"{tokens[0]} {keyString}";
-                            transitionMenu.BackEnable = true;
-                            transitionMenu.ForceBack();
-                            lockOutOfKeybindConfig = true;
-                            break;
+                            string keyString = keyToStringDict[key];
+                            if (keyboardState.WasKeyJustDown(key))
+                            {
+                                string[] tokens = configureKeybindMenu.SelectMenu.Text.Split(' ');
+                                configureKeybindMenu.SelectMenu.Text = $"{tokens[0]} {keyString}";
+                                transitionMenu.BackEnable = true;
+                                transitionMenu.ForceBack();
+                                lockOutOfKeybindConfig = true;
+                                break;
+                            }
                         }
                     }
+                    previousKeyPresses = pressedKeys;
                 }
             }
             else
             {
                 transitionMenu.BackEnable = true;
                 lockOutOfKeybindConfig = false;
+                previousKeyPresses = null;
             }
 
 
@@ -179,12 +187,46 @@ namespace Potato.World.Menu
                     applyChangesSelectMenu,
                 },
                 align: Alignment.Center);
-            activateKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Activate: {keyToStringDict[save.ActivateKey]}" };
-            backKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Back: {keyToStringDict[save.BackKey]}" };
-            leftKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Left: {keyToStringDict[save.LeftKey]}"  };
-            rightKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Right: {keyToStringDict[save.RightKey]}" };
-            upKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Up: {keyToStringDict[save.UpKey]}" };
-            downKeyBindSelectMenu = new ModifiableSelectMenu(align: Alignment.Center, width: innerWidth) { Text = $"Down: {keyToStringDict[save.DownKey]}" };
+            activateKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Activate: {tuple.Key}").ToList(),
+                align: Alignment.Center, width: innerWidth) 
+            { 
+                Text = $"Activate: {keyToStringDict[save.ActivateKey]}" 
+            };
+            backKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Back: {tuple.Key}").ToList(),
+                align: Alignment.Center, width: innerWidth) 
+            { 
+                Text = $"Back: {keyToStringDict[save.BackKey]}" 
+            };
+            leftKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Left: {tuple.Key}").ToList(),
+                align: Alignment.Center, 
+                width: innerWidth) 
+            { 
+                Text = $"Left: {keyToStringDict[save.LeftKey]}"  
+            };
+            rightKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Right: {tuple.Key}").ToList(),
+                align: Alignment.Center, 
+                width: innerWidth) 
+            { 
+                Text = $"Right: {keyToStringDict[save.RightKey]}" 
+            };
+            upKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Up: {tuple.Key}").ToList(),
+                align: Alignment.Center, 
+                width: innerWidth) 
+            { 
+                Text = $"Up: {keyToStringDict[save.UpKey]}" 
+            };
+            downKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Down: {tuple.Key}").ToList(),
+                align: Alignment.Center, 
+                width: innerWidth) 
+            { 
+                Text = $"Down: {keyToStringDict[save.DownKey]}" 
+            };
             keybindContainerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
@@ -220,6 +262,7 @@ namespace Potato.World.Menu
             keybindNode.Nodes.Add(downKeybindNode);
             transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode  }, menu: mainContainerMenu) { BackEnable = true };
             lockOutOfKeybindConfig = false;
+            previousKeyPresses = null;
         }
 
         static OptionMenu()

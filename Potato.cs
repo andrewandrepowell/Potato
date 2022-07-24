@@ -17,14 +17,15 @@ namespace Potato
     public class Potato : Game
     {
         public static Game Game { get; private set; }
+        public static GraphicsDeviceManager Graphics { get; private set; }
+        public static SpriteBatch SpriteBatch { get; private set; }
         public static readonly Color ColorTheme0 = Color.White;
         public static readonly Color ColorTheme1 = Color.Yellow;
         public static readonly Color ColorTheme2 = new Color(r: 63, g: 67, b: 52, alpha: 200);
         public static readonly Color ColorTheme3 = Color.Black;
         private const int gameWidth = 1280; // 720p
         private const int gameHeight = 720; // 720p
-        private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
+        
         private ContainerMenu menu;
         private OptionMenu optionMenu;
         private KeyboardController keyboard;
@@ -32,11 +33,11 @@ namespace Potato
 
         public Potato()
         {
-            graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsFixedTimeStep = false;
-            graphics.SynchronizeWithVerticalRetrace = true;
-            graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            Graphics.SynchronizeWithVerticalRetrace = true;
+            Graphics.GraphicsProfile = GraphicsProfile.HiDef;
             IsMouseVisible = true;
             Game = this;
 #if DEBUG
@@ -47,15 +48,15 @@ namespace Potato
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            graphics.PreferredBackBufferWidth = gameWidth;
-            graphics.PreferredBackBufferHeight = gameHeight;
-            graphics.ApplyChanges();
+            Graphics.PreferredBackBufferWidth = gameWidth;
+            Graphics.PreferredBackBufferHeight = gameHeight;
+            Graphics.ApplyChanges();
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
             keyboard = new KeyboardController();
@@ -142,7 +143,7 @@ namespace Potato
             
             // TODO: Add your drawing code here
             //menu.Draw(spriteBatch);
-            optionMenu.Draw(spriteBatch);
+            optionMenu.Draw(SpriteBatch);
             base.Draw(gameTime);
         }
 

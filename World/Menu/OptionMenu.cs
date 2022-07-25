@@ -71,6 +71,7 @@ namespace Potato.World.Menu
         private CacheTextMenu upKeyBindSelectMenu;
         private CacheTextMenu downKeyBindSelectMenu;
         private bool lockOutOfKeybindConfig;
+        private bool lockOutOfLoad;
         private Keys[] previousKeyPresses;
         public MenuState State => transitionMenu.State;
 
@@ -81,6 +82,7 @@ namespace Potato.World.Menu
 
         public OptionMenu(OptionMenuSave save)
         {
+            lockOutOfLoad = false;
             Load(save);
         }
         public void CloseMenu() => transitionMenu.CloseMenu();
@@ -126,8 +128,6 @@ namespace Potato.World.Menu
                 previousKeyPresses = null;
             }
 
-
-
             transitionMenu.Update(gameTime: gameTime);
         }
 
@@ -150,6 +150,9 @@ namespace Potato.World.Menu
 
         public void Load(OptionMenuSave save)
         {
+            if (lockOutOfLoad)
+                throw new InvalidOperationException("Cannot load more than once.");
+            lockOutOfLoad = true;
             masterVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MasterVolume);
             musicVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MusicVolume);
             effectVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.EffectVolume);

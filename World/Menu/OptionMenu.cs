@@ -25,7 +25,7 @@ namespace Potato.World.Menu
         public Keys UpKey;
         public Keys DownKey;
     }
-    internal class OptionMenu : IMenu, ISavable<OptionMenuSave>
+    internal class OptionMenu : IMenu, ISavable<OptionMenuSave>, IDefaultable
     {
         private class ConfigureKeybindMenu : IMenu
         {
@@ -52,6 +52,19 @@ namespace Potato.World.Menu
         }
         private static readonly Dictionary<Keys,string> keyToStringDict;
         private static readonly Dictionary<string, Keys> stringToKeyDict;
+        private static readonly OptionMenuSave defaultOptionMenuSave = new OptionMenuSave()
+        {
+            MasterVolume = 0.5f,
+            MusicVolume = 0.1f,
+            EffectVolume = 1.0f,
+            DisplayMode = DisplayModeType.Windowed,
+            ActivateKey = Keys.Enter,
+            BackKey = Keys.Back,
+            LeftKey = Keys.Left,
+            RightKey = Keys.Right,
+            UpKey = Keys.Up,
+            DownKey = Keys.Down
+        };
         private const float outerWidth = 512f;
         private const float innerWidth = outerWidth * .90f;
         private const float dividerWidth = innerWidth * .90f;
@@ -83,8 +96,15 @@ namespace Potato.World.Menu
         public OptionMenu(OptionMenuSave save)
         {
             lockOutOfLoad = false;
-            Load(save);
+            Load(save: save);
         }
+        
+        public OptionMenu()
+        {
+            lockOutOfLoad = false;
+            Load(save: defaultOptionMenuSave);
+        }
+        
         public void CloseMenu() => transitionMenu.CloseMenu();
 
         public void Draw(Matrix? transformMatrix = null) =>
@@ -266,6 +286,23 @@ namespace Potato.World.Menu
             transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode  }, menu: mainContainerMenu) { BackEnable = true };
             lockOutOfKeybindConfig = false;
             previousKeyPresses = null;
+        }
+
+        public void ApplyDefaults()
+        {
+            masterVolumeSliderMenu.Fill = defaultOptionMenuSave.MusicVolume;
+            musicVolumeSliderMenu.Fill = defaultOptionMenuSave.MusicVolume;
+            effectVolumeSliderMenu.Fill = defaultOptionMenuSave.EffectVolume;
+            displayModeRadioMenu.Selected =
+                (defaultOptionMenuSave.DisplayMode == DisplayModeType.Windowed) ? 0 :
+                (defaultOptionMenuSave.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
+                throw new ArgumentException();
+            activateKeyBindSelectMenu.Text = $"Activate: {keyToStringDict[defaultOptionMenuSave.ActivateKey]}";
+            backKeyBindSelectMenu.Text = $"Back: {keyToStringDict[defaultOptionMenuSave.BackKey]}";
+            leftKeyBindSelectMenu.Text = $"Left: {keyToStringDict[defaultOptionMenuSave.LeftKey]}";
+            rightKeyBindSelectMenu.Text = $"Right: {keyToStringDict[defaultOptionMenuSave.RightKey]}";
+            upKeyBindSelectMenu.Text = $"Up: {keyToStringDict[defaultOptionMenuSave.UpKey]}";
+            downKeyBindSelectMenu.Text = $"Down: {keyToStringDict[defaultOptionMenuSave.DownKey]}";
         }
 
         static OptionMenu()

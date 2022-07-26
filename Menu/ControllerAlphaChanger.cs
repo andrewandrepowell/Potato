@@ -8,13 +8,14 @@ namespace Potato.Menu
     internal class ControllerAlphaChanger : IUpdateable
     {
         private const float changeRate = 1.0f;
-        private bool increment = false;
+        private bool increment;
         private IControllable controllable;
         public float Alpha { get; private set; } = 0.0f;
 
         public ControllerAlphaChanger(IControllable controllable)
         {
             this.controllable = controllable;
+            increment = false;
         }
         
         public void Update(GameTime gameTime)

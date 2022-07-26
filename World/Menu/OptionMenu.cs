@@ -76,6 +76,7 @@ namespace Potato.World.Menu
         private SliderMenu effectVolumeSliderMenu;
         private RadioMenu displayModeRadioMenu;
         private SelectMenu keybindSelectMenu;
+        private SelectMenu applyDefaultSelectMenu;
         private SelectMenu applyChangesSelectMenu;
         private CacheTextMenu activateKeyBindSelectMenu;
         private CacheTextMenu backKeyBindSelectMenu;
@@ -84,7 +85,7 @@ namespace Potato.World.Menu
         private CacheTextMenu upKeyBindSelectMenu;
         private CacheTextMenu downKeyBindSelectMenu;
         private bool lockOutOfKeybindConfig;
-        private bool lockOutOfLoad;
+        private bool lockOutOfApplyDefault;
         private Keys[] previousKeyPresses;
         public MenuState State => transitionMenu.State;
 
@@ -93,16 +94,130 @@ namespace Potato.World.Menu
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
         public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
 
-        public OptionMenu(OptionMenuSave save)
+        public OptionMenu(OptionMenuSave save) : this()
         {
-            lockOutOfLoad = false;
             Load(save: save);
         }
         
         public OptionMenu()
         {
-            lockOutOfLoad = false;
-            Load(save: defaultOptionMenuSave);
+            OptionMenuSave save = defaultOptionMenuSave;
+            masterVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MasterVolume);
+            musicVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MusicVolume);
+            effectVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.EffectVolume);
+            keybindSelectMenu = new SelectMenu(text: "Configure Key Bindings", align: Alignment.Center, width: innerWidth);
+            displayModeRadioMenu = new RadioMenu(
+                options: new List<string>()
+                {
+                    "Windowed",
+                    "Fullscreen",
+                },
+                align: Alignment.Center,
+                width: innerWidth,
+                selected:
+                    (save.DisplayMode == DisplayModeType.Windowed) ? 0 :
+                    (save.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
+                    throw new ArgumentException());
+            applyDefaultSelectMenu = new SelectMenu(text: "Apply Defaults", align: Alignment.Center, width: innerWidth);
+            applyChangesSelectMenu = new SelectMenu(text: "Apply Changes", align: Alignment.Center, width: innerWidth);
+            mainContainerMenu = new ContainerMenu(
+                components: new List<IMenu>()
+                {
+                    new TextMenu(text: "-Options-", align: Alignment.Center, width: outerWidth),
+                    new DividerMenu(width: dividerWidth),
+                    new TextMenu(text: "Master Volume:", align: Alignment.Center, width: outerWidth),
+                    masterVolumeSliderMenu,
+                    new TextMenu(text: "Music Volume:", align: Alignment.Center, width: outerWidth),
+                    musicVolumeSliderMenu,
+                    new TextMenu(text: "Effect Volume:", align: Alignment.Center, width: outerWidth),
+                    effectVolumeSliderMenu,
+                    new DividerMenu(width: dividerWidth),
+                    new TextMenu(text: "Display Mode:", align: Alignment.Center, width: outerWidth),
+                    displayModeRadioMenu,
+                    new DividerMenu(width: dividerWidth),
+                    keybindSelectMenu,
+                    new DividerMenu(width: dividerWidth),
+                    applyDefaultSelectMenu,
+                    applyChangesSelectMenu,
+                },
+                align: Alignment.Center);
+            activateKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Activate: {tuple.Key}").ToList(),
+                align: Alignment.Center, width: innerWidth)
+            {
+                Text = $"Activate: {keyToStringDict[save.ActivateKey]}"
+            };
+            backKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Back: {tuple.Key}").ToList(),
+                align: Alignment.Center, width: innerWidth)
+            {
+                Text = $"Back: {keyToStringDict[save.BackKey]}"
+            };
+            leftKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Left: {tuple.Key}").ToList(),
+                align: Alignment.Center,
+                width: innerWidth)
+            {
+                Text = $"Left: {keyToStringDict[save.LeftKey]}"
+            };
+            rightKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Right: {tuple.Key}").ToList(),
+                align: Alignment.Center,
+                width: innerWidth)
+            {
+                Text = $"Right: {keyToStringDict[save.RightKey]}"
+            };
+            upKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Up: {tuple.Key}").ToList(),
+                align: Alignment.Center,
+                width: innerWidth)
+            {
+                Text = $"Up: {keyToStringDict[save.UpKey]}"
+            };
+            downKeyBindSelectMenu = new CacheTextMenu(
+                texts: stringToKeyDict.Select((tuple) => $"Down: {tuple.Key}").ToList(),
+                align: Alignment.Center,
+                width: innerWidth)
+            {
+                Text = $"Down: {keyToStringDict[save.DownKey]}"
+            };
+            keybindContainerMenu = new ContainerMenu(
+                components: new List<IMenu>()
+                {
+                    new TextMenu(text: "-Key Bindings-", align: Alignment.Center, width: outerWidth),
+                    new DividerMenu(width: dividerWidth),
+                    activateKeyBindSelectMenu,
+                    backKeyBindSelectMenu,
+                    leftKeyBindSelectMenu,
+                    rightKeyBindSelectMenu,
+                    upKeyBindSelectMenu,
+                    downKeyBindSelectMenu,
+                },
+                align: Alignment.Center);
+            ContainerMenu configureKeybindContainerMenu = new ContainerMenu(
+                components: new List<IMenu>()
+                {
+                    new TextMenu(text: "Hit a key to set new binding.", align: Alignment.Center, width: innerWidth),
+                },
+                align: Alignment.Center);
+
+            var activateKeybindNode = new TransitionMenu.Node(selectable: activateKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = activateKeyBindSelectMenu });
+            var backKeybindNode = new TransitionMenu.Node(selectable: backKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = backKeyBindSelectMenu });
+            var leftKeybindNode = new TransitionMenu.Node(selectable: leftKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = leftKeyBindSelectMenu });
+            var rightKeybindNode = new TransitionMenu.Node(selectable: rightKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = rightKeyBindSelectMenu });
+            var upKeybindNode = new TransitionMenu.Node(selectable: upKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = upKeyBindSelectMenu });
+            var downKeybindNode = new TransitionMenu.Node(selectable: downKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = downKeyBindSelectMenu });
+            var keybindNode = new TransitionMenu.Node(selectable: keybindSelectMenu, menu: keybindContainerMenu);
+            keybindNode.Nodes.Add(activateKeybindNode);
+            keybindNode.Nodes.Add(backKeybindNode);
+            keybindNode.Nodes.Add(leftKeybindNode);
+            keybindNode.Nodes.Add(rightKeybindNode);
+            keybindNode.Nodes.Add(upKeybindNode);
+            keybindNode.Nodes.Add(downKeybindNode);
+            transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode }, menu: mainContainerMenu) { BackEnable = true };
+            lockOutOfKeybindConfig = false;
+            lockOutOfApplyDefault = false;
+            previousKeyPresses = null;
         }
         
         public void CloseMenu() => transitionMenu.CloseMenu();
@@ -148,6 +263,16 @@ namespace Potato.World.Menu
                 previousKeyPresses = null;
             }
 
+            if (applyDefaultSelectMenu.Selected)
+            {
+                if (!lockOutOfApplyDefault)
+                {
+                    lockOutOfApplyDefault = true;
+                    ApplyDefaults();
+                }
+            }
+            else lockOutOfApplyDefault = false;
+
             transitionMenu.Update(gameTime: gameTime);
         }
 
@@ -170,139 +295,24 @@ namespace Potato.World.Menu
 
         public void Load(OptionMenuSave save)
         {
-            if (lockOutOfLoad)
-                throw new InvalidOperationException("Cannot load more than once.");
-            lockOutOfLoad = true;
-            masterVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MasterVolume);
-            musicVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MusicVolume);
-            effectVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.EffectVolume);
-            keybindSelectMenu = new SelectMenu(text: "Configure Key Bindings", align: Alignment.Center, width: innerWidth);
-            displayModeRadioMenu = new RadioMenu(
-                options: new List<string>()
-                {
-                    "Windowed",
-                    "Fullscreen",
-                },
-                align: Alignment.Center,
-                width: innerWidth,
-                selected: 
-                    (save.DisplayMode == DisplayModeType.Windowed) ? 0 :
-                    (save.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
-                    throw new ArgumentException());
-            applyChangesSelectMenu = new SelectMenu(text: "Apply Changes", align: Alignment.Center, width: innerWidth);
-            mainContainerMenu = new ContainerMenu(
-                components: new List<IMenu>()
-                {
-                    new TextMenu(text: "-Options-", align: Alignment.Center, width: outerWidth),
-                    new DividerMenu(width: dividerWidth),
-                    new TextMenu(text: "Master Volume:", align: Alignment.Center, width: outerWidth),
-                    masterVolumeSliderMenu,
-                    new TextMenu(text: "Music Volume:", align: Alignment.Center, width: outerWidth),
-                    musicVolumeSliderMenu,
-                    new TextMenu(text: "Effect Volume:", align: Alignment.Center, width: outerWidth),
-                    effectVolumeSliderMenu,
-                    new DividerMenu(width: dividerWidth),
-                    new TextMenu(text: "Display Mode:", align: Alignment.Center, width: outerWidth),
-                    displayModeRadioMenu,
-                    new DividerMenu(width: dividerWidth),
-                    keybindSelectMenu,
-                    new DividerMenu(width: dividerWidth),
-                    applyChangesSelectMenu,
-                },
-                align: Alignment.Center);
-            activateKeyBindSelectMenu = new CacheTextMenu(
-                texts: stringToKeyDict.Select((tuple) => $"Activate: {tuple.Key}").ToList(),
-                align: Alignment.Center, width: innerWidth) 
-            { 
-                Text = $"Activate: {keyToStringDict[save.ActivateKey]}" 
-            };
-            backKeyBindSelectMenu = new CacheTextMenu(
-                texts: stringToKeyDict.Select((tuple) => $"Back: {tuple.Key}").ToList(),
-                align: Alignment.Center, width: innerWidth) 
-            { 
-                Text = $"Back: {keyToStringDict[save.BackKey]}" 
-            };
-            leftKeyBindSelectMenu = new CacheTextMenu(
-                texts: stringToKeyDict.Select((tuple) => $"Left: {tuple.Key}").ToList(),
-                align: Alignment.Center, 
-                width: innerWidth) 
-            { 
-                Text = $"Left: {keyToStringDict[save.LeftKey]}"  
-            };
-            rightKeyBindSelectMenu = new CacheTextMenu(
-                texts: stringToKeyDict.Select((tuple) => $"Right: {tuple.Key}").ToList(),
-                align: Alignment.Center, 
-                width: innerWidth) 
-            { 
-                Text = $"Right: {keyToStringDict[save.RightKey]}" 
-            };
-            upKeyBindSelectMenu = new CacheTextMenu(
-                texts: stringToKeyDict.Select((tuple) => $"Up: {tuple.Key}").ToList(),
-                align: Alignment.Center, 
-                width: innerWidth) 
-            { 
-                Text = $"Up: {keyToStringDict[save.UpKey]}" 
-            };
-            downKeyBindSelectMenu = new CacheTextMenu(
-                texts: stringToKeyDict.Select((tuple) => $"Down: {tuple.Key}").ToList(),
-                align: Alignment.Center, 
-                width: innerWidth) 
-            { 
-                Text = $"Down: {keyToStringDict[save.DownKey]}" 
-            };
-            keybindContainerMenu = new ContainerMenu(
-                components: new List<IMenu>()
-                {
-                    new TextMenu(text: "-Key Bindings-", align: Alignment.Center, width: outerWidth),
-                    new DividerMenu(width: dividerWidth),
-                    activateKeyBindSelectMenu,
-                    backKeyBindSelectMenu,
-                    leftKeyBindSelectMenu,
-                    rightKeyBindSelectMenu,
-                    upKeyBindSelectMenu,
-                    downKeyBindSelectMenu,
-                },
-                align: Alignment.Center);
-            ContainerMenu configureKeybindContainerMenu = new ContainerMenu(
-                components: new List<IMenu>()
-                {
-                    new TextMenu(text: "Hit a key to set new binding.", align: Alignment.Center, width: innerWidth),
-                },
-                align: Alignment.Center);
-
-            var activateKeybindNode = new TransitionMenu.Node(selectable: activateKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = activateKeyBindSelectMenu });
-            var backKeybindNode = new TransitionMenu.Node(selectable: backKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = backKeyBindSelectMenu });
-            var leftKeybindNode = new TransitionMenu.Node(selectable: leftKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = leftKeyBindSelectMenu });
-            var rightKeybindNode = new TransitionMenu.Node(selectable: rightKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = rightKeyBindSelectMenu });
-            var upKeybindNode = new TransitionMenu.Node(selectable: upKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = upKeyBindSelectMenu });
-            var downKeybindNode = new TransitionMenu.Node(selectable: downKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = downKeyBindSelectMenu });
-            var keybindNode = new TransitionMenu.Node(selectable: keybindSelectMenu, menu: keybindContainerMenu);
-            keybindNode.Nodes.Add(activateKeybindNode);
-            keybindNode.Nodes.Add(backKeybindNode);
-            keybindNode.Nodes.Add(leftKeybindNode);
-            keybindNode.Nodes.Add(rightKeybindNode);
-            keybindNode.Nodes.Add(upKeybindNode);
-            keybindNode.Nodes.Add(downKeybindNode);
-            transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode  }, menu: mainContainerMenu) { BackEnable = true };
-            lockOutOfKeybindConfig = false;
-            previousKeyPresses = null;
+            masterVolumeSliderMenu.Fill = save.MasterVolume;
+            musicVolumeSliderMenu.Fill = save.MusicVolume;
+            effectVolumeSliderMenu.Fill = save.EffectVolume;
+            displayModeRadioMenu.Selected = 
+                (save.DisplayMode == DisplayModeType.Windowed) ? 0 :
+                (save.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
+                throw new ArgumentException();
+            activateKeyBindSelectMenu.Text = $"Activate: {keyToStringDict[save.ActivateKey]}";
+            backKeyBindSelectMenu.Text = $"Back: {keyToStringDict[save.BackKey]}";
+            leftKeyBindSelectMenu.Text = $"Left: {keyToStringDict[save.LeftKey]}";
+            rightKeyBindSelectMenu.Text = $"Right: {keyToStringDict[save.RightKey]}";
+            upKeyBindSelectMenu.Text = $"Up: {keyToStringDict[save.UpKey]}";
+            downKeyBindSelectMenu.Text = $"Down: {keyToStringDict[save.DownKey]}";
         }
 
         public void ApplyDefaults()
         {
-            masterVolumeSliderMenu.Fill = defaultOptionMenuSave.MusicVolume;
-            musicVolumeSliderMenu.Fill = defaultOptionMenuSave.MusicVolume;
-            effectVolumeSliderMenu.Fill = defaultOptionMenuSave.EffectVolume;
-            displayModeRadioMenu.Selected =
-                (defaultOptionMenuSave.DisplayMode == DisplayModeType.Windowed) ? 0 :
-                (defaultOptionMenuSave.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
-                throw new ArgumentException();
-            activateKeyBindSelectMenu.Text = $"Activate: {keyToStringDict[defaultOptionMenuSave.ActivateKey]}";
-            backKeyBindSelectMenu.Text = $"Back: {keyToStringDict[defaultOptionMenuSave.BackKey]}";
-            leftKeyBindSelectMenu.Text = $"Left: {keyToStringDict[defaultOptionMenuSave.LeftKey]}";
-            rightKeyBindSelectMenu.Text = $"Right: {keyToStringDict[defaultOptionMenuSave.RightKey]}";
-            upKeyBindSelectMenu.Text = $"Up: {keyToStringDict[defaultOptionMenuSave.UpKey]}";
-            downKeyBindSelectMenu.Text = $"Down: {keyToStringDict[defaultOptionMenuSave.DownKey]}";
+            Load(save: defaultOptionMenuSave);
         }
 
         static OptionMenu()

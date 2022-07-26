@@ -20,12 +20,28 @@ namespace Potato.Menu
         private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
         private ControllerAlphaChanger controllerAlphaChanger;
         private Size2 size;
-        private VisibilityStateChanger state;
-        public int Selected { get; set; }
+        private VisibilityStateChanger visibilityStateChanger;
+        private int selectedIndex;
+        public int Selected 
+        {
+            get => selectedIndex;
+            set
+            {
+                selectedIndex = value;
+                foreach ((int index, var tuple) in items.Select((x, index) => (index, x)))
+                {
+                    AnimatedSprite radioSprite = tuple.Item1;
+                    if (index == Selected)
+                        radioSprite.Play("selected");
+                    else
+                        radioSprite.Play("unselected");
+                }
+            }
+        }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public MenuState State { get => state.State; }
+        public MenuState State { get => visibilityStateChanger.State; }
 
         public RadioMenu(IList<string> options, Alignment align, float width, int selected)
         {
@@ -161,15 +177,14 @@ namespace Potato.Menu
                 width: width,
                 height: heightOffset + 8);
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
-            state = new VisibilityStateChanger();
+            visibilityStateChanger = new VisibilityStateChanger();
 
             Selected = selected;
-            ApplySelected();
         }
 
-        public void OpenMenu() => state.OpenMenu();
+        public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
-        public void CloseMenu() => state.CloseMenu();
+        public void CloseMenu() => visibilityStateChanger.CloseMenu();
 
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -183,19 +198,19 @@ namespace Potato.Menu
                 Vector2 radioOffset = tuple.Item4;
                 Vector2 optionOffset = tuple.Item5;
                 Vector2 glowOffset = tuple.Item6;
-                radioSprite.Color = state.Alpha * Color.White;
+                radioSprite.Color = visibilityStateChanger.Alpha * Color.White;
                 spriteBatch.Draw(
                     sprite: radioSprite,
                     position: Position + radioOffset);
                 spriteBatch.Draw(
                     texture: glowTexture,
                     position: Position + glowOffset,
-                    color: state.Alpha * Color.White * ((index == Selected) ? controllerAlphaChanger.Alpha : 1.0f));
+                    color: visibilityStateChanger.Alpha * Color.White * ((index == Selected) ? controllerAlphaChanger.Alpha : 1.0f));
                 spriteBatch.DrawString(
                     spriteFont: font,
                     text: optionValue,
                     position: Position + optionOffset,
-                    color: state.Alpha * fontColor * ((index == Selected) ? controllerAlphaChanger.Alpha : 1.0f));
+                    color: visibilityStateChanger.Alpha * fontColor * ((index == Selected) ? controllerAlphaChanger.Alpha : 1.0f));
             }
             spriteBatch.End();
         }
@@ -209,12 +224,10 @@ namespace Potato.Menu
                 if (Controller.RightPressed())
                 {
                     Selected = (Selected == items.Count - 1) ? 0 : Selected + 1;
-                    ApplySelected();
                 }
                 if (Controller.LeftPressed())
                 {
                     Selected = (Selected == 0) ? items.Count - 1 : Selected - 1;
-                    ApplySelected();
                 }
             }
 
@@ -224,20 +237,8 @@ namespace Potato.Menu
                 radioSprite.Update(timeElapsed);
             }
 
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
-        }
-
-        private void ApplySelected()
-        {
-            foreach ((int index, var tuple) in items.Select((x, index) => (index, x)))
-            {
-                AnimatedSprite radioSprite = tuple.Item1;
-                if (index == Selected)
-                    radioSprite.Play("selected");
-                else
-                    radioSprite.Play("unselected");
-            }
         }
     }
 }

@@ -9,9 +9,11 @@ namespace Potato.Menu
     {
         private ISelectable selectable;
         private const float selectValueChangeRate = 8.0f;
-        private bool selectValueIncrement = true;
+        private bool selectValueIncrement;
         private float selectValue = 0.0f;
         private static readonly Color selectColor = Potato.ColorTheme1;
+        private const int cycleTotal = 4;
+        private int cycleCurrent;
 
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
@@ -22,6 +24,8 @@ namespace Potato.Menu
         public SelectChanger(ISelectable selectable)
         {
             this.selectable = selectable;
+            selectValueIncrement = true;
+            cycleCurrent = 0;
         }
 
         public Color ApplySelect(Color textColor) => Add((1.0f - selectValue) * textColor, selectValue * selectColor);
@@ -33,14 +37,25 @@ namespace Potato.Menu
             // If selected, flash with select color.
             if (selectable.Selected)
             {
-                selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;
-                if (selectValue > 1.0f)
-                    selectValueIncrement = false;
-                else if (selectValue < 0.0f)
-                    selectValueIncrement = true;
+                if (cycleCurrent != cycleTotal)
+                {
+                    selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;
+                    if (selectValue > 1.0f)
+                    {
+                        selectValue = 1.0f;
+                        selectValueIncrement = false;
+                    }
+                    else if (selectValue < 0.0f)
+                    {
+                        cycleCurrent++;
+                        selectValue = 0.0f;
+                        selectValueIncrement = true;
+                    }
+                }
             }
             else
             {
+                cycleCurrent = 0;
                 selectValue = 0.0f;
                 selectValueIncrement = true;
             }

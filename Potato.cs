@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 #if DEBUG
 using System.Runtime.InteropServices;
 #endif
@@ -25,7 +26,8 @@ namespace Potato
         public static readonly Color ColorTheme3 = Color.Black;
         private const int gameWidth = 1280; // 720p
         private const int gameHeight = 720; // 720p
-        
+        private const string optionSaveFileName = "option.save";
+
         private ContainerMenu menu;
         private OptionMenu optionMenu;
         private KeyboardController keyboard;
@@ -83,20 +85,16 @@ namespace Potato
             //menu.Controller = keyboard;
             //menu.OpenMenu();
 
-            OptionMenuSave optionMenuSave = new OptionMenuSave()
+            try
             {
-                MasterVolume = 0.5f,
-                MusicVolume = 0.1f,
-                EffectVolume = 1.0f,
-                DisplayMode = DisplayModeType.Windowed,
-                ActivateKey = Keys.Enter,
-                BackKey = Keys.Back,
-                LeftKey = Keys.Left,
-                RightKey = Keys.Right,
-                UpKey = Keys.Up,
-                DownKey = Keys.Down
-            };
-            optionMenu = new OptionMenu(save: optionMenuSave);
+                OptionMenuSave save = Saver.Load<OptionMenuSave>(fileName: optionSaveFileName);
+                optionMenu = new OptionMenu(save: save);
+            }
+            catch (FileNotFoundException)
+            {
+                optionMenu = new OptionMenu();
+            }
+            
             optionMenu.Position = new Vector2(x: (gameWidth - optionMenu.Size.Width) / 2, y: 32);
             optionMenu.Controller = keyboard;
             optionMenu.Keyboard = keyboard;
@@ -112,6 +110,12 @@ namespace Potato
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (optionMenu.ApplySelected)
+            {
+                OptionMenuSave save = optionMenu.Save();
+                Saver.Save(optionSaveFileName, save);
+            }
 
             // TODO: Add your update logic here
             //menu.Update(gameTime);

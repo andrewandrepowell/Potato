@@ -14,16 +14,16 @@ namespace Potato.World.Menu
     internal enum DisplayModeType { Fullscreen, Windowed }
     internal struct OptionMenuSave
     {
-        public float MasterVolume;
-        public float MusicVolume;
-        public float EffectVolume;
-        public DisplayModeType DisplayMode;
-        public Keys ActivateKey;
-        public Keys BackKey;
-        public Keys LeftKey;
-        public Keys RightKey;
-        public Keys UpKey;
-        public Keys DownKey;
+        public float MasterVolume { get; set; }
+        public float MusicVolume { get; set; }
+        public float EffectVolume { get; set; }
+        public DisplayModeType DisplayMode { get; set; }
+        public Keys ActivateKey { get; set; }
+        public Keys BackKey { get; set; }
+        public Keys LeftKey { get; set; }
+        public Keys RightKey { get; set; }
+        public Keys UpKey { get; set; }
+        public Keys DownKey { get; set; }
     }
     internal class OptionMenu : IMenu, ISavable<OptionMenuSave>, IDefaultable
     {
@@ -93,6 +93,7 @@ namespace Potato.World.Menu
         public KeyboardController Keyboard { get; set; }
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
         public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
+        public bool ApplySelected => applyChangesSelectMenu.Selected;
 
         public OptionMenu(OptionMenuSave save) : this()
         {

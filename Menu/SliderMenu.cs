@@ -33,7 +33,7 @@ namespace Potato.Menu
                 (texture, glowTexure, glowOffset) = items[(int)MathHelper.Clamp(value: currentFill * resolution, min: 0, max: resolution - 1)];
             }
         }
-        public IController Controller { get; set; }
+        public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public MenuState State { get => visibilityStateChanger.State; }
@@ -42,7 +42,7 @@ namespace Potato.Menu
         {
             Debug.Assert(width > 0);
             size = new Size2(width: width, height: height + 8);
-            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            controllerAlphaChanger = new ControllerAlphaChanger();
             visibilityStateChanger = new VisibilityStateChanger();
 
             items = new List<(Texture2D, Texture2D, Vector2)>(capacity: resolution);

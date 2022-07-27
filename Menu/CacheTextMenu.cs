@@ -32,7 +32,7 @@ namespace Potato.Menu
             }
         }
         public MenuState State => visibilityStateChanger.State;
-        public IController Controller { get; set; }
+        public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => menuSize; set { } }
         public bool Selected { get => selectChanger.Selected; }
@@ -115,7 +115,7 @@ namespace Potato.Menu
             
             Text = texts[0];
             visibilityStateChanger = new VisibilityStateChanger();
-            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            controllerAlphaChanger = new ControllerAlphaChanger();
             selectChanger = new SelectChanger();
             Controller = null;
             Position = Vector2.Zero;

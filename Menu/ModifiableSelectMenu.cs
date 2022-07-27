@@ -22,7 +22,7 @@ namespace Potato.Menu
         private Vector2 glowOffset;
         private Alignment align;
         public bool Selected { get => selectChanger.Selected; }
-        public IController Controller { get; set; }
+        public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public MenuState State { get => visibilityStateChanger.State; }
@@ -75,7 +75,7 @@ namespace Potato.Menu
                 width: width,
                 height: font.MeasureString(" ").Y + 8);
             this.align = align;
-            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            controllerAlphaChanger = new ControllerAlphaChanger();
             selectChanger = new SelectChanger();
             Text = "";
             Controller = null;

@@ -38,7 +38,7 @@ namespace Potato.Menu
                 }
             }
         }
-        public IController Controller { get; set; } = null;
+        public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public MenuState State { get => visibilityStateChanger.State; }
@@ -176,7 +176,7 @@ namespace Potato.Menu
             size = new Size2(
                 width: width,
                 height: heightOffset + 8);
-            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            controllerAlphaChanger = new ControllerAlphaChanger();
             visibilityStateChanger = new VisibilityStateChanger();
 
             Selected = selected;

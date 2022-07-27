@@ -14,7 +14,7 @@ namespace Potato.Menu
         private readonly ControllerAlphaChanger controllerAlphaChanger;
         private readonly VisibilityStateChanger state;
         private readonly SelectChanger selectChanger;
-        public IController Controller { get; set; }
+        public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public bool Selected { get => selectChanger.Selected; }
@@ -24,7 +24,7 @@ namespace Potato.Menu
         {
             this.texture = texture;
             size = new Size2(texture.Width, texture.Height);
-            controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
+            controllerAlphaChanger = new ControllerAlphaChanger();
             state = new VisibilityStateChanger();
             selectChanger = new SelectChanger();
             Controller = null;

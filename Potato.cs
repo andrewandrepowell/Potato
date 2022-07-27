@@ -111,7 +111,7 @@ namespace Potato
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (optionMenu.ApplySelected)
+            if (optionMenu.ApplyChangesSelected || optionMenu.ApplyDefaultSelected)
             {
                 OptionMenuSave save = optionMenu.Save();
                 Saver.Save(optionSaveFileName, save);

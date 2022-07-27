@@ -85,15 +85,14 @@ namespace Potato.World.Menu
         private CacheTextMenu upKeyBindSelectMenu;
         private CacheTextMenu downKeyBindSelectMenu;
         private bool lockOutOfKeybindConfig;
-        private bool lockOutOfApplyDefault;
         private Keys[] previousKeyPresses;
         public MenuState State => transitionMenu.State;
-
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public KeyboardController Keyboard { get; set; }
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
         public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
-        public bool ApplySelected => applyChangesSelectMenu.Selected;
+        public bool ApplyChangesSelected => applyChangesSelectMenu.Selected;
+        public bool ApplyDefaultSelected => applyDefaultSelectMenu.Selected;
 
         public OptionMenu(OptionMenuSave save) : this()
         {
@@ -217,7 +216,6 @@ namespace Potato.World.Menu
             keybindNode.Nodes.Add(downKeybindNode);
             transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode }, menu: mainContainerMenu) { BackEnable = true };
             lockOutOfKeybindConfig = false;
-            lockOutOfApplyDefault = false;
             previousKeyPresses = null;
         }
         
@@ -265,14 +263,7 @@ namespace Potato.World.Menu
             }
 
             if (applyDefaultSelectMenu.Selected)
-            {
-                if (!lockOutOfApplyDefault)
-                {
-                    lockOutOfApplyDefault = true;
-                    ApplyDefaults();
-                }
-            }
-            else lockOutOfApplyDefault = false;
+                ApplyDefaults();
 
             transitionMenu.Update(gameTime: gameTime);
         }

@@ -35,7 +35,7 @@ namespace Potato.Menu
         public IController Controller { get; set; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => menuSize; set { } }
-        public bool Selected { get; set; }
+        public bool Selected { get => selectChanger.Selected; }
 
         public CacheTextMenu(IList<string> texts, Alignment align, float width)
         {
@@ -116,7 +116,7 @@ namespace Potato.Menu
             Text = texts[0];
             visibilityStateChanger = new VisibilityStateChanger();
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
-            selectChanger = new SelectChanger(selectable: this);
+            selectChanger = new SelectChanger();
             Controller = null;
             Position = Vector2.Zero;
             menuSize = new Size2(
@@ -150,11 +150,15 @@ namespace Potato.Menu
         public void Update(GameTime gameTime)
         {
             if (Controller != null && Controller.ActivatePressed())
-                Selected = !Selected;
+                selectChanger.Select();
 
             visibilityStateChanger.Update(gameTime: gameTime);
             controllerAlphaChanger.Update(gameTime: gameTime);
             selectChanger.Update(gameTime: gameTime);
         }
+
+        public void Select() => selectChanger.Select();
+
+        public void ResetMedia() => selectChanger.ResetMedia();
     }
 }

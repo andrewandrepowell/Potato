@@ -5,15 +5,18 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class SelectChanger : IUpdateable
+    internal class SelectChanger : IUpdateable, ISelectable
     {
-        private ISelectable selectable;
         private const float selectValueChangeRate = 8.0f;
         private bool selectValueIncrement;
         private float selectValue = 0.0f;
+        private bool selectNextState;
+        private bool selectCurrentState;
         private static readonly Color selectColor = Potato.ColorTheme1;
         private const int cycleTotal = 4;
         private int cycleCurrent;
+
+        public bool Selected => selectCurrentState;
 
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,
@@ -21,11 +24,12 @@ namespace Potato.Menu
             color1.B + color2.B,
             color1.A + color2.A);
         
-        public SelectChanger(ISelectable selectable)
+        public SelectChanger()
         {
-            this.selectable = selectable;
+            selectNextState = false;
+            selectCurrentState = false;
             selectValueIncrement = true;
-            cycleCurrent = 0;
+            cycleCurrent = cycleTotal;
         }
 
         public Color ApplySelect(Color textColor) => Add((1.0f - selectValue) * textColor, selectValue * selectColor);
@@ -33,32 +37,41 @@ namespace Potato.Menu
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            
-            // If selected, flash with select color.
-            if (selectable.Selected)
+
+            selectCurrentState = false;
+            if (selectNextState)
             {
-                if (cycleCurrent != cycleTotal)
-                {
-                    selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;
-                    if (selectValue > 1.0f)
-                    {
-                        selectValue = 1.0f;
-                        selectValueIncrement = false;
-                    }
-                    else if (selectValue < 0.0f)
-                    {
-                        cycleCurrent++;
-                        selectValue = 0.0f;
-                        selectValueIncrement = true;
-                    }
-                }
-            }
-            else
-            {
+                selectNextState = false;
+                selectCurrentState = true;
                 cycleCurrent = 0;
                 selectValue = 0.0f;
                 selectValueIncrement = true;
             }
+            
+            if (cycleCurrent != cycleTotal)
+            {
+                selectValue += (selectValueIncrement ? 1.0f : -1.0f) * selectValueChangeRate * timeElapsed;
+                if (selectValue > 1.0f)
+                {
+                    selectValue = 1.0f;
+                    selectValueIncrement = false;
+                }
+                else if (selectValue < 0.0f)
+                {
+                    cycleCurrent++;
+                    selectValue = 0.0f;
+                    selectValueIncrement = true;
+                }
+            }
+            else
+            {
+                selectValue = 0.0f;
+                selectValueIncrement = true;
+            }
         }
+
+        public void Select() => selectNextState = true;
+
+        public void ResetMedia() => cycleCurrent = cycleTotal;
     }
 }

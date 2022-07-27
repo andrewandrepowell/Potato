@@ -21,7 +21,7 @@ namespace Potato.Menu
         private Texture2D glowTexture;
         private Vector2 glowOffset;
         private Alignment align;
-        public bool Selected { get; set; }
+        public bool Selected { get => selectChanger.Selected; }
         public IController Controller { get; set; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
@@ -76,9 +76,8 @@ namespace Potato.Menu
                 height: font.MeasureString(" ").Y + 8);
             this.align = align;
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
-            selectChanger = new SelectChanger(selectable: this);
+            selectChanger = new SelectChanger();
             Text = "";
-            Selected = false;
             Controller = null;
             Position = Vector2.Zero;
         }
@@ -108,18 +107,16 @@ namespace Potato.Menu
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // The following are operations if the controller is set.
-            if (Controller != null)
-            {
-                // If the controller activate is pressed, toggle select.
-                if (Controller.ActivatePressed())
-                {
-                    Selected = !Selected;
-                }
-            }
+            if (Controller != null && Controller.ActivatePressed())
+                selectChanger.Select();
 
             visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
             selectChanger.Update(gameTime);
         }
+
+        public void Select() => selectChanger.Select();
+
+        public void ResetMedia() => selectChanger.ResetMedia();
     }
 }

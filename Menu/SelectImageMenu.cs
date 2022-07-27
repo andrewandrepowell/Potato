@@ -17,7 +17,7 @@ namespace Potato.Menu
         public IController Controller { get; set; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public bool Selected { get; set; }
+        public bool Selected { get => selectChanger.Selected; }
         public MenuState State { get => state.State; }
 
         public SelectImageMenu(Texture2D texture)
@@ -26,10 +26,9 @@ namespace Potato.Menu
             size = new Size2(texture.Width, texture.Height);
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
             state = new VisibilityStateChanger();
-            selectChanger = new SelectChanger(selectable: this);
+            selectChanger = new SelectChanger();
             Controller = null;
             Position = Vector2.Zero;
-            Selected = false;
         }
 
         public void OpenMenu() => state.OpenMenu();
@@ -50,7 +49,7 @@ namespace Potato.Menu
         public void Update(GameTime gameTime)
         {
             if (Controller != null && Controller.ActivatePressed())
-                Selected = !Selected;
+                selectChanger.Select();
 
             state.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
@@ -62,5 +61,9 @@ namespace Potato.Menu
            color1.G + color2.G,
            color1.B + color2.B,
            color1.A + color2.A);
+
+        public void Select() => selectChanger.Select();
+
+        public void ResetMedia() => selectChanger.ResetMedia();
     }
 }

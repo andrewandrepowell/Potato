@@ -19,8 +19,8 @@ namespace Potato.Menu
         private VisibilityStateChanger visibilityStateChanger;
         private SelectChanger selectChanger;
         private Size2 size;
-        
-        public bool Selected { get; set; } = false;
+
+        public bool Selected { get => selectChanger.Selected; }
         public IController Controller { get; set; } = null;
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
@@ -114,7 +114,7 @@ namespace Potato.Menu
                 height: items.Count * font.MeasureString(" ").Y + 8);
             controllerAlphaChanger = new ControllerAlphaChanger(controllable: this);
             visibilityStateChanger = new VisibilityStateChanger();
-            selectChanger = new SelectChanger(selectable: this);
+            selectChanger = new SelectChanger();
         }
 
         public void OpenMenu() => visibilityStateChanger.OpenMenu();
@@ -143,11 +143,15 @@ namespace Potato.Menu
         public void Update(GameTime gameTime)
         {
             if (Controller != null && Controller.ActivatePressed())
-                Selected = !Selected;
+                selectChanger.Select();
 
             visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
             selectChanger.Update(gameTime);
         }
+
+        public void Select() => selectChanger.Select();
+
+        public void ResetMedia() => selectChanger.ResetMedia();
     }
 }

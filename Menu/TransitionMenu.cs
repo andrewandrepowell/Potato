@@ -79,7 +79,7 @@ namespace Potato.Menu
                     if (CurrentMenu.State == MenuState.Closed)
                     {
                         foreach (Node node in CurrentNodes)
-                            node.Selectable.Selected = false;
+                            node.Selectable.ResetMedia();
                         nextNode.Menu.Controller = CurrentMenu.Controller;
                         CurrentMenu.Controller = null;
                         nextNode.Menu.Position = new Vector2(
@@ -95,7 +95,7 @@ namespace Potato.Menu
                     if (CurrentMenu.State == MenuState.Closed)
                     {
                         foreach (Node node in CurrentNodes)
-                            node.Selectable.Selected = false;
+                            node.Selectable.ResetMedia();
                         IMenu previousMenu = CurrentMenu;
                         stack.Pop();
                         CurrentMenu.Controller = previousMenu.Controller;

@@ -20,7 +20,9 @@ namespace Potato
     }
     internal interface ISelectable
     {
-        bool Selected { get; set; }
+        bool Selected { get; }
+        void Select();
+        void ResetMedia();
     }
     internal interface IComponent : IDrawable, IUpdateable
     {

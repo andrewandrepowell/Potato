@@ -138,7 +138,6 @@ namespace Potato.World.Menu
                     keybindSelectMenu,
                     new DividerMenu(width: dividerWidth),
                     applyDefaultSelectMenu,
-                    applyChangesSelectMenu,
                 },
                 align: Alignment.Center);
             activateKeyBindSelectMenu = new CacheTextMenu(

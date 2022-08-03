@@ -57,7 +57,7 @@ namespace Potato.Menu
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public StringBuilder Text { get; private set; } = new StringBuilder("");
-        public MenuState State { get => visibilityStateChanger.State; }
+        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
 
         public TypingMenu(float width)
         {

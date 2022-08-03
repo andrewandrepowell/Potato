@@ -23,7 +23,7 @@ namespace Potato.Menu
         private VisibilityStateChanger state = new VisibilityStateChanger();
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public MenuState State { get; private set; } = MenuState.Closed;
+        public OpenCloseState MenuState { get; private set; } = OpenCloseState.Closed;
         public IController Controller
         {
             get => controller;
@@ -107,7 +107,7 @@ namespace Potato.Menu
 
         public void OpenMenu()
         {
-            State = MenuState.Opening;
+            MenuState = OpenCloseState.Opening;
             state.OpenMenu();
             foreach ((IMenu component, _) in items)
             {
@@ -117,7 +117,7 @@ namespace Potato.Menu
 
         public void CloseMenu()
         {
-            State = MenuState.Closing;
+            MenuState = OpenCloseState.Closing;
             state.CloseMenu();
             foreach ((IMenu component, _) in items)
             {
@@ -191,10 +191,10 @@ namespace Potato.Menu
             }
 
             // Update state.
-            if (State == MenuState.Opening && items.Select((item) => item.Item1.State).All((x) => x == MenuState.Opened))
-                State = MenuState.Opened;
-            if (State == MenuState.Closing && items.Select((item) => item.Item1.State).All((x) => x == MenuState.Closed))
-                State = MenuState.Closed;
+            if (MenuState == OpenCloseState.Opening && items.Select((item) => item.Item1.MenuState).All((x) => x == OpenCloseState.Opened))
+                MenuState = OpenCloseState.Opened;
+            if (MenuState == OpenCloseState.Closing && items.Select((item) => item.Item1.MenuState).All((x) => x == OpenCloseState.Closed))
+                MenuState = OpenCloseState.Closed;
             state.Update(gameTime);
         }
     }

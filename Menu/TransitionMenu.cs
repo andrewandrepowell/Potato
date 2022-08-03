@@ -31,7 +31,7 @@ namespace Potato.Menu
         public IMenu CurrentMenu => stack.Peek().Item2;
         
         public bool BackEnable { get; set; }
-        public MenuState State => CurrentMenu.State;
+        public OpenCloseState MenuState => CurrentMenu.MenuState;
         public IController Controller { get => CurrentMenu.Controller; set => CurrentMenu.Controller = value; }
         public Vector2 Position { get => CurrentMenu.Position; set => CurrentMenu.Position = value; }
         public Size2 Size { get => CurrentMenu.Size; set => CurrentMenu.Size = value; }
@@ -76,7 +76,7 @@ namespace Potato.Menu
                     }
                     break;
                 case TransitionState.Transitioning:
-                    if (CurrentMenu.State == MenuState.Closed)
+                    if (CurrentMenu.MenuState == OpenCloseState.Closed)
                     {
                         foreach (Node node in CurrentNodes)
                             node.Selectable.ResetMedia();
@@ -92,7 +92,7 @@ namespace Potato.Menu
                     }
                     break;
                 case TransitionState.Reversing:
-                    if (CurrentMenu.State == MenuState.Closed)
+                    if (CurrentMenu.MenuState == OpenCloseState.Closed)
                     {
                         foreach (Node node in CurrentNodes)
                             node.Selectable.ResetMedia();

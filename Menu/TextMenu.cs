@@ -17,7 +17,7 @@ namespace Potato.Menu
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set => throw new NotImplementedException(); }
-        public MenuState State { get => visibilityStateChanger.State; }
+        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
 
         public TextMenu(string text, Alignment align, float width)
         {

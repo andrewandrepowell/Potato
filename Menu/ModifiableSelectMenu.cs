@@ -25,7 +25,7 @@ namespace Potato.Menu
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public MenuState State { get => visibilityStateChanger.State; }
+        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
         public string Text 
         {
             get => currentText;

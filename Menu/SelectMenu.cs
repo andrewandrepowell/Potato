@@ -24,7 +24,7 @@ namespace Potato.Menu
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public MenuState State { get => visibilityStateChanger.State; }
+        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
 
         private static Color Add(Color color1, Color color2) => new Color(
             color1.R + color2.R,

@@ -31,7 +31,7 @@ namespace Potato.Menu
                 currentLines = items[currentText];
             }
         }
-        public MenuState State => visibilityStateChanger.State;
+        public OpenCloseState MenuState => visibilityStateChanger.State;
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => menuSize; set { } }

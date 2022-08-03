@@ -41,8 +41,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="World\Room\" />
-    <Folder Include="World\Room\Title\" />
-  </ItemGroup>
 </Project>

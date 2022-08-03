@@ -12,28 +12,28 @@ namespace Potato.Menu
         private Texture2D texture;
         private Size2 size;
         private readonly ControllerAlphaChanger controllerAlphaChanger;
-        private readonly VisibilityStateChanger state;
+        private readonly VisibilityStateChanger visibilityStateChanger;
         private readonly SelectChanger selectChanger;
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public bool Selected { get => selectChanger.Selected; }
-        public MenuState State { get => state.State; }
+        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
 
         public SelectImageMenu(Texture2D texture)
         {
             this.texture = texture;
             size = new Size2(texture.Width, texture.Height);
             controllerAlphaChanger = new ControllerAlphaChanger();
-            state = new VisibilityStateChanger();
+            visibilityStateChanger = new VisibilityStateChanger();
             selectChanger = new SelectChanger();
             Controller = null;
             Position = Vector2.Zero;
         }
 
-        public void OpenMenu() => state.OpenMenu();
+        public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
-        public void CloseMenu() => state.CloseMenu();
+        public void CloseMenu() => visibilityStateChanger.CloseMenu();
         
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -42,7 +42,7 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: texture, 
                 position: Position, 
-                color: state.Alpha * controllerAlphaChanger.Alpha * selectChanger.ApplySelect(Color.White));
+                color: visibilityStateChanger.Alpha * controllerAlphaChanger.Alpha * selectChanger.ApplySelect(Color.White));
             spriteBatch.End();
         }
 
@@ -51,7 +51,7 @@ namespace Potato.Menu
             if (Controller != null && Controller.ActivatePressed())
                 selectChanger.Select();
 
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
             selectChanger.Update(gameTime);
         }

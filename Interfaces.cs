@@ -8,13 +8,16 @@ using System.Text;
 namespace Potato
 {
     internal interface IRoom : IComponent, IControllable
-    { 
+    {
+        OpenCloseState RoomState { get; }
+        void OpenRoom();
+        void CloseRoom();
     }
     internal enum Alignment { Center, Left, Right };
-    internal enum MenuState { Opening, Opened, Closing, Closed };
+    internal enum OpenCloseState { Opening, Opened, Closing, Closed };
     internal interface IMenu : IComponent, IControllable, IMovable, ISizable
     {
-        MenuState State { get;  }
+        OpenCloseState MenuState { get;  }
         void OpenMenu();
         void CloseMenu();
     }

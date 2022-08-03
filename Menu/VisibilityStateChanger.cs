@@ -7,20 +7,20 @@ namespace Potato.Menu
 {
     internal class VisibilityStateChanger : IUpdateable
     {
-        public MenuState State { get; private set; } = MenuState.Closed;
+        public OpenCloseState State { get; private set; } = OpenCloseState.Closed;
         public float Alpha { get; private set; } = 0.0f;
         private const float stateAlphaChangeRate = 3.0f;
         
         public void OpenMenu()
         {
             Alpha = 0.0f;
-            State = MenuState.Opening;
+            State = OpenCloseState.Opening;
         }
 
         public void CloseMenu()
         {
             Alpha = 1.0f;
-            State = MenuState.Closing;
+            State = OpenCloseState.Closing;
         }
 
         public void Update(GameTime gameTime)
@@ -28,26 +28,26 @@ namespace Potato.Menu
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
             switch (State)
             {
-                case MenuState.Closed:
+                case OpenCloseState.Closed:
                     Alpha = 0.0f;
                     break;
-                case MenuState.Opened:
+                case OpenCloseState.Opened:
                     Alpha = 1.0f;
                     break;
-                case MenuState.Opening:
+                case OpenCloseState.Opening:
                     Alpha += stateAlphaChangeRate * (float)timeElapsed;
                     if (Alpha > 1.0f)
                     {
                         Alpha = 1.0f;
-                        State = MenuState.Opened;
+                        State = OpenCloseState.Opened;
                     }
                     break;
-                case MenuState.Closing:
+                case OpenCloseState.Closing:
                     Alpha -= stateAlphaChangeRate * (float)timeElapsed;
                     if (Alpha < 0.0f)
                     {
                         Alpha = 0.0f;
-                        State = MenuState.Closed;
+                        State = OpenCloseState.Closed;
                     }
                     break;
             }

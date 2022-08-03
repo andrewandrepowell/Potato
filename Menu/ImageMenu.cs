@@ -11,35 +11,35 @@ namespace Potato.Menu
     {
         private Texture2D texture;
         private Size2 size;
-        private VisibilityStateChanger state;
+        private VisibilityStateChanger visibilityStateChanger;
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public MenuState State { get => state.State; }
+        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
 
         public ImageMenu(Texture2D texture)
         {
             this.texture = texture;
             size = new Size2(texture.Width, texture.Height);
-            state = new VisibilityStateChanger();
+            visibilityStateChanger = new VisibilityStateChanger();
             Position = Vector2.Zero;
         }
 
-        public void OpenMenu() => state.OpenMenu();
+        public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
-        public void CloseMenu() => state.CloseMenu();
+        public void CloseMenu() => visibilityStateChanger.CloseMenu();
         
         public void Draw(Matrix? transformMatrix = null)
         {
             SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
-            spriteBatch.Draw(texture: texture, position: Position, color: state.Alpha * Color.White);
+            spriteBatch.Draw(texture: texture, position: Position, color: visibilityStateChanger.Alpha * Color.White);
             spriteBatch.End();
         }
 
         public void Update(GameTime gameTime)
         {
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
         }
     }
 }

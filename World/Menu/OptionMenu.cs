@@ -40,7 +40,7 @@ namespace Potato.World.Menu
                     align: Alignment.Center);
             }
             public CacheTextMenu SelectMenu { get; set; }
-            public MenuState State => containerMenu.State;
+            public OpenCloseState MenuState => containerMenu.MenuState;
             public IController Controller {  get => containerMenu.Controller; set => containerMenu.Controller = value; }
             public Vector2 Position { get => containerMenu.Position; set => containerMenu.Position = value; }
             public Size2 Size { get => containerMenu.Size; set => containerMenu.Size = value; }
@@ -86,7 +86,7 @@ namespace Potato.World.Menu
         private CacheTextMenu downKeyBindSelectMenu;
         private bool lockOutOfKeybindConfig;
         private Keys[] previousKeyPresses;
-        public MenuState State => transitionMenu.State;
+        public OpenCloseState MenuState => transitionMenu.MenuState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public KeyboardController Keyboard { get; set; }
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }

@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using Potato.Menu;
 using Potato.World.Menu;
+using System.IO;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Potato.World.Room.Title
 {
@@ -25,6 +27,7 @@ namespace Potato.World.Room.Title
         private Size2 titleSize;
         public OpenCloseState MenuState => transitionMenu.MenuState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
+        public KeyboardController Keyboard { get => optionMenu.Keyboard; set => optionMenu.Keyboard = value; }
         public Vector2 Position 
         { 
             get => titlePosition; 
@@ -44,11 +47,20 @@ namespace Potato.World.Room.Title
             containerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
+                    new ImageMenu(texture: Potato.Game.Content.Load<Texture2D>("potato")),
                     engineEditorSelectMenu,
                     optionsSelectMenu
                 },
                 align: Alignment.Center);
-            optionMenu = new OptionMenu();
+            try
+            {
+                OptionMenuSave save = Saver.Load<OptionMenuSave>(fileName: Potato.OptionSaveFileName);
+                optionMenu = new OptionMenu(save: save);
+            }
+            catch (FileNotFoundException)
+            {
+                optionMenu = new OptionMenu();
+            }
             transitionMenu = new TransitionMenu(
                 nodes: new List<TransitionMenu.Node>()
                 {
@@ -71,8 +83,17 @@ namespace Potato.World.Room.Title
 
         public void Update(GameTime gameTime)
         {
+            if (Controller != null && Controller.BackPressed() && optionMenu.IsMainMenuActive())
+            {
+                transitionMenu.GoPreviousMenu();
 
-            
+                if (transitionMenu.CurrentMenu == optionMenu)
+                    Saver.Save(fileName: Potato.OptionSaveFileName, obj: optionMenu.Save());
+            }
+
+            if (optionMenu.ApplyDefaultSelected)
+                Saver.Save(fileName: Potato.OptionSaveFileName, obj: optionMenu.Save());
+
             transitionMenu.Update(gameTime: gameTime);
         }
     }

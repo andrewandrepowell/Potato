@@ -78,7 +78,6 @@ namespace Potato.World.Menu
         private RadioMenu displayModeRadioMenu;
         private SelectMenu keybindSelectMenu;
         private SelectMenu applyDefaultSelectMenu;
-        private SelectMenu applyChangesSelectMenu;
         private CacheTextMenu activateKeyBindSelectMenu;
         private CacheTextMenu backKeyBindSelectMenu;
         private CacheTextMenu leftKeyBindSelectMenu;
@@ -108,7 +107,6 @@ namespace Potato.World.Menu
             }
         }
         public Size2 Size { get => optionSize; set => throw new NotImplementedException(); }
-        public bool ApplyChangesSelected => applyChangesSelectMenu.Selected;
         public bool ApplyDefaultSelected => applyDefaultSelectMenu.Selected;
 
         public OptionMenu(OptionMenuSave save) : this()
@@ -136,7 +134,6 @@ namespace Potato.World.Menu
                     (save.DisplayMode == DisplayModeType.Fullscreen) ? 1 :
                     throw new ArgumentException());
             applyDefaultSelectMenu = new SelectMenu(text: "Apply Defaults", align: Alignment.Center, width: innerWidth);
-            applyChangesSelectMenu = new SelectMenu(text: "Apply Changes", align: Alignment.Center, width: innerWidth);
             mainContainerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
@@ -246,6 +243,8 @@ namespace Potato.World.Menu
             lockOutOfKeybindConfig = false;
             previousKeyPresses = null;
         }
+
+        public bool IsMainMenuActive() => transitionMenu.CurrentMenu == mainContainerMenu;
         
         public void CloseMenu() => transitionMenu.CloseMenu();
 
@@ -286,7 +285,7 @@ namespace Potato.World.Menu
                 lockOutOfKeybindConfig = false;
                 previousKeyPresses = null;
 
-                if (Controller.BackPressed())
+                if (Controller != null && Controller.BackPressed() && !IsMainMenuActive())
                     transitionMenu.GoPreviousMenu();
             }
 

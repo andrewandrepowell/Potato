@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using Potato.Menu;
 using Potato.World.Menu;
+using Potato.World.Room.Title;
 using System;
 using System.Linq;
 using System.Text;
@@ -22,16 +23,14 @@ namespace Potato
         public static SpriteBatch SpriteBatch { get; private set; }
         public static readonly Color ColorTheme0 = Color.White;
         public static readonly Color ColorTheme1 = Color.Yellow;
-        public static readonly Color ColorTheme2 = new Color(r: 63, g: 67, b: 52, alpha: 200);
+        public static readonly Color ColorTheme2 = new Color(r: 63, g: 67, b: 52, alpha: 100);
         public static readonly Color ColorTheme3 = Color.Black;
+        public const string OptionSaveFileName = "option.save";
         private const int gameWidth = 1280; // 720p
         private const int gameHeight = 720; // 720p
-        private const string optionSaveFileName = "option.save";
 
-        private ContainerMenu menu;
-        private OptionMenu optionMenu;
+        private TitleRoom titleRoom;
         private KeyboardController keyboard;
-        private float timer = 10.0f;
 
         public Potato()
         {
@@ -60,45 +59,10 @@ namespace Potato
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
             keyboard = new KeyboardController();
-            //menu = new ContainerMenu(
-            //    components: new List<IMenu>()
-            //    {
-            //        new TextMenu(text: "Hello! My name is Andrew, I am testing the menu out.", align: Alignment.Center, width: 512),
-            //        new TextMenu(text: "This is purely just a test to verify everything is working the way that I want.", align: Alignment.Center, width: 512),
-            //        new DividerMenu(width: 256),
-            //        new SelectMenu(text: "This is a select menu. NOOOOIIIICE", align: Alignment.Center, width: 256),
-            //        new SelectMenu(text: "Blah blah blah blah", align: Alignment.Center, width: 256),
-            //        new SliderMenu(width: 512, fill: 0.25f),
-            //        new SliderMenu(width: 512, fill: 0.75f),
-            //        new RadioMenu(
-            //            options: new List<string>(){ "Option1", "Option2"},
-            //            align: Alignment.Center, width: 512, selected: 1),
-            //        new TypingMenu(width: 512),
-            //        new SelectImageMenu(texture: Content.Load<Texture2D>("potato")),
-            //        new TypingMenu(width: 128),
-            //        new ImageMenu(texture: Content.Load<Texture2D>("potato"))
-            //    },
-            //    align: Alignment.Center);
-            //menu.Position = new Vector2(x: 128, y: 32);
-            //menu.Controller = keyboard;
-            //menu.OpenMenu();
-
-            try
-            {
-                OptionMenuSave save = Saver.Load<OptionMenuSave>(fileName: optionSaveFileName);
-                optionMenu = new OptionMenu(save: save);
-            }
-            catch (FileNotFoundException)
-            {
-                optionMenu = new OptionMenu();
-            }
-            
-            optionMenu.Position = new Vector2(x: (gameWidth - optionMenu.Size.Width) / 2, y: 32);
-            optionMenu.Controller = keyboard;
-            optionMenu.Keyboard = keyboard;
-            optionMenu.OpenMenu();
+            titleRoom = new TitleRoom();
+            titleRoom.Controller = keyboard;
+            titleRoom.Keyboard = keyboard;
         }
 
         protected override void UnloadContent()
@@ -111,43 +75,16 @@ namespace Potato
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (optionMenu.ApplyChangesSelected || optionMenu.ApplyDefaultSelected)
-            {
-                OptionMenuSave save = optionMenu.Save();
-                Saver.Save(optionSaveFileName, save);
-            }
-
-            // TODO: Add your update logic here
-            //menu.Update(gameTime);
-            keyboard.Update(gameTime);
-            optionMenu.Update(gameTime);
-            //keyboard.CollectKeys = true;
-            //var keysPressed = keyboard.KeysPressed;
-            //test.Append(keysPressed.Where((x) => x.Key != Keys.Back).Select((x) => x.Character).ToArray());
-            //var removeAmount = keysPressed.Where((x) => x.Key == Keys.Back).Count();
-            //test.Remove(test.Length - removeAmount, removeAmount);
-
-            //keysPressed.Clear();
-            //Console.WriteLine($"Current Text: {test}");
-
-            //timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            //if (timer < 0)
-            //{
-            //    timer = 10.0f;
-            //    menu.CloseMenu();
-            //}
+            keyboard.Update(gameTime: gameTime);
+            titleRoom.Update(gameTime: gameTime);
             base.Update(gameTime);
         }
-
-        private StringBuilder test = new StringBuilder();
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.RosyBrown);
-            
-            // TODO: Add your drawing code here
-            //menu.Draw();
-            optionMenu.Draw();
+
+            titleRoom.Draw();
             base.Draw(gameTime);
         }
 

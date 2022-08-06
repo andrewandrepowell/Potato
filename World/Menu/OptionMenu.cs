@@ -70,6 +70,7 @@ namespace Potato.World.Menu
         private const float dividerWidth = innerWidth * .90f;
         private ContainerMenu mainContainerMenu;
         private ContainerMenu keybindContainerMenu;
+        private List<IMenu> configureKeybindMenus;
         private TransitionMenu transitionMenu;
         private SliderMenu masterVolumeSliderMenu;
         private SliderMenu musicVolumeSliderMenu;
@@ -84,13 +85,29 @@ namespace Potato.World.Menu
         private CacheTextMenu rightKeyBindSelectMenu;
         private CacheTextMenu upKeyBindSelectMenu;
         private CacheTextMenu downKeyBindSelectMenu;
+        private Vector2 mainContainerOffset;
+        private Vector2 keybindContainerOffset;
+        private List<Vector2> configureKeybindOffsets;
+        private Vector2 optionPosition;
+        private Size2 optionSize;
         private bool lockOutOfKeybindConfig;
         private Keys[] previousKeyPresses;
         public OpenCloseState MenuState => transitionMenu.MenuState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public KeyboardController Keyboard { get; set; }
-        public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
-        public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
+        public Vector2 Position 
+        {
+            get => optionPosition;
+            set
+            {
+                optionPosition = value;
+                mainContainerMenu.Position = value + mainContainerOffset;
+                keybindContainerMenu.Position = value + keybindContainerOffset;
+                foreach ((IMenu x, Vector2 y) in configureKeybindMenus.Zip(configureKeybindOffsets, (x, y) => (x, y)))
+                    x.Position = value + y;
+            }
+        }
+        public Size2 Size { get => optionSize; set => throw new NotImplementedException(); }
         public bool ApplyChangesSelected => applyChangesSelectMenu.Selected;
         public bool ApplyDefaultSelected => applyDefaultSelectMenu.Selected;
 
@@ -193,12 +210,6 @@ namespace Potato.World.Menu
                     downKeyBindSelectMenu,
                 },
                 align: Alignment.Center);
-            ContainerMenu configureKeybindContainerMenu = new ContainerMenu(
-                components: new List<IMenu>()
-                {
-                    new TextMenu(text: "Hit a key to set new binding.", align: Alignment.Center, width: innerWidth),
-                },
-                align: Alignment.Center);
 
             var activateKeybindNode = new TransitionMenu.Node(selectable: activateKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = activateKeyBindSelectMenu });
             var backKeybindNode = new TransitionMenu.Node(selectable: backKeyBindSelectMenu, menu: new ConfigureKeybindMenu() { SelectMenu = backKeyBindSelectMenu });
@@ -213,7 +224,25 @@ namespace Potato.World.Menu
             keybindNode.Nodes.Add(rightKeybindNode);
             keybindNode.Nodes.Add(upKeybindNode);
             keybindNode.Nodes.Add(downKeybindNode);
-            transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode }, menu: mainContainerMenu) { BackEnable = true };
+            transitionMenu = new TransitionMenu(nodes: new List<TransitionMenu.Node>() { keybindNode }, menu: mainContainerMenu);
+
+            configureKeybindMenus = keybindNode.Nodes.Select((x) => x.Menu as IMenu).ToList();
+            List<IMenu> menuList = new List<IMenu>() { mainContainerMenu, keybindContainerMenu };
+            menuList.AddRange(configureKeybindMenus);
+            optionSize = new Size2(
+                width: menuList.Select((x) => x.Size.Width).Max(),
+                height: menuList.Select((x) => x.Size.Height).Max());
+            mainContainerOffset = new Vector2(
+                x: (Size.Width - mainContainerMenu.Size.Width) / 2,
+                y: (Size.Height - mainContainerMenu.Size.Height) / 2);
+            keybindContainerOffset = new Vector2(
+                x: (Size.Width - keybindContainerMenu.Size.Width) / 2,
+                y: (Size.Height - keybindContainerMenu.Size.Height) / 2);
+            configureKeybindOffsets = configureKeybindMenus.Select((x) => new Vector2(
+                x: (Size.Width - x.Size.Width) / 2,
+                y: (Size.Height - x.Size.Height) / 2)).ToList();
+            Position = Vector2.Zero;
+
             lockOutOfKeybindConfig = false;
             previousKeyPresses = null;
         }
@@ -234,7 +263,6 @@ namespace Potato.World.Menu
                 {
                     KeyboardStateExtended keyboardState = Keyboard.KeyboardState;
                     Keys[] pressedKeys = keyboardState.GetPressedKeys();
-                    transitionMenu.BackEnable = false;
                     if (previousKeyPresses != null)
                     {
                         foreach (Keys key in previousKeyPresses)
@@ -244,8 +272,7 @@ namespace Potato.World.Menu
                             {
                                 string[] tokens = configureKeybindMenu.SelectMenu.Text.Split(' ');
                                 configureKeybindMenu.SelectMenu.Text = $"{tokens[0]} {keyString}";
-                                transitionMenu.BackEnable = true;
-                                transitionMenu.ForceBack();
+                                transitionMenu.GoPreviousMenu();
                                 lockOutOfKeybindConfig = true;
                                 break;
                             }
@@ -256,9 +283,11 @@ namespace Potato.World.Menu
             }
             else
             {
-                transitionMenu.BackEnable = true;
                 lockOutOfKeybindConfig = false;
                 previousKeyPresses = null;
+
+                if (Controller.BackPressed())
+                    transitionMenu.GoPreviousMenu();
             }
 
             if (applyDefaultSelectMenu.Selected)

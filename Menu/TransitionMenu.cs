@@ -26,11 +26,9 @@ namespace Potato.Menu
         private Stack<(ICollection<Node>, IMenu)> stack;
         private TransitionState transitionState;
         private Node nextNode;
-        private bool forceBack;
+        private bool goPreviousMenu;
         public ICollection<Node> CurrentNodes => stack.Peek().Item1;
         public IMenu CurrentMenu => stack.Peek().Item2;
-        
-        public bool BackEnable { get; set; }
         public OpenCloseState MenuState => CurrentMenu.MenuState;
         public IController Controller { get => CurrentMenu.Controller; set => CurrentMenu.Controller = value; }
         public Vector2 Position { get => CurrentMenu.Position; set => CurrentMenu.Position = value; }
@@ -41,15 +39,14 @@ namespace Potato.Menu
             stack = new Stack<(ICollection<Node>, IMenu)>();
             stack.Push((nodes, menu));
             transitionState = TransitionState.Idle;
-            forceBack = false;
-            BackEnable = false;
+            goPreviousMenu = false;
         }
 
         public void CloseMenu() => CurrentMenu.CloseMenu();
 
         public void OpenMenu() => CurrentMenu.OpenMenu();
 
-        public void ForceBack() => forceBack = true;
+        public void GoPreviousMenu() => goPreviousMenu = true;
 
         public void Draw(Matrix? transformMatrix = null) =>
             CurrentMenu.Draw(transformMatrix: transformMatrix);
@@ -68,9 +65,9 @@ namespace Potato.Menu
                             transitionState = TransitionState.Transitioning;
                         }
                     }
-                    if (forceBack || (BackEnable && CurrentMenu.Controller.BackPressed() && stack.Count > 1))
+                    if (goPreviousMenu && stack.Count > 1)
                     {
-                        forceBack = false;
+                        goPreviousMenu = false;
                         CurrentMenu.CloseMenu();
                         transitionState = TransitionState.Reversing;
                     }
@@ -82,9 +79,6 @@ namespace Potato.Menu
                             node.Selectable.ResetMedia();
                         nextNode.Menu.Controller = CurrentMenu.Controller;
                         CurrentMenu.Controller = null;
-                        nextNode.Menu.Position = new Vector2(
-                            x: CurrentMenu.Position.X + (CurrentMenu.Size.Width - nextNode.Menu.Size.Width) / 2,
-                            y: CurrentMenu.Position.Y + (CurrentMenu.Size.Height - nextNode.Menu.Size.Height) / 2);
                         nextNode.Menu.OpenMenu();
                         stack.Push((nextNode.Nodes, nextNode.Menu));
                         nextNode = null;
@@ -100,9 +94,6 @@ namespace Potato.Menu
                         stack.Pop();
                         CurrentMenu.Controller = previousMenu.Controller;
                         previousMenu.Controller = null;
-                        CurrentMenu.Position = new Vector2(
-                            x: previousMenu.Position.X + (previousMenu.Size.Width - CurrentMenu.Size.Width) / 2,
-                            y: previousMenu.Position.Y + (previousMenu.Size.Height - CurrentMenu.Size.Height) / 2);
                         CurrentMenu.OpenMenu();
                         transitionState = TransitionState.Idle;
                     }

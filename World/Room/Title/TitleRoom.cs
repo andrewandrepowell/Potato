@@ -11,7 +11,6 @@ namespace Potato.World.Room.Title
         private static readonly Color backgroundColorTheme0 = Potato.ColorTheme1;
         private static readonly Color backgroundColorTheme1 = Potato.ColorTheme3;
         private TitleMenu titleMenu;
-        private Vector2 titlePosition;
         private Texture2D backgroundTexture;
         public IController Controller { get; set; }
         public OpenCloseState RoomState => throw new NotImplementedException();
@@ -39,7 +38,7 @@ namespace Potato.World.Room.Title
             }
             backgroundTexture.SetData(colors);
 
-            titlePosition = new Vector2(
+            titleMenu.Position = new Vector2(
                 x: (gameWidth - titleMenu.Size.Width) / 2,
                 y: (gameHeight - titleMenu.Size.Height) / 2);
         }
@@ -67,7 +66,6 @@ namespace Potato.World.Room.Title
 
         public void Update(GameTime gameTime)
         {
-            titleMenu.Position = titlePosition;
             titleMenu.Update(gameTime: gameTime);
         }
     }

@@ -63,6 +63,7 @@ namespace Potato
             titleRoom = new TitleRoom();
             titleRoom.Controller = keyboard;
             titleRoom.Keyboard = keyboard;
+            titleRoom.OpenRoom();
         }
 
         protected override void UnloadContent()
@@ -72,9 +73,13 @@ namespace Potato
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            //    Exit();
+            
+            if (keyboard.KeyboardState.IsKeyDown(Keys.Q))
+                titleRoom.CloseRoom();
+            if (keyboard.KeyboardState.IsKeyDown(Keys.W))
+                titleRoom.OpenRoom();
             keyboard.Update(gameTime: gameTime);
             titleRoom.Update(gameTime: gameTime);
             base.Update(gameTime);

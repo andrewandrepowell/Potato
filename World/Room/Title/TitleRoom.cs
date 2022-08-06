@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Potato.Room;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +13,8 @@ namespace Potato.World.Room.Title
         private static readonly Color backgroundColorTheme1 = Potato.ColorTheme3;
         private TitleMenu titleMenu;
         private Texture2D backgroundTexture;
-        public OpenCloseState RoomState => throw new NotImplementedException();
+        private RoomStateChanger roomStateChanger;
+        public OpenCloseState RoomState => roomStateChanger.RoomState;
         public IController Controller { get => titleMenu.Controller; set => titleMenu.Controller = value; }
         public KeyboardController Keyboard { get => titleMenu.Keyboard; set => titleMenu.Keyboard = value; }
 
@@ -42,12 +44,11 @@ namespace Potato.World.Room.Title
                     colors[col + row * gameWidth] = color;
             }
             backgroundTexture.SetData(colors);
+
+            roomStateChanger = new RoomStateChanger();
         }
-        
-        public void CloseRoom()
-        {
-            throw new NotImplementedException();
-        }
+
+        public void CloseRoom() => roomStateChanger.CloseRoom();
 
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -58,16 +59,15 @@ namespace Potato.World.Room.Title
             spriteBatch.End();
 
             titleMenu.Draw(transformMatrix: transformMatrix);
+            roomStateChanger.Draw(transformMatrix: transformMatrix);
         }
 
-        public void OpenRoom()
-        {
-            throw new NotImplementedException();
-        }
+        public void OpenRoom() => roomStateChanger.OpenRoom();
 
         public void Update(GameTime gameTime)
         {
             titleMenu.Update(gameTime: gameTime);
+            roomStateChanger.Update(gameTime: gameTime);
         }
     }
 }

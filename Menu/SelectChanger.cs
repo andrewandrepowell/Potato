@@ -66,6 +66,7 @@ namespace Potato.Menu
 
         public void HardReset()
         {
+            cycleCurrent = cycleTotal;
             selectNextState = false;
             selectCurrentState = false;
             selectValueIncrement = true;

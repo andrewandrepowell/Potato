@@ -123,12 +123,10 @@ namespace Potato.Menu
             spriteBatch.End();
         }
         
-        public void Update(GameTime gameTime)
-        {
-            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        public void Update(GameTime gameTime) => visibilityStateChanger.Update(gameTime);
 
-            // Update state.
-            visibilityStateChanger.Update(gameTime);
-        }
+        public void SoftReset() => visibilityStateChanger.SoftReset();
+
+        public void HardReset() => visibilityStateChanger.HardReset();
     }
 }

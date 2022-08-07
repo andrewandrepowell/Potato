@@ -96,5 +96,9 @@ namespace Potato.World.Room.Title
 
             transitionMenu.Update(gameTime: gameTime);
         }
+
+        public void SoftReset() => transitionMenu.SoftReset();
+
+        public void HardReset() => transitionMenu.HardReset();
     }
 }

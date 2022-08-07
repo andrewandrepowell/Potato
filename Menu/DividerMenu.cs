@@ -8,7 +8,7 @@ namespace Potato.Menu
 {
     internal class DividerMenu : IMenu
     {
-        private static Texture2D texture;
+        private static Texture2D texture = null;
         private static readonly Color color = Potato.ColorTheme0;
         private Size2 size;
         private const float height = 4;
@@ -21,17 +21,20 @@ namespace Potato.Menu
 
         public DividerMenu(float width)
         {
+            if (texture == null)
+            {
+                texture = new Texture2D(
+                    graphicsDevice: Potato.SpriteBatch.GraphicsDevice,
+                    width: 1,
+                    height: 1,
+                    mipmap: false,
+                    format: SurfaceFormat.Color);
+                texture.SetData(new Color[] { Color.White });
+            }
+            
             Debug.Assert(width > 0);
             this.width = width;
             size = new Size2(width: width, height: height + 4);
-
-            texture = new Texture2D(
-                graphicsDevice: Potato.SpriteBatch.GraphicsDevice,
-                width: 1,
-                height: 1,
-                mipmap: false,
-                format: SurfaceFormat.Color);
-            texture.SetData(new Color[] { Color.White });
         }
 
         public void OpenMenu() => visibilityStateChanger.OpenMenu();
@@ -51,11 +54,8 @@ namespace Potato.Menu
             spriteBatch.End();
         }
         
-        public void Update(GameTime gameTime)
-        {
-            visibilityStateChanger.Update(gameTime);
-        }
-        
+        public void Update(GameTime gameTime) => visibilityStateChanger.Update(gameTime);
+
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness = 1f)
         {
             Vector2 origin = new Vector2(0f, 0.5f);
@@ -83,5 +83,9 @@ namespace Potato.Menu
                 color: color,
                 thickness: thickness);
         }
+
+        public void SoftReset() => visibilityStateChanger.SoftReset();
+
+        public void HardReset() => visibilityStateChanger.HardReset();
     }
 }

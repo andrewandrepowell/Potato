@@ -47,7 +47,13 @@ namespace Potato.World.Menu
             public void CloseMenu() => containerMenu.CloseMenu();
             public void Draw(Matrix? transformMatrix) =>
                 containerMenu.Draw(transformMatrix: transformMatrix);
+
+            public void HardReset() => containerMenu.HardReset();
+
             public void OpenMenu() => containerMenu.OpenMenu();
+
+            public void SoftReset() => containerMenu.SoftReset();
+
             public void Update(GameTime gameTime) => containerMenu.Update(gameTime);
         }
         private static readonly Dictionary<Keys,string> keyToStringDict;
@@ -333,6 +339,10 @@ namespace Potato.World.Menu
         {
             Load(save: defaultOptionMenuSave);
         }
+
+        public void SoftReset() => transitionMenu.SoftReset();
+
+        public void HardReset() => transitionMenu.HardReset();
 
         static OptionMenu()
         {

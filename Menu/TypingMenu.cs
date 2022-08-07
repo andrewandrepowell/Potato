@@ -12,24 +12,24 @@ namespace Potato.Menu
     internal class TypingMenu : IMenu
     {
         private static SpriteFont font = null;
-        private Texture2D fieldTexture = null;
+        private Texture2D fieldTexture;
         private static readonly Color fieldColor = Potato.ColorTheme0;
-        private Texture2D glowTexture = null;
-        private Vector2 glowOffset = Vector2.Zero;
-        private IController controller = null;
-        private int cursor = 0;
+        private Texture2D glowTexture;
+        private Vector2 glowOffset;
+        private IController controller;
+        private int cursor;
         private const string cursorString = "|";
-        private Vector2 cursorOffset = Vector2.Zero;
+        private Vector2 cursorOffset;
         private const float cursorVisibleTimerThreshold = 0.5f;
-        private float cursorVisibleTimer = cursorVisibleTimerThreshold;
-        private bool cursorVisible = true;
-        private TrackKey cursorTrackLeft = new TrackKey();
-        private TrackKey cursorTrackRight = new TrackKey();
+        private float cursorVisibleTimer;
+        private bool cursorVisible;
+        private TrackKey cursorTrackLeft;
+        private TrackKey cursorTrackRight;
         private Vector2 textOffset;
         private static readonly Color textColor = Potato.ColorTheme3;
         private float fieldHeight, fieldWidth;
         private Size2 size;
-        private VisibilityStateChanger visibilityStateChanger = new VisibilityStateChanger();
+        private VisibilityStateChanger visibilityStateChanger;
 
         public IController Controller 
         { 
@@ -56,7 +56,7 @@ namespace Potato.Menu
         }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public StringBuilder Text { get; private set; } = new StringBuilder("");
+        public StringBuilder Text { get; private set; }
         public OpenCloseState MenuState { get => visibilityStateChanger.State; }
 
         public TypingMenu(float width)
@@ -84,12 +84,21 @@ namespace Potato.Menu
             glowOffset = new Vector2(
                 x: -(glowTexture.Width - fieldTexture.Width) / 2,
                 y: -(glowTexture.Height - fieldTexture.Height) / 2);
+
+            Text = new StringBuilder("");
+            cursor = 0;
+            controller = null;
+            cursorOffset = Vector2.Zero;
+            cursorVisibleTimer = cursorVisibleTimerThreshold;
+            cursorVisible = false;
+            visibilityStateChanger = new VisibilityStateChanger();
+            cursorTrackLeft = new TrackKey();
+            cursorTrackRight = new TrackKey();
         }
 
         public void OpenMenu() => visibilityStateChanger.OpenMenu();
 
         public void CloseMenu() => visibilityStateChanger.CloseMenu();
-        
 
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -189,6 +198,18 @@ namespace Potato.Menu
 
             // Update state
             visibilityStateChanger.Update(gameTime);
+        }
+
+        public void SoftReset()
+        {
+            visibilityStateChanger.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            visibilityStateChanger.HardReset();
+            Text.Clear();
+            cursor = 0;
         }
 
         private class TrackKey : IUpdateable

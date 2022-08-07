@@ -174,8 +174,6 @@ namespace Potato.Menu
             visibilityStateChanger.HardReset();
             selectChanger.HardReset();
             Text = defaultText;
-            Controller = null;
-            Position = Vector2.Zero;
         }
     }
 }

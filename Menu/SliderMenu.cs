@@ -107,5 +107,17 @@ namespace Potato.Menu
             visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
         }
+
+        public void SoftReset()
+        {
+            visibilityStateChanger.SoftReset();
+            controllerAlphaChanger.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            visibilityStateChanger.HardReset();
+            controllerAlphaChanger.HardReset();
+        }
     }
 }

@@ -39,10 +39,6 @@ namespace Potato.Menu
             increment = false;
         }
 
-        public void HardReset()
-        {
-            SoftReset();
-            Controller = null;
-        }
+        public void HardReset() => SoftReset();
     }
 }

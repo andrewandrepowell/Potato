@@ -41,5 +41,9 @@ namespace Potato.Menu
         {
             visibilityStateChanger.Update(gameTime);
         }
+
+        public void SoftReset() => visibilityStateChanger.SoftReset();
+
+        public void HardReset() => visibilityStateChanger.HardReset(); 
     }
 }

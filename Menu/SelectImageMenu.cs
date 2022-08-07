@@ -64,6 +64,18 @@ namespace Potato.Menu
 
         public void Select() => selectChanger.Select();
 
-        public void ResetMedia() => selectChanger.ResetMedia();
+        public void SoftReset()
+        {
+            controllerAlphaChanger.SoftReset();
+            visibilityStateChanger.SoftReset();
+            selectChanger.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            controllerAlphaChanger.HardReset();
+            visibilityStateChanger.HardReset();
+            selectChanger.HardReset();
+        }
     }
 }

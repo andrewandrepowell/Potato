@@ -11,10 +11,10 @@ namespace Potato.Menu
     internal class ModifiableSelectMenu : IMenu, ISelectable
     {
         private static SpriteFont font;
-        private static readonly Color textColor = Potato.ColorTheme0;
-        private readonly ControllerAlphaChanger controllerAlphaChanger;
-        private readonly SelectChanger selectChanger;
-        private readonly VisibilityStateChanger visibilityStateChanger = new VisibilityStateChanger();
+        private static Color textColor = Potato.ColorTheme0;
+        private ControllerAlphaChanger controllerAlphaChanger;
+        private SelectChanger selectChanger;
+        private VisibilityStateChanger visibilityStateChanger;
         private Size2 size;
         private string currentText;
         private Vector2 textOffset;
@@ -60,12 +60,6 @@ namespace Potato.Menu
             }
         }
 
-        private static Color Add(Color color1, Color color2) => new Color(
-            color1.R + color2.R,
-            color1.G + color2.G,
-            color1.B + color2.B,
-            color1.A + color2.A);
-
         public ModifiableSelectMenu(Alignment align, float width)
         {
             Debug.Assert(width > 0);
@@ -76,6 +70,7 @@ namespace Potato.Menu
                 height: font.MeasureString(" ").Y + 8);
             this.align = align;
             controllerAlphaChanger = new ControllerAlphaChanger();
+            visibilityStateChanger = new VisibilityStateChanger();
             selectChanger = new SelectChanger();
             Text = "";
             Controller = null;
@@ -117,6 +112,16 @@ namespace Potato.Menu
 
         public void Select() => selectChanger.Select();
 
-        public void ResetMedia() => selectChanger.ResetMedia();
+        public void SoftReset()
+        {
+            selectChanger.SoftReset();
+            visibilityStateChanger.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            selectChanger.HardReset();
+            visibilityStateChanger.HardReset();
+        }
     }
 }

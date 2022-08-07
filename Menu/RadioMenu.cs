@@ -17,10 +17,10 @@ namespace Potato.Menu
         private static readonly Color fontColor = Potato.ColorTheme0;
         private static SpriteSheet radioSpriteSheet;
         private const float spaceBetweenOptions = 10f;
-        private readonly List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
+        private List<(AnimatedSprite, string, Texture2D, Vector2, Vector2, Vector2)> items;
         private ControllerAlphaChanger controllerAlphaChanger;
-        private Size2 size;
         private VisibilityStateChanger visibilityStateChanger;
+        private Size2 size;
         private int selectedIndex;
         public int Selected 
         {
@@ -178,7 +178,6 @@ namespace Potato.Menu
                 height: heightOffset + 8);
             controllerAlphaChanger = new ControllerAlphaChanger();
             visibilityStateChanger = new VisibilityStateChanger();
-
             Selected = selected;
         }
 
@@ -239,6 +238,18 @@ namespace Potato.Menu
 
             visibilityStateChanger.Update(gameTime);
             controllerAlphaChanger.Update(gameTime);
+        }
+
+        public void SoftReset()
+        {
+            visibilityStateChanger.SoftReset();
+            controllerAlphaChanger.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            visibilityStateChanger.HardReset();
+            controllerAlphaChanger.HardReset();
         }
     }
 }

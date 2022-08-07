@@ -5,18 +5,14 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class ControllerAlphaChanger : IUpdateable, IControllable
+    internal class ControllerAlphaChanger : IUpdateable, IControllable, IResetable
     {
         private const float changeRate = 1.0f;
         private bool increment;
         public float Alpha { get; private set; } = 0.0f;
         public IController Controller { get; set; }
 
-        public ControllerAlphaChanger()
-        {
-            Controller = null;
-            increment = false;
-        }
+        public ControllerAlphaChanger() => HardReset();
         
         public void Update(GameTime gameTime)
         {
@@ -35,6 +31,18 @@ namespace Potato.Menu
                 Alpha = 1.0f;
                 increment = false;
             }
+        }
+
+        public void SoftReset()
+        {
+            Alpha = 0.0f;
+            increment = false;
+        }
+
+        public void HardReset()
+        {
+            SoftReset();
+            Controller = null;
         }
     }
 }

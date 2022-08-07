@@ -5,12 +5,14 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class VisibilityStateChanger : IUpdateable
+    internal class VisibilityStateChanger : IUpdateable, IResetable
     {
-        public OpenCloseState State { get; private set; } = OpenCloseState.Closed;
-        public float Alpha { get; private set; } = 0.0f;
+        public OpenCloseState State { get; private set; }
+        public float Alpha { get; private set; }
         private const float stateAlphaChangeRate = 3.0f;
-        
+
+        public VisibilityStateChanger() => HardReset();
+
         public void OpenMenu()
         {
             Alpha = 0.0f;
@@ -52,5 +54,13 @@ namespace Potato.Menu
                     break;
             }
         }
+
+        public void SoftReset()
+        {
+            State = OpenCloseState.Closed;
+            Alpha = 0.0f;
+        }
+
+        public void HardReset() => SoftReset();
     }
 }

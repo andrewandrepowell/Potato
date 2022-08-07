@@ -10,19 +10,19 @@ namespace Potato.Menu
 {
     internal class ContainerMenu : IMenu
     {
-        private List<(IMenu, Vector2)> items;
-        private IController controller = null;
-        private Texture2D backplaneTexture = null;
         private static readonly Color backPlaneColor0 = Potato.ColorTheme2;
         private static readonly Color backPlaneColor1 = Potato.ColorTheme3;
         private const float backPlaneEdgeRadius = 8;
-        private Vector2 backPlaneOffset = Vector2.Zero;
-        private Texture2D glowTexure = null;
-        private Vector2 glowOffset = Vector2.Zero;
+        private List<(IMenu, Vector2)> items;
+        private IController controller;
+        private Texture2D backplaneTexture;
+        private Vector2 backPlaneOffset;
+        private Texture2D glowTexure;
+        private Vector2 glowOffset;
         private Size2 size;
-        private VisibilityStateChanger state = new VisibilityStateChanger();
-        public Vector2 Position { get; set; } = Vector2.Zero;
-        public Size2 Size { get => size; set { throw new NotImplementedException(); } }
+        private VisibilityStateChanger visibilityStateChanger;
+        public Vector2 Position { get; set; }
+        public Size2 Size { get => size; set => throw new NotImplementedException(); }
         public OpenCloseState MenuState { get; private set; } = OpenCloseState.Closed;
         public IController Controller
         {
@@ -103,26 +103,27 @@ namespace Potato.Menu
             glowOffset = new Vector2(
                 x: backPlaneOffset.X - (glowTexure.Width - backplaneTexture.Width) / 2,
                 y: backPlaneOffset.Y - (glowTexure.Height - backplaneTexture.Height) / 2);
+
+            controller = null;
+            Position = Vector2.Zero;
+            MenuState = OpenCloseState.Closed;
+            visibilityStateChanger = new VisibilityStateChanger();
         }
 
         public void OpenMenu()
         {
             MenuState = OpenCloseState.Opening;
-            state.OpenMenu();
+            visibilityStateChanger.OpenMenu();
             foreach ((IMenu component, _) in items)
-            {
                 component.OpenMenu();
-            }
         }
 
         public void CloseMenu()
         {
             MenuState = OpenCloseState.Closing;
-            state.CloseMenu();
+            visibilityStateChanger.CloseMenu();
             foreach ((IMenu component, _) in items)
-            {
                 component.CloseMenu();
-            }
         }
 
         public void Draw(Matrix? transformMatrix = null)
@@ -134,11 +135,11 @@ namespace Potato.Menu
             spriteBatch.Draw(
                 texture: glowTexure,
                 position: Position + glowOffset,
-                color: state.Alpha * Color.White);
+                color: visibilityStateChanger.Alpha * Color.White);
             spriteBatch.Draw(
                 texture: backplaneTexture, 
                 position: Position + backPlaneOffset, 
-                color: state.Alpha * Color.White);
+                color: visibilityStateChanger.Alpha * Color.White);
             spriteBatch.End();
 
             // Draw the other elements of the menu.
@@ -195,7 +196,21 @@ namespace Potato.Menu
                 MenuState = OpenCloseState.Opened;
             if (MenuState == OpenCloseState.Closing && items.Select((item) => item.Item1.MenuState).All((x) => x == OpenCloseState.Closed))
                 MenuState = OpenCloseState.Closed;
-            state.Update(gameTime);
+            visibilityStateChanger.Update(gameTime);
+        }
+
+        public void SoftReset()
+        {
+            visibilityStateChanger.SoftReset();
+            foreach ((IMenu component, _) in items)
+                component.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            visibilityStateChanger.HardReset();
+            foreach ((IMenu component, _) in items)
+                component.HardReset();
         }
     }
 }

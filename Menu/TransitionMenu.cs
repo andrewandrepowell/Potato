@@ -63,6 +63,7 @@ namespace Potato.Menu
                             nextNode = node;
                             CurrentMenu.CloseMenu();
                             transitionState = TransitionState.Transitioning;
+                            break;
                         }
                     }
                     if (goPreviousMenu && stack.Count > 1)
@@ -75,8 +76,7 @@ namespace Potato.Menu
                 case TransitionState.Transitioning:
                     if (CurrentMenu.MenuState == OpenCloseState.Closed)
                     {
-                        foreach (Node node in CurrentNodes)
-                            node.Selectable.ResetMedia();
+                        CurrentMenu.SoftReset();
                         nextNode.Menu.Controller = CurrentMenu.Controller;
                         CurrentMenu.Controller = null;
                         nextNode.Menu.OpenMenu();
@@ -88,8 +88,7 @@ namespace Potato.Menu
                 case TransitionState.Reversing:
                     if (CurrentMenu.MenuState == OpenCloseState.Closed)
                     {
-                        foreach (Node node in CurrentNodes)
-                            node.Selectable.ResetMedia();
+                        CurrentMenu.SoftReset();
                         IMenu previousMenu = CurrentMenu;
                         stack.Pop();
                         CurrentMenu.Controller = previousMenu.Controller;
@@ -102,5 +101,9 @@ namespace Potato.Menu
 
             CurrentMenu.Update(gameTime: gameTime);
         }
+
+        public void SoftReset() => CurrentMenu.SoftReset();
+
+        public void HardReset() => CurrentMenu.HardReset();
     }
 }

@@ -76,10 +76,6 @@ namespace Potato
             //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             //    Exit();
             
-            if (keyboard.KeyboardState.IsKeyDown(Keys.Q))
-                titleRoom.CloseRoom();
-            if (keyboard.KeyboardState.IsKeyDown(Keys.W))
-                titleRoom.OpenRoom();
             keyboard.Update(gameTime: gameTime);
             titleRoom.Update(gameTime: gameTime);
             base.Update(gameTime);

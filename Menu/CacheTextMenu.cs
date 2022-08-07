@@ -15,6 +15,7 @@ namespace Potato.Menu
         private static readonly Color textColor = Potato.ColorTheme0;
         private Dictionary<string, List<(string, Texture2D, Vector2, Vector2)>> items;
         private string currentText;
+        private string defaultText;
         private List<(string, Texture2D, Vector2, Vector2)> currentLines;
         private VisibilityStateChanger visibilityStateChanger;
         private ControllerAlphaChanger controllerAlphaChanger;
@@ -112,8 +113,9 @@ namespace Potato.Menu
                 }
                 items.Add(text, lines);
             }
-            
-            Text = texts[0];
+
+            defaultText = texts[0];
+            Text = defaultText;
             visibilityStateChanger = new VisibilityStateChanger();
             controllerAlphaChanger = new ControllerAlphaChanger();
             selectChanger = new SelectChanger();
@@ -159,6 +161,21 @@ namespace Potato.Menu
 
         public void Select() => selectChanger.Select();
 
-        public void ResetMedia() => selectChanger.ResetMedia();
+        public void SoftReset()
+        {
+            controllerAlphaChanger.SoftReset();
+            visibilityStateChanger.SoftReset();
+            selectChanger.SoftReset();
+        }
+
+        public void HardReset()
+        {
+            controllerAlphaChanger.HardReset();
+            visibilityStateChanger.HardReset();
+            selectChanger.HardReset();
+            Text = defaultText;
+            Controller = null;
+            Position = Vector2.Zero;
+        }
     }
 }

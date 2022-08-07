@@ -36,8 +36,7 @@ namespace Potato.Room
                     format: SurfaceFormat.Color);
                 fadeTexture.SetData(Enumerable.Range(0, width * height).Select(i => fadeColor).ToArray());
             }
-            fadeAlpha = 1.0f;
-            RoomState = OpenCloseState.Closed;
+            HardReset();
         }
 
         public void CloseRoom() => RoomState = OpenCloseState.Closing;
@@ -70,5 +69,13 @@ namespace Potato.Room
                     break;
             }
         }
+
+        public void SoftReset()
+        {
+            fadeAlpha = 1.0f;
+            RoomState = OpenCloseState.Closed;
+        }
+
+        public void HardReset() => SoftReset();
     }
 }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Potato
 {
-    internal interface IRoom : IComponent, IControllable
+    internal interface IRoom : IComponent, IControllable, IResetable
     {
         OpenCloseState RoomState { get; }
         void OpenRoom();
@@ -15,7 +15,7 @@ namespace Potato
     }
     internal enum Alignment { Center, Left, Right };
     internal enum OpenCloseState { Opening, Opened, Closing, Closed };
-    internal interface IMenu : IComponent, IControllable, IMovable, ISizable
+    internal interface IMenu : IComponent, IControllable, IMovable, ISizable, IResetable
     {
         OpenCloseState MenuState { get;  }
         void OpenMenu();
@@ -25,7 +25,6 @@ namespace Potato
     {
         bool Selected { get; }
         void Select();
-        void ResetMedia();
     }
     internal interface IComponent : IDrawable, IUpdateable
     {
@@ -42,17 +41,19 @@ namespace Potato
     {
         bool Destroyed { get; }
     }
-    internal interface ISemiPausible
+    internal interface IPausible
     {
-        bool SemiPaused { get; }
-        void SemiPause();
-        void SemiResume();
+        bool SoftPaused { get; }
+        void SoftPause();
+        void SoftResume();
+        bool HardPaused { get; }
+        void HardPause();
+        void HardResume();
     }
-    internal interface IFullPausible
+    internal interface IResetable
     {
-        bool FullPaused { get; }
-        void FullPause();
-        void FullResume();
+        void SoftReset();
+        void HardReset();
     }
     internal interface ISavable<T> where T : struct
     {

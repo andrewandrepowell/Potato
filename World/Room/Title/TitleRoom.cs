@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Potato.Room;
+using Potato.World.Menu;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,14 +17,13 @@ namespace Potato.World.Room.Title
         private RoomStateChanger roomStateChanger;
         public OpenCloseState RoomState => roomStateChanger.RoomState;
         public IController Controller { get => titleMenu.Controller; set => titleMenu.Controller = value; }
-        public KeyboardController Keyboard { get => titleMenu.Keyboard; set => titleMenu.Keyboard = value; }
 
-        public TitleRoom()
+        public TitleRoom(OptionMenu optionMenu)
         {
             int gameWidth = Potato.Game.GraphicsDevice.Viewport.Width;
             int gameHeight = Potato.Game.GraphicsDevice.Viewport.Height;
             
-            titleMenu = new TitleMenu();
+            titleMenu = new TitleMenu(optionMenu: optionMenu);
             titleMenu.Position = new Vector2(
                 x: (gameWidth - titleMenu.Size.Width) / 2,
                 y: (gameHeight - titleMenu.Size.Height) / 2);

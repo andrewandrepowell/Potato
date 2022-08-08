@@ -27,7 +27,6 @@ namespace Potato.World.Room.Title
         private Size2 titleSize;
         public OpenCloseState MenuState => transitionMenu.MenuState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
-        public KeyboardController Keyboard { get => optionMenu.Keyboard; set => optionMenu.Keyboard = value; }
         public Vector2 Position 
         { 
             get => titlePosition; 
@@ -40,7 +39,7 @@ namespace Potato.World.Room.Title
         }
         public Size2 Size { get => titleSize; set => throw new NotImplementedException(); }
         
-        public TitleMenu()
+        public TitleMenu(OptionMenu optionMenu)
         {
             engineEditorSelectMenu = new SelectMenu(text: "Engine Editor", align: Alignment.Center, width: innerWidth);
             optionsSelectMenu = new SelectMenu(text: "Options", align: Alignment.Center, width: innerWidth);
@@ -52,15 +51,7 @@ namespace Potato.World.Room.Title
                     optionsSelectMenu
                 },
                 align: Alignment.Center);
-            try
-            {
-                OptionMenuSave save = Saver.Load<OptionMenuSave>(fileName: Potato.OptionSaveFileName);
-                optionMenu = new OptionMenu(save: save);
-            }
-            catch (FileNotFoundException)
-            {
-                optionMenu = new OptionMenu();
-            }
+            this.optionMenu = optionMenu;
             transitionMenu = new TransitionMenu(
                 nodes: new List<TransitionMenu.Node>()
                 {
@@ -86,7 +77,6 @@ namespace Potato.World.Room.Title
             if (Controller != null && Controller.BackPressed() && optionMenu.IsMainMenuActive())
             {
                 transitionMenu.GoPreviousMenu();
-
                 if (transitionMenu.CurrentMenu == optionMenu)
                     Saver.Save(fileName: Potato.OptionSaveFileName, obj: optionMenu.Save());
             }

@@ -29,8 +29,9 @@ namespace Potato
         private const int gameWidth = 1280; // 720p
         private const int gameHeight = 720; // 720p
 
+        private KeyboardController keyboardController;
         private TitleRoom titleRoom;
-        private KeyboardController keyboard;
+        private OptionMenu optionMenu;
 
         public Potato()
         {
@@ -57,12 +58,20 @@ namespace Potato
 
         protected override void LoadContent()
         {
+            keyboardController = new KeyboardController();
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            keyboard = new KeyboardController();
-            titleRoom = new TitleRoom();
-            titleRoom.Controller = keyboard;
-            titleRoom.Keyboard = keyboard;
+            try
+            {
+                OptionMenuSave save = Saver.Load<OptionMenuSave>(fileName: Potato.OptionSaveFileName);
+                optionMenu = new OptionMenu(save: save);
+            }
+            catch (FileNotFoundException)
+            {
+                optionMenu = new OptionMenu();
+            }
+            optionMenu.Keyboard = keyboardController;
+            titleRoom = new TitleRoom(optionMenu: optionMenu);
+            titleRoom.Controller = keyboardController;
             titleRoom.OpenRoom();
         }
 
@@ -73,10 +82,7 @@ namespace Potato
 
         protected override void Update(GameTime gameTime)
         {
-            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            //    Exit();
-            
-            keyboard.Update(gameTime: gameTime);
+            keyboardController.Update(gameTime: gameTime);
             titleRoom.Update(gameTime: gameTime);
             base.Update(gameTime);
         }

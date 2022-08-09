@@ -97,9 +97,9 @@ namespace Potato.World.Menu
         private Size2 optionSize;
         private bool lockOutOfKeybindConfig;
         private Keys[] previousKeyPresses;
+        private KeyboardController keyboardController;
         public OpenCloseState MenuState => transitionMenu.MenuState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
-        public KeyboardController Keyboard { get; set; }
         public Vector2 Position 
         {
             get => optionPosition;
@@ -115,13 +115,14 @@ namespace Potato.World.Menu
         public Size2 Size { get => optionSize; set => throw new NotImplementedException(); }
         public bool ApplyDefaultSelected => applyDefaultSelectMenu.Selected;
 
-        public OptionMenu(OptionMenuSave save) : this()
+        public OptionMenu(KeyboardController keyboardController, OptionMenuSave save) : this(keyboardController: keyboardController)
         {
             Load(save: save);
         }
         
-        public OptionMenu()
+        public OptionMenu(KeyboardController keyboardController)
         {
+            this.keyboardController = keyboardController;
             OptionMenuSave save = defaultOptionMenuSave;
             masterVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MasterVolume);
             musicVolumeSliderMenu = new SliderMenu(width: innerWidth, fill: save.MusicVolume);
@@ -266,7 +267,7 @@ namespace Potato.World.Menu
             {
                 if (!lockOutOfKeybindConfig)
                 {
-                    KeyboardStateExtended keyboardState = Keyboard.KeyboardState;
+                    KeyboardStateExtended keyboardState = keyboardController.KeyboardState;
                     Keys[] pressedKeys = keyboardState.GetPressedKeys();
                     if (previousKeyPresses != null)
                     {

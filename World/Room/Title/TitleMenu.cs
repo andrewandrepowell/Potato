@@ -25,6 +25,7 @@ namespace Potato.World.Room.Title
         private Vector2 optionOffset;
         private Vector2 titlePosition;
         private Size2 titleSize;
+        public ISelectable EngineEditorSelect => engineEditorSelectMenu;
         public OpenCloseState MenuState => transitionMenu.MenuState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public Vector2 Position 

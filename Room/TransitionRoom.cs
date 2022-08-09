@@ -66,6 +66,7 @@ namespace Potato.Room
                         CurrentRoom.Controller = null;
                         CurrentRoom = nextNode.Room;
                         CurrentNodes = nextNode.Nodes;
+                        CurrentRoom.OpenRoom();
                         nextNode = null;
                         transitionState = TransitionState.Idle;
                     }

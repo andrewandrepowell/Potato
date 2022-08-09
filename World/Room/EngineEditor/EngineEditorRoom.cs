@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
+using Potato.Room;
+using Potato.World.Menu;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,38 +9,38 @@ namespace Potato.World.Room.EngineEditor
 {
     internal class EngineEditorRoom : IRoom
     {
-        public OpenCloseState RoomState => throw new NotImplementedException();
+        private RoomStateChanger roomStateChanger;
+        
+        public OpenCloseState RoomState => roomStateChanger.RoomState;
 
-        public IController Controller { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public void CloseRoom()
+        public IController Controller { get; set; }
+        
+        public EngineEditorRoom(OptionMenu optionMenu)
         {
-            throw new NotImplementedException();
+            roomStateChanger = new RoomStateChanger();
+            Controller = null;
         }
+
+        public void CloseRoom() => roomStateChanger.CloseRoom();
 
         public void Draw(Matrix? transformMatrix = null)
         {
-            throw new NotImplementedException();
+            Potato.SpriteBatch.GraphicsDevice.Clear(Color.RosyBrown);
+            roomStateChanger.Draw(transformMatrix: transformMatrix);
         }
 
         public void HardReset()
         {
-            throw new NotImplementedException();
+            roomStateChanger.HardReset();
         }
 
-        public void OpenRoom()
-        {
-            throw new NotImplementedException();
-        }
+        public void OpenRoom() => roomStateChanger.OpenRoom();
 
-        public void SoftReset()
-        {
-            throw new NotImplementedException();
-        }
+        public void SoftReset() => roomStateChanger.SoftReset();
 
         public void Update(GameTime gameTime)
         {
-            throw new NotImplementedException();
+            roomStateChanger.Update(gameTime: gameTime);
         }
     }
 }

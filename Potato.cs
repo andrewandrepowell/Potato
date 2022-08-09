@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
+using Potato.World.Room;
 #if DEBUG
 using System.Runtime.InteropServices;
 #endif
@@ -30,8 +31,8 @@ namespace Potato
         private const int gameHeight = 720; // 720p
 
         private KeyboardController keyboardController;
-        private TitleRoom titleRoom;
         private OptionMenu optionMenu;
+        private GameRoom gameRoom;
 
         public Potato()
         {
@@ -63,16 +64,15 @@ namespace Potato
             try
             {
                 OptionMenuSave save = Saver.Load<OptionMenuSave>(fileName: Potato.OptionSaveFileName);
-                optionMenu = new OptionMenu(save: save);
+                optionMenu = new OptionMenu(keyboardController: keyboardController, save: save);
             }
             catch (FileNotFoundException)
             {
-                optionMenu = new OptionMenu();
+                optionMenu = new OptionMenu(keyboardController: keyboardController);
             }
-            optionMenu.Keyboard = keyboardController;
-            titleRoom = new TitleRoom(optionMenu: optionMenu);
-            titleRoom.Controller = keyboardController;
-            titleRoom.OpenRoom();
+            gameRoom = new GameRoom(optionMenu: optionMenu);
+            gameRoom.Controller = keyboardController;
+            gameRoom.OpenRoom();
         }
 
         protected override void UnloadContent()
@@ -83,7 +83,7 @@ namespace Potato
         protected override void Update(GameTime gameTime)
         {
             keyboardController.Update(gameTime: gameTime);
-            titleRoom.Update(gameTime: gameTime);
+            gameRoom.Update(gameTime: gameTime);
             base.Update(gameTime);
         }
 
@@ -91,7 +91,7 @@ namespace Potato
         {
             GraphicsDevice.Clear(Color.RosyBrown);
 
-            titleRoom.Draw();
+            gameRoom.Draw();
             base.Draw(gameTime);
         }
 

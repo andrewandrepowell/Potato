@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Potato
 {
@@ -41,6 +42,25 @@ namespace Potato
                 IsFirst = isFirst;
                 IsLast = isLast;
                 Value = value;
+            }
+        }
+
+        // https://stackoverflow.com/questions/5132758/words-combinations-without-repetition
+        // See jrbeverly's response.
+        public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> items, int count)
+        {
+            int i = 0;
+            foreach (var item in items)
+            {
+                if (count == 1)
+                    yield return new T[] { item };
+                else
+                {
+                    foreach (var result in GetPermutations(items.Skip(i + 1), count - 1))
+                        yield return new T[] { item }.Concat(result);
+                }
+
+                ++i;
             }
         }
     }

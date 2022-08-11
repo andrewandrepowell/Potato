@@ -7,23 +7,23 @@ using System.Text;
 
 namespace Potato
 {
-    internal interface ICollidable : IMovable, ISizable
+    internal interface ICollidable : IMovable, ISizable, IDestroyable
     {
         public struct Info
         {
             public ICollidable Other { get; private set; }
-            public Vector2 Point { get; private set; }
-            public Vector2 Normal { get; private set; }
+            public Vector2 CollisionPoint { get; private set; }
+            public Vector2 CollisionNormal { get; private set; }
 
-            public Info(ICollidable other, Vector2 point, Vector2 normal)
+            public Info(ICollidable other, Vector2 collisionPoint, Vector2 collisionNormal)
             {
                 Other = other;
-                Point = point;
-                Normal = normal;
+                CollisionPoint = collisionPoint;
+                CollisionNormal = collisionNormal;
             }
         }
         new Size2 Size { get => CollisionMask.Bounds.Size; set => throw new NotImplementedException(); }
-        public bool Collidable { get; }
+        public bool Collidable { get; set; }
         public Texture2D CollisionMask { get; }
         public IList<Vector2> CollisionVertices { get; }
         public void ServiceCollision(Info info);

@@ -5,51 +5,51 @@ using System.Text;
 
 namespace Potato.Menu
 {
-    internal class VisibilityStateChanger : IUpdateable, IResetable
+    internal class VisibilityStateChanger : IUpdateable, IResetable, IOpenable
     {
-        public OpenCloseState State { get; private set; }
+        public IOpenable.OpenStates OpenState { get; private set; }
         public float Alpha { get; private set; }
         private const float stateAlphaChangeRate = 3.0f;
 
         public VisibilityStateChanger() => HardReset();
 
-        public void OpenMenu()
+        public void Open()
         {
             Alpha = 0.0f;
-            State = OpenCloseState.Opening;
+            OpenState = IOpenable.OpenStates.Opening;
         }
 
-        public void CloseMenu()
+        public void Close()
         {
             Alpha = 1.0f;
-            State = OpenCloseState.Closing;
+            OpenState = IOpenable.OpenStates.Closing;
         }
 
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            switch (State)
+            switch (OpenState)
             {
-                case OpenCloseState.Closed:
+                case IOpenable.OpenStates.Closed:
                     Alpha = 0.0f;
                     break;
-                case OpenCloseState.Opened:
+                case IOpenable.OpenStates.Opened:
                     Alpha = 1.0f;
                     break;
-                case OpenCloseState.Opening:
+                case IOpenable.OpenStates.Opening:
                     Alpha += stateAlphaChangeRate * (float)timeElapsed;
                     if (Alpha > 1.0f)
                     {
                         Alpha = 1.0f;
-                        State = OpenCloseState.Opened;
+                        OpenState = IOpenable.OpenStates.Opened;
                     }
                     break;
-                case OpenCloseState.Closing:
+                case IOpenable.OpenStates.Closing:
                     Alpha -= stateAlphaChangeRate * (float)timeElapsed;
                     if (Alpha < 0.0f)
                     {
                         Alpha = 0.0f;
-                        State = OpenCloseState.Closed;
+                        OpenState = IOpenable.OpenStates.Closed;
                     }
                     break;
             }
@@ -57,7 +57,7 @@ namespace Potato.Menu
 
         public void SoftReset()
         {
-            State = OpenCloseState.Closed;
+            OpenState = IOpenable.OpenStates.Closed;
             Alpha = 0.0f;
         }
 

@@ -17,7 +17,7 @@ namespace Potato.Menu
         public IController Controller { get => null; set { } }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
+        public IOpenable.OpenStates OpenState { get => visibilityStateChanger.OpenState; }
 
         public DividerMenu(float width)
         {
@@ -37,9 +37,9 @@ namespace Potato.Menu
             size = new Size2(width: width, height: height + 4);
         }
 
-        public void OpenMenu() => visibilityStateChanger.OpenMenu();
+        public void Open() => visibilityStateChanger.Open();
 
-        public void CloseMenu() => visibilityStateChanger.CloseMenu();
+        public void Close() => visibilityStateChanger.Close();
 
         public void Draw(Matrix? transformMatrix = null)
         {

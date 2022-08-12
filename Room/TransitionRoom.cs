@@ -25,7 +25,7 @@ namespace Potato.Room
         private Node nextNode;
         public ICollection<Node> CurrentNodes { get; private set;  }
         public IRoom CurrentRoom { get; private set; }
-        public OpenCloseState RoomState => CurrentRoom.RoomState;
+        public IOpenable.OpenStates OpenState => CurrentRoom.OpenState;
         public IController Controller { get => CurrentRoom.Controller; set => CurrentRoom.Controller = value; }
 
         public TransitionRoom(ICollection<Node> nodes, IRoom room)
@@ -35,11 +35,11 @@ namespace Potato.Room
             transitionState = TransitionState.Idle;
         }
 
-        public void CloseRoom() => CurrentRoom.CloseRoom();
+        public void Close() => CurrentRoom.Close();
 
         public void Draw(Matrix? transformMatrix = null) => CurrentRoom.Draw(transformMatrix: transformMatrix);
 
-        public void OpenRoom() => CurrentRoom.OpenRoom();
+        public void Open() => CurrentRoom.Open();
 
         public void Update(GameTime gameTime)
         {
@@ -51,20 +51,20 @@ namespace Potato.Room
                         if (node.Selectable.Selected)
                         {
                             nextNode = node;
-                            CurrentRoom.CloseRoom();
+                            CurrentRoom.Close();
                             transitionState = TransitionState.Transitioning;
                         }
                     }
                     break;
                 case TransitionState.Transitioning:
-                    if (CurrentRoom.RoomState == OpenCloseState.Closed)
+                    if (CurrentRoom.OpenState == IOpenable.OpenStates.Closed)
                     {
                         CurrentRoom.SoftReset();
                         nextNode.Room.Controller = CurrentRoom.Controller;
                         CurrentRoom.Controller = null;
                         CurrentRoom = nextNode.Room;
                         CurrentNodes = nextNode.Nodes;
-                        CurrentRoom.OpenRoom();
+                        CurrentRoom.Open();
                         nextNode = null;
                         transitionState = TransitionState.Idle;
                     }

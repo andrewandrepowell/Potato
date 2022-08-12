@@ -12,7 +12,7 @@ namespace Potato.World.Room.EngineEditor
         private RoomStateChanger roomStateChanger;
         private EngineEditorMenu engineEditorMenu;
         public ISelectable TitleSelect => engineEditorMenu.TitleSelect;
-        public OpenCloseState RoomState => roomStateChanger.RoomState;
+        public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
         public IController Controller { get => engineEditorMenu.Controller; set => engineEditorMenu.Controller = value; }
         
         public EngineEditorRoom(OptionMenu optionMenu)
@@ -22,12 +22,15 @@ namespace Potato.World.Room.EngineEditor
             engineEditorMenu.Position = new Vector2(
                 x: (Potato.Game.GraphicsDevice.Viewport.Width - engineEditorMenu.Size.Width) / 2,
                 y: (Potato.Game.GraphicsDevice.Viewport.Height - engineEditorMenu.Size.Height) / 2);
-            engineEditorMenu.OpenMenu();
             Controller = null;
         }
 
-        public void CloseRoom() => roomStateChanger.CloseRoom();
-
+        public void Close()
+        {
+            engineEditorMenu.Close();
+            roomStateChanger.Close();
+        }
+            
         public void Draw(Matrix? transformMatrix = null)
         {
             Potato.SpriteBatch.GraphicsDevice.Clear(Color.RosyBrown);
@@ -41,7 +44,11 @@ namespace Potato.World.Room.EngineEditor
             roomStateChanger.HardReset();
         }
 
-        public void OpenRoom() => roomStateChanger.OpenRoom();
+        public void Open()
+        {
+            engineEditorMenu.Open();
+            roomStateChanger.Open();
+        }
 
         public void SoftReset()
         {

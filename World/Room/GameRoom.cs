@@ -14,7 +14,7 @@ namespace Potato.World.Room
         private TitleRoom titleRoom;
         private EngineEditorRoom engineEditorRoom;
         private TransitionRoom transitionRoom;
-        public OpenCloseState RoomState => transitionRoom.RoomState;
+        public IOpenable.OpenStates OpenState => transitionRoom.OpenState;
 
 
         public IController Controller { get => transitionRoom.Controller; set => transitionRoom.Controller = value; }
@@ -34,13 +34,13 @@ namespace Potato.World.Room
             Controller = null;
         }
 
-        public void CloseRoom() => transitionRoom.CloseRoom();
+        public void Close() => transitionRoom.Close();
 
         public void Draw(Matrix? transformMatrix = null) => transitionRoom.Draw(transformMatrix: transformMatrix);
 
         public void HardReset() => transitionRoom.HardReset();
 
-        public void OpenRoom() => transitionRoom.OpenRoom();
+        public void Open() => transitionRoom.Open();
 
         public void SoftReset() => transitionRoom.SoftReset();
 

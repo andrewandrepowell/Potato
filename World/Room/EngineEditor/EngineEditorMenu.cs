@@ -21,7 +21,7 @@ namespace Potato.World.Room.EngineEditor
         private SelectMenu collisionTest0SelectMenu;
         public ISelectable TitleSelect => titleSelectMenu;
         public ISelectable CollisionTest0Select => collisionTest0SelectMenu;
-        public OpenCloseState MenuState => transitionMenu.MenuState;
+        public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }
         public Size2 Size { get => transitionMenu.Size; set => transitionMenu.Size = value; }
@@ -48,7 +48,7 @@ namespace Potato.World.Room.EngineEditor
                 },
                 menu: containerMenu);
         }
-        public void CloseMenu() => transitionMenu.CloseMenu();
+        public void Close() => transitionMenu.Close();
 
         public void Draw(Matrix? transformMatrix = null) => transitionMenu.Draw(transformMatrix: transformMatrix);
 
@@ -57,7 +57,7 @@ namespace Potato.World.Room.EngineEditor
             transitionMenu.HardReset();
         }
 
-        public void OpenMenu() => transitionMenu.OpenMenu();
+        public void Open() => transitionMenu.Open();
 
         public void SoftReset()
         {

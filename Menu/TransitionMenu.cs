@@ -29,7 +29,7 @@ namespace Potato.Menu
         private bool goPreviousMenu;
         public ICollection<Node> CurrentNodes => stack.Peek().Item1;
         public IMenu CurrentMenu => stack.Peek().Item2;
-        public OpenCloseState MenuState => CurrentMenu.MenuState;
+        public IOpenable.OpenStates OpenState => CurrentMenu.OpenState;
         public IController Controller { get => CurrentMenu.Controller; set => CurrentMenu.Controller = value; }
         public Vector2 Position { get => CurrentMenu.Position; set => CurrentMenu.Position = value; }
         public Size2 Size { get => CurrentMenu.Size; set => CurrentMenu.Size = value; }
@@ -42,9 +42,9 @@ namespace Potato.Menu
             goPreviousMenu = false;
         }
 
-        public void CloseMenu() => CurrentMenu.CloseMenu();
+        public void Close() => CurrentMenu.Close();
 
-        public void OpenMenu() => CurrentMenu.OpenMenu();
+        public void Open() => CurrentMenu.Open();
 
         public void GoPreviousMenu() => goPreviousMenu = true;
 
@@ -61,7 +61,7 @@ namespace Potato.Menu
                         if (node.Selectable.Selected)
                         {
                             nextNode = node;
-                            CurrentMenu.CloseMenu();
+                            CurrentMenu.Close();
                             transitionState = TransitionState.Transitioning;
                             break;
                         }
@@ -69,31 +69,31 @@ namespace Potato.Menu
                     if (goPreviousMenu && stack.Count > 1)
                     {
                         goPreviousMenu = false;
-                        CurrentMenu.CloseMenu();
+                        CurrentMenu.Close();
                         transitionState = TransitionState.Reversing;
                     }
                     break;
                 case TransitionState.Transitioning:
-                    if (CurrentMenu.MenuState == OpenCloseState.Closed)
+                    if (CurrentMenu.OpenState == IOpenable.OpenStates.Closed)
                     {
                         CurrentMenu.SoftReset();
                         nextNode.Menu.Controller = CurrentMenu.Controller;
                         CurrentMenu.Controller = null;
-                        nextNode.Menu.OpenMenu();
+                        nextNode.Menu.Open();
                         stack.Push((nextNode.Nodes, nextNode.Menu));
                         nextNode = null;
                         transitionState = TransitionState.Idle;
                     }
                     break;
                 case TransitionState.Reversing:
-                    if (CurrentMenu.MenuState == OpenCloseState.Closed)
+                    if (CurrentMenu.OpenState == IOpenable.OpenStates.Closed)
                     {
                         CurrentMenu.SoftReset();
                         IMenu previousMenu = CurrentMenu;
                         stack.Pop();
                         CurrentMenu.Controller = previousMenu.Controller;
                         previousMenu.Controller = null;
-                        CurrentMenu.OpenMenu();
+                        CurrentMenu.Open();
                         transitionState = TransitionState.Idle;
                     }
                     break;

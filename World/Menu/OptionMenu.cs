@@ -40,17 +40,17 @@ namespace Potato.World.Menu
                     align: Alignment.Center);
             }
             public CacheTextMenu SelectMenu { get; set; }
-            public OpenCloseState MenuState => containerMenu.MenuState;
+            public IOpenable.OpenStates OpenState => containerMenu.OpenState;
             public IController Controller {  get => containerMenu.Controller; set => containerMenu.Controller = value; }
             public Vector2 Position { get => containerMenu.Position; set => containerMenu.Position = value; }
             public Size2 Size { get => containerMenu.Size; set => containerMenu.Size = value; }
-            public void CloseMenu() => containerMenu.CloseMenu();
+            public void Close() => containerMenu.Close();
             public void Draw(Matrix? transformMatrix) =>
                 containerMenu.Draw(transformMatrix: transformMatrix);
 
             public void HardReset() => containerMenu.HardReset();
 
-            public void OpenMenu() => containerMenu.OpenMenu();
+            public void Open() => containerMenu.Open();
 
             public void SoftReset() => containerMenu.SoftReset();
 
@@ -98,7 +98,7 @@ namespace Potato.World.Menu
         private bool lockOutOfKeybindConfig;
         private Keys[] previousKeyPresses;
         private KeyboardController keyboardController;
-        public OpenCloseState MenuState => transitionMenu.MenuState;
+        public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public Vector2 Position 
         {
@@ -253,12 +253,12 @@ namespace Potato.World.Menu
 
         public bool IsMainMenuActive() => transitionMenu.CurrentMenu == mainContainerMenu;
         
-        public void CloseMenu() => transitionMenu.CloseMenu();
+        public void Close() => transitionMenu.Close();
 
         public void Draw(Matrix? transformMatrix = null) =>
             transitionMenu.Draw(transformMatrix: transformMatrix);
 
-        public void OpenMenu() => transitionMenu.OpenMenu();
+        public void Open() => transitionMenu.Open();
 
         public void Update(GameTime gameTime)
         {

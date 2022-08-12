@@ -41,7 +41,7 @@ namespace Potato.Menu
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
+        public IOpenable.OpenStates OpenState { get => visibilityStateChanger.OpenState; }
 
         public RadioMenu(IList<string> options, Alignment align, float width, int selected)
         {
@@ -181,9 +181,9 @@ namespace Potato.Menu
             Selected = selected;
         }
 
-        public void OpenMenu() => visibilityStateChanger.OpenMenu();
+        public void Open() => visibilityStateChanger.Open();
 
-        public void CloseMenu() => visibilityStateChanger.CloseMenu();
+        public void Close() => visibilityStateChanger.Close();
 
         public void Draw(Matrix? transformMatrix = null)
         {

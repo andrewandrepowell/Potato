@@ -24,13 +24,7 @@ namespace Potato.Menu
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; } = Vector2.Zero;
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
-
-        private static Color Add(Color color1, Color color2) => new Color(
-            color1.R + color2.R,
-            color1.G + color2.G,
-            color1.B + color2.B,
-            color1.A + color2.A);
+        public IOpenable.OpenStates OpenState { get => visibilityStateChanger.OpenState; }
 
         public SelectMenu(string text, Alignment align, float width)
         {
@@ -117,9 +111,9 @@ namespace Potato.Menu
             selectChanger = new SelectChanger();
         }
 
-        public void OpenMenu() => visibilityStateChanger.OpenMenu();
+        public void Open() => visibilityStateChanger.Open();
 
-        public void CloseMenu() => visibilityStateChanger.CloseMenu();
+        public void Close() => visibilityStateChanger.Close();
         
         public void Draw(Matrix? transformMatrix = null)
         {

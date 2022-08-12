@@ -72,7 +72,7 @@ namespace Potato
             }
             gameRoom = new GameRoom(optionMenu: optionMenu);
             gameRoom.Controller = keyboardController;
-            gameRoom.OpenRoom();
+            gameRoom.Open();
         }
 
         protected override void UnloadContent()

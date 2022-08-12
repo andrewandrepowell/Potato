@@ -32,7 +32,7 @@ namespace Potato.Menu
                 currentLines = items[currentText];
             }
         }
-        public OpenCloseState MenuState => visibilityStateChanger.State;
+        public IOpenable.OpenStates OpenState => visibilityStateChanger.OpenState;
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => menuSize; set { } }
@@ -126,7 +126,7 @@ namespace Potato.Menu
                 height: items.Select((tuple) => tuple.Value.Sum((lines) => font.MeasureString(lines.Item1).Y)).Max());
         }
 
-        public void CloseMenu() => visibilityStateChanger.CloseMenu();
+        public void Close() => visibilityStateChanger.Close();
 
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -147,7 +147,7 @@ namespace Potato.Menu
             spriteBatch.End();
         }
 
-        public void OpenMenu() => visibilityStateChanger.OpenMenu();
+        public void Open() => visibilityStateChanger.Open();
 
         public void Update(GameTime gameTime)
         {

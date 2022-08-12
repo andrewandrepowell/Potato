@@ -23,7 +23,7 @@ namespace Potato.Menu
         private VisibilityStateChanger visibilityStateChanger;
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set => throw new NotImplementedException(); }
-        public OpenCloseState MenuState { get; private set; } = OpenCloseState.Closed;
+        public IOpenable.OpenStates OpenState { get; private set; } = IOpenable.OpenStates.Closed;
         public IController Controller
         {
             get => controller;
@@ -106,24 +106,24 @@ namespace Potato.Menu
 
             controller = null;
             Position = Vector2.Zero;
-            MenuState = OpenCloseState.Closed;
+            OpenState = IOpenable.OpenStates.Closed;
             visibilityStateChanger = new VisibilityStateChanger();
         }
 
-        public void OpenMenu()
+        public void Open()
         {
-            MenuState = OpenCloseState.Opening;
-            visibilityStateChanger.OpenMenu();
+            OpenState = IOpenable.OpenStates.Opening;
+            visibilityStateChanger.Open();
             foreach ((IMenu component, _) in items)
-                component.OpenMenu();
+                component.Open();
         }
 
-        public void CloseMenu()
+        public void Close()
         {
-            MenuState = OpenCloseState.Closing;
-            visibilityStateChanger.CloseMenu();
+            OpenState = IOpenable.OpenStates.Closing;
+            visibilityStateChanger.Close();
             foreach ((IMenu component, _) in items)
-                component.CloseMenu();
+                component.Close();
         }
 
         public void Draw(Matrix? transformMatrix = null)
@@ -192,10 +192,10 @@ namespace Potato.Menu
             }
 
             // Update state.
-            if (MenuState == OpenCloseState.Opening && items.Select((item) => item.Item1.MenuState).All((x) => x == OpenCloseState.Opened))
-                MenuState = OpenCloseState.Opened;
-            if (MenuState == OpenCloseState.Closing && items.Select((item) => item.Item1.MenuState).All((x) => x == OpenCloseState.Closed))
-                MenuState = OpenCloseState.Closed;
+            if (OpenState == IOpenable.OpenStates.Opening && items.Select((item) => item.Item1.OpenState).All((x) => x == IOpenable.OpenStates.Opened))
+                OpenState = IOpenable.OpenStates.Opened;
+            if (OpenState == IOpenable.OpenStates.Closing && items.Select((item) => item.Item1.OpenState).All((x) => x == IOpenable.OpenStates.Closed))
+                OpenState = IOpenable.OpenStates.Closed;
             visibilityStateChanger.Update(gameTime);
         }
 

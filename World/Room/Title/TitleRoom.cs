@@ -16,7 +16,7 @@ namespace Potato.World.Room.Title
         private Texture2D backgroundTexture;
         private RoomStateChanger roomStateChanger;
         public ISelectable EngineEditorSelect => titleMenu.EngineEditorSelect;
-        public OpenCloseState RoomState => roomStateChanger.RoomState;
+        public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
         public IController Controller { get => titleMenu.Controller; set => titleMenu.Controller = value; }
 
         public TitleRoom(OptionMenu optionMenu)
@@ -48,10 +48,10 @@ namespace Potato.World.Room.Title
             roomStateChanger = new RoomStateChanger();
         }
 
-        public void CloseRoom()
+        public void Close()
         {
-            titleMenu.CloseMenu();
-            roomStateChanger.CloseRoom();
+            titleMenu.Close();
+            roomStateChanger.Close();
         }
 
         public void Draw(Matrix? transformMatrix = null)
@@ -66,10 +66,10 @@ namespace Potato.World.Room.Title
             roomStateChanger.Draw(transformMatrix: transformMatrix);
         }
 
-        public void OpenRoom()
+        public void Open()
         {
-            titleMenu.OpenMenu();
-            roomStateChanger.OpenRoom();
+            titleMenu.Open();
+            roomStateChanger.Open();
         }
 
         public void Update(GameTime gameTime)

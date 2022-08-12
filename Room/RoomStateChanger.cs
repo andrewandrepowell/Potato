@@ -13,7 +13,7 @@ namespace Potato.Room
         private static Texture2D fadeTexture;
         private const float fadeAlphaChangeRate = 3.0f;
         private float fadeAlpha;
-        public OpenCloseState RoomState { get; private set; }
+        public IOpenable.OpenStates OpenState { get; private set; }
         public IController Controller { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         
         static RoomStateChanger()
@@ -38,8 +38,8 @@ namespace Potato.Room
             }
             HardReset();
         }
-
-        public void CloseRoom() => RoomState = OpenCloseState.Closing;
+        
+        public void Close() => OpenState = IOpenable.OpenStates.Closing;
 
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -49,23 +49,23 @@ namespace Potato.Room
             spriteBatch.End();
         }
 
-        public void OpenRoom() => RoomState = OpenCloseState.Opening;
+        public void Open() => OpenState = IOpenable.OpenStates.Opening;
 
         public void Update(GameTime gameTime)
         {
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            switch (RoomState)
+            switch (OpenState)
             {
-                case OpenCloseState.Closing:
+                case IOpenable.OpenStates.Closing:
                     fadeAlpha = Math.Min(fadeAlpha + timeElapsed * fadeAlphaChangeRate, 1.0f);
                     if (fadeAlpha == 1.0f)
-                        RoomState = OpenCloseState.Closed;
+                        OpenState = IOpenable.OpenStates.Closed;
                     break;
-                case OpenCloseState.Opening:
+                case IOpenable.OpenStates.Opening:
                     fadeAlpha = Math.Max(fadeAlpha - timeElapsed * fadeAlphaChangeRate, 0.0f);
                     if (fadeAlpha == 0.0f)
-                        RoomState = OpenCloseState.Opened;
+                        OpenState = IOpenable.OpenStates.Opened;
                     break;
             }
         }
@@ -73,7 +73,7 @@ namespace Potato.Room
         public void SoftReset()
         {
             fadeAlpha = 1.0f;
-            RoomState = OpenCloseState.Closed;
+            OpenState = IOpenable.OpenStates.Closed;
         }
 
         public void HardReset() => SoftReset();

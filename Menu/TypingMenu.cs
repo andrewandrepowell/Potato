@@ -57,7 +57,7 @@ namespace Potato.Menu
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
         public StringBuilder Text { get; private set; }
-        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
+        public IOpenable.OpenStates OpenState { get => visibilityStateChanger.OpenState; }
 
         public TypingMenu(float width)
         {
@@ -96,9 +96,9 @@ namespace Potato.Menu
             cursorTrackRight = new TrackKey();
         }
 
-        public void OpenMenu() => visibilityStateChanger.OpenMenu();
+        public void Open() => visibilityStateChanger.Open();
 
-        public void CloseMenu() => visibilityStateChanger.CloseMenu();
+        public void Close() => visibilityStateChanger.Close();
 
         public void Draw(Matrix? transformMatrix = null)
         {

@@ -36,7 +36,7 @@ namespace Potato.Menu
         public IController Controller { get => controllerAlphaChanger.Controller; set => controllerAlphaChanger.Controller = value; }
         public Vector2 Position { get; set; }
         public Size2 Size { get => size; set { throw new NotImplementedException(); } }
-        public OpenCloseState MenuState { get => visibilityStateChanger.State; }
+        public IOpenable.OpenStates OpenState { get => visibilityStateChanger.OpenState; }
 
         public SliderMenu(float width, float fill)
         {
@@ -65,9 +65,9 @@ namespace Potato.Menu
             Position = Vector2.Zero;
         }
 
-        public void OpenMenu() => visibilityStateChanger.OpenMenu();
+        public void Open() => visibilityStateChanger.Open();
 
-        public void CloseMenu() => visibilityStateChanger.CloseMenu();
+        public void Close() => visibilityStateChanger.Close();
 
         public void Draw(Matrix? transformMatrix = null)
         {

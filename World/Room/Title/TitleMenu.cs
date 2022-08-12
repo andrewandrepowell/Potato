@@ -26,7 +26,7 @@ namespace Potato.World.Room.Title
         private Vector2 titlePosition;
         private Size2 titleSize;
         public ISelectable EngineEditorSelect => engineEditorSelectMenu;
-        public OpenCloseState MenuState => transitionMenu.MenuState;
+        public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public Vector2 Position 
         { 
@@ -67,11 +67,11 @@ namespace Potato.World.Room.Title
             Position = Vector2.Zero;
         }
 
-        public void CloseMenu() => transitionMenu.CloseMenu();
+        public void Close() => transitionMenu.Close();
 
         public void Draw(Matrix? transformMatrix = null) => transitionMenu.Draw(transformMatrix: transformMatrix);
 
-        public void OpenMenu() => transitionMenu.OpenMenu();
+        public void Open() => transitionMenu.Open();
 
         public void Update(GameTime gameTime)
         {

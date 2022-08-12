@@ -7,6 +7,13 @@ using System.Text;
 
 namespace Potato
 {
+    internal interface IOpenable
+    {
+        enum OpenStates { Opened, Opening, Closed, Closing };
+        OpenStates OpenState { get; }
+        void Open();
+        void Close();
+    }
     internal interface ICollidable : IMovable, ISizable, IDestroyable
     {
         struct Info
@@ -27,19 +34,12 @@ namespace Potato
         Texture2D CollisionMask { get; }
         void ServiceCollision(Info info);
     }
-    internal interface IRoom : IComponent, IControllable, IResetable
+    internal interface IRoom : IComponent, IControllable, IResetable, IOpenable
     {
-        OpenCloseState RoomState { get; }
-        void OpenRoom();
-        void CloseRoom();
     }
     internal enum Alignment { Center, Left, Right };
-    internal enum OpenCloseState { Opening, Opened, Closing, Closed };
-    internal interface IMenu : IComponent, IControllable, IMovable, ISizable, IResetable
+    internal interface IMenu : IComponent, IControllable, IMovable, ISizable, IResetable, IOpenable
     {
-        OpenCloseState MenuState { get;  }
-        void OpenMenu();
-        void CloseMenu();
     }
     internal interface ISelectable
     {

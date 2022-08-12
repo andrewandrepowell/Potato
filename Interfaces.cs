@@ -9,24 +9,23 @@ namespace Potato
 {
     internal interface ICollidable : IMovable, ISizable, IDestroyable
     {
-        public struct Info
+        struct Info
         {
             public ICollidable Other { get; private set; }
-            public Vector2 CollisionPoint { get; private set; }
-            public Vector2 CollisionNormal { get; private set; }
+            public Vector2 Point { get; private set; }
+            public Vector2 Correction { get; private set; }
 
-            public Info(ICollidable other, Vector2 collisionPoint, Vector2 collisionNormal)
+            public Info(ICollidable other, Vector2 point, Vector2 correction)
             {
                 Other = other;
-                CollisionPoint = collisionPoint;
-                CollisionNormal = collisionNormal;
+                Point = point;
+                Correction = correction;
             }
         }
         new Size2 Size { get => CollisionMask.Bounds.Size; set => throw new NotImplementedException(); }
-        public bool Collidable { get; set; }
-        public Texture2D CollisionMask { get; }
-        public IList<Vector2> CollisionVertices { get; }
-        public void ServiceCollision(Info info);
+        bool Collidable { get; set; }
+        Texture2D CollisionMask { get; }
+        void ServiceCollision(Info info);
     }
     internal interface IRoom : IComponent, IControllable, IResetable
     {

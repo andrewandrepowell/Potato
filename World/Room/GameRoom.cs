@@ -23,12 +23,14 @@ namespace Potato.World.Room
         {
             titleRoom = new TitleRoom(optionMenu: optionMenu);
             engineEditorRoom = new EngineEditorRoom(optionMenu: optionMenu);
-            IRoom room = titleRoom;
             List<TransitionRoom.Node> nodes = new List<TransitionRoom.Node>()
             {
                 new TransitionRoom.Node(selectable: titleRoom.EngineEditorSelect, room: engineEditorRoom)
             };
-            transitionRoom = new TransitionRoom(nodes: nodes, room: room);
+            nodes.Find((x) => x.Room == engineEditorRoom).Nodes.Add(new TransitionRoom.Node(selectable: engineEditorRoom.TitleSelect, room: titleRoom));
+            transitionRoom = new TransitionRoom(
+                nodes: nodes, 
+                room: titleRoom);
             Controller = null;
         }
 

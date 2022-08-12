@@ -28,7 +28,6 @@ namespace Potato.World.Room.Title
             titleMenu.Position = new Vector2(
                 x: (gameWidth - titleMenu.Size.Width) / 2,
                 y: (gameHeight - titleMenu.Size.Height) / 2);
-            titleMenu.OpenMenu();
 
             backgroundTexture = new Texture2D(
                 graphicsDevice: Potato.Game.GraphicsDevice,
@@ -49,7 +48,11 @@ namespace Potato.World.Room.Title
             roomStateChanger = new RoomStateChanger();
         }
 
-        public void CloseRoom() => roomStateChanger.CloseRoom();
+        public void CloseRoom()
+        {
+            titleMenu.CloseMenu();
+            roomStateChanger.CloseRoom();
+        }
 
         public void Draw(Matrix? transformMatrix = null)
         {
@@ -63,7 +66,11 @@ namespace Potato.World.Room.Title
             roomStateChanger.Draw(transformMatrix: transformMatrix);
         }
 
-        public void OpenRoom() => roomStateChanger.OpenRoom();
+        public void OpenRoom()
+        {
+            titleMenu.OpenMenu();
+            roomStateChanger.OpenRoom();
+        }
 
         public void Update(GameTime gameTime)
         {

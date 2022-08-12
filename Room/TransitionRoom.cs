@@ -25,9 +25,7 @@ namespace Potato.Room
         private Node nextNode;
         public ICollection<Node> CurrentNodes { get; private set;  }
         public IRoom CurrentRoom { get; private set; }
-
         public OpenCloseState RoomState => CurrentRoom.RoomState;
-
         public IController Controller { get => CurrentRoom.Controller; set => CurrentRoom.Controller = value; }
 
         public TransitionRoom(ICollection<Node> nodes, IRoom room)

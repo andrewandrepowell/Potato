@@ -10,7 +10,7 @@ namespace Potato
     internal class CollisionManager : IUpdateable
     {
         private List<ICollidable> managedCollidables;
-        public List<ICollidable> Collidables { get => managedCollidables; }
+        public List<ICollidable> ManagedCollidables { get => managedCollidables; }
 
         public CollisionManager()
         {
@@ -19,41 +19,38 @@ namespace Potato
 
         public void Update(GameTime gameTime)
         {
+            // Remove any destroyed collidables from the manager.
             managedCollidables.Where((x) => x.Destroyed).ToList().ForEach((x) => managedCollidables.Remove(x));
+
+            // For each collidable in the manager, check for collisions with other collidables in the manager.
             foreach (var combination in managedCollidables.GetPermutations(count: 2))
             {
-                Vector2 collisionPoint;
+                Vector2 point0, point1, correction0, correction1;
                 ICollidable[] pair = combination.ToArray();
                 ICollidable collidable0 = pair[0], collidable1 = pair[1];
-                if (!collidable0.Collidable && !collidable1.Collidable)
+
+                if (!CheckForCollision(
+                    collidable0: collidable0, collidable1: collidable1,
+                    correction0: out correction0, correction1: out correction1,
+                    point0: out point0, point1: out point1))
                     continue;
-                if (!CheckForCollision(collidable0: collidable0, collidable1: collidable1, out collisionPoint))
-                    continue;
-                if (collidable0.Collidable)
-                {
-                    Vector2 collisionNormal = DetermineCollisionNormal(collidable: collidable0, colllisionPoint: collisionPoint);
-                    collidable1.ServiceCollision(new ICollidable.Info(
-                        other: collidable0,
-                        collisionPoint: collisionPoint,
-                        collisionNormal: collisionNormal));
-                }
-                if (collidable1.Collidable)
-                {
-                    Vector2 collisionNormal = DetermineCollisionNormal(collidable: collidable1, colllisionPoint: collisionPoint);
-                    collidable0.ServiceCollision(new ICollidable.Info(
-                        other: collidable1,
-                        collisionPoint: collisionPoint,
-                        collisionNormal: collisionNormal));
-                }
+                
+                collidable0.ServiceCollision(info: new ICollidable.Info(other: collidable1, point: point0, correction: correction0));
+                collidable1.ServiceCollision(info: new ICollidable.Info(other: collidable0, point: point1, correction: correction1));
             }
         }
 
-        private static bool CheckForCollision(ICollidable collidable0, ICollidable collidable1, out Vector2 colllisionPoint)
+        private static bool CheckForCollision(ICollidable collidable0, ICollidable collidable1, out Vector2 correction0, out Vector2 correction1, out Vector2 point0, out Vector2 point1)
         {
-            colllisionPoint = Vector2.Zero;
-            Vector2 penetration0 = Vector2.Zero;
-            Vector2 penetration1 = Vector2.Zero;
-            
+            correction0 = Vector2.Zero;
+            correction1 = Vector2.Zero;
+            point0 = Vector2.Zero;
+            point1 = Vector2.Zero;
+
+            // If one of the collidables are not collidable, then there is no collision.
+            if (!collidable0.Collidable || !collidable1.Collidable)
+                return false;
+
             // Determine the bounding rectangles for this physics and the other physics.
             Rectangle bounds0 = new Rectangle(location: collidable0.Position.ToPoint(), size: (Point)collidable0.Size);
             Rectangle bounds1 = new Rectangle(location: collidable1.Position.ToPoint(), size: (Point)collidable1.Size);
@@ -150,44 +147,90 @@ namespace Potato
                             colMax = col;
                     }
 
-            int penetrateOffsetY0;
-            if (topSum1 > bottomSum1)
-                penetrateOffsetY0 = rowMax + 1;
+            int overlapWidth = colMax - colMin + 1;
+            int overlapHeight = rowMax - rowMin + 1;
+            int pointMidX = (colMax + colMin) / 2;
+            int pointMidY = (rowMax + rowMin) / 2;
+
+            float adjustX0 = (collidable0.Position.X - bounds0.X);
+            float adjustY0 = (collidable0.Position.Y - bounds0.Y);
+            float adjustX1 = (collidable1.Position.X - bounds1.X);
+            float adjustY1 = (collidable1.Position.Y - bounds1.Y);
+            float correctionOffsetY0, correctionOffsetY1;
+            float correctionOffsetX0, correctionOffsetX1;
+            float pointY0, pointY1;
+            float pointX0, pointX1;
+            if (overlapHeight < overlapWidth)
+            {
+                correctionOffsetX0 = 0;
+                correctionOffsetX1 = 0;
+                pointX0 = pointMidX + intersection1.X + collidable1.Position.X;
+                pointX1 = pointMidX + intersection0.X + collidable0.Position.X;
+                
+                if (topSum1 > bottomSum1)
+                {
+                    correctionOffsetY0 = -overlapHeight - adjustY0;
+                    pointY0 = rowMin + intersection1.Y + collidable1.Position.Y;
+                }
+                else
+                {
+                    correctionOffsetY0 = overlapHeight - adjustY0;
+                    pointY0 = rowMax + intersection1.Y + collidable1.Position.Y;
+                }
+                if (topSum0 > bottomSum0)
+                {
+                    correctionOffsetY1 = -overlapHeight - adjustY1;
+                    pointY1 = rowMin + intersection0.Y + collidable0.Position.Y;
+                }
+                else
+                {
+                    correctionOffsetY1 = overlapHeight - adjustY1;
+                    pointY1 = rowMax + intersection0.Y + collidable0.Position.Y;
+                }
+            }
             else
-                penetrateOffsetY0 = rowMin - intersection1.Y;
+            {
+                correctionOffsetY0 = 0;
+                correctionOffsetY1 = 0;
+                pointY0 = pointMidY + intersection1.Y + collidable1.Position.Y;
+                pointY1 = pointMidY + intersection0.Y + collidable0.Position.Y;
 
-            int penetrateOffsetX0;
-            if (leftSum1 > rightSum1)
-                penetrateOffsetX0 = colMax + 1;
-            else
-                penetrateOffsetX0 = colMin - intersection1.X;
+                if (leftSum1 > rightSum1)
+                {
+                    correctionOffsetX0 = -overlapWidth - adjustX0;
+                    pointX0 = colMin + intersection1.X + collidable1.Position.X;
+                }
+                else
+                {
+                    correctionOffsetX0 = overlapWidth - adjustX0;
+                    pointX0 = colMax + intersection1.X + collidable1.Position.X;
+                }
+                if (leftSum0 > rightSum0)
+                {
+                    correctionOffsetX1 = -overlapWidth - adjustX1;
+                    pointX1 = colMin + intersection0.X + collidable0.Position.X;
+                }
+                else
+                {
+                    correctionOffsetX1 = overlapWidth - adjustX1;
+                    pointX1 = colMax + intersection0.X + collidable0.Position.X;
+                }
+            }
 
-            int penetrateOffsetY1;
-            if (topSum0 > bottomSum0)
-                penetrateOffsetY1 = rowMax + 1;
-            else
-                penetrateOffsetY1 = rowMin - intersection0.Y;
-
-            int penetrateOffsetX1;
-            if (leftSum0 > rightSum0)
-                penetrateOffsetX1 = colMax + 1;
-            else
-                penetrateOffsetX1 = colMin - intersection0.X;
-
-            penetration0 = new Vector2(
-                x: penetrateOffsetX0 - (collidable0.Position.X - bounds0.X),
-                y: penetrateOffsetY0 - (collidable0.Position.Y - bounds0.Y));
-            penetration1 = new Vector2(
-                x: penetrateOffsetX1 - (collidable1.Position.X - bounds1.X),
-                y: penetrateOffsetY1 - (collidable1.Position.Y - bounds1.Y));
-
+            correction0 = new Vector2(
+                x: correctionOffsetX0,
+                y: correctionOffsetY0);
+            point0 = new Vector2(
+                x: pointX0,
+                y: pointY0);
+            correction1 = new Vector2(
+                x: correctionOffsetX1,
+                y: correctionOffsetY1);
+            point1 = new Vector2(
+                x: pointX1,
+                y: pointY1);
 
             return true;
-        }
-
-        private static Vector2 DetermineCollisionNormal(ICollidable collidable, Vector2 colllisionPoint)
-        {
-            return Vector2.Zero;
         }
     }
 }

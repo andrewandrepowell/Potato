@@ -75,7 +75,7 @@ namespace Potato.World.Room.Title
 
         public void Update(GameTime gameTime)
         {
-            if (Controller != null && Controller.BackPressed() && optionMenu.IsMainMenuActive())
+            if (optionMenu.Controller != null && optionMenu.Controller.BackPressed() && optionMenu.IsMainMenuActive())
             {
                 transitionMenu.GoPreviousMenu();
                 if (transitionMenu.CurrentMenu == optionMenu)

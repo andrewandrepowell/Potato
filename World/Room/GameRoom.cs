@@ -4,6 +4,7 @@ using Potato.World.Menu;
 using Potato.World.Room.EngineEditor;
 using Potato.World.Room.Title;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -23,14 +24,20 @@ namespace Potato.World.Room
         {
             titleRoom = new TitleRoom(optionMenu: optionMenu);
             engineEditorRoom = new EngineEditorRoom(optionMenu: optionMenu);
-            List<TransitionRoom.Node> nodes = new List<TransitionRoom.Node>()
-            {
-                new TransitionRoom.Node(selectable: titleRoom.EngineEditorSelect, room: engineEditorRoom)
-            };
-            nodes.Find((x) => x.Room == engineEditorRoom).Nodes.Add(new TransitionRoom.Node(selectable: engineEditorRoom.TitleSelect, room: titleRoom));
-            transitionRoom = new TransitionRoom(
-                nodes: nodes, 
+            
+            TransitionRoom.Node titleNode = new TransitionRoom.Node(
+                selectable: new SelectCombiner(selectables: new List<ISelectable>() { engineEditorRoom.TitleSelect }, option: SelectCombiner.Options.Any),
                 room: titleRoom);
+            TransitionRoom.Node engineEditorNode = new TransitionRoom.Node(
+                selectable: titleRoom.EngineEditorSelect,
+                room: engineEditorRoom);
+
+            titleNode.Nodes.Add(engineEditorNode);
+            engineEditorNode.Nodes.Add(titleNode);
+
+            transitionRoom = new TransitionRoom(
+                nodes: titleNode.Nodes, 
+                room: titleNode.Room);
             Controller = null;
         }
 

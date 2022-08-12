@@ -11,7 +11,7 @@ namespace Potato.Room
         {
             public ISelectable Selectable { get; private set; }
             public IRoom Room { get; private set; }
-            public ICollection<Node> Nodes { get; private set; }
+            public List<Node> Nodes { get; private set; }
 
             public Node(ISelectable selectable, IRoom room)
             {

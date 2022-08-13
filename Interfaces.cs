@@ -14,7 +14,7 @@ namespace Potato
         void Open();
         void Close();
     }
-    internal interface ICollidable : IMovable, ISizable, IDestroyable
+    internal interface ICollidable : IMovable, IDestroyable
     {
         struct Info
         {
@@ -29,7 +29,6 @@ namespace Potato
                 Correction = correction;
             }
         }
-        new Size2 Size { get => CollisionMask.Bounds.Size; set => throw new NotImplementedException(); }
         bool Collidable { get; set; }
         Texture2D CollisionMask { get; }
         void ServiceCollision(Info info);

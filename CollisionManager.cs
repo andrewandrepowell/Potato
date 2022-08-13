@@ -52,8 +52,8 @@ namespace Potato
                 return false;
 
             // Determine the bounding rectangles for this physics and the other physics.
-            Rectangle bounds0 = new Rectangle(location: collidable0.Position.ToPoint(), size: (Point)collidable0.Size);
-            Rectangle bounds1 = new Rectangle(location: collidable1.Position.ToPoint(), size: (Point)collidable1.Size);
+            Rectangle bounds0 = new Rectangle(location: collidable0.Position.ToPoint(), size: collidable0.CollisionMask.Bounds.Size);
+            Rectangle bounds1 = new Rectangle(location: collidable1.Position.ToPoint(), size: collidable1.CollisionMask.Bounds.Size);
 
             // Determine whether the bounding rectangles intersect.
             // If they don't, don't bother going further.

@@ -9,11 +9,23 @@ namespace Potato.World.Room.EngineEditor
 {
     internal class EngineEditorRoom : IRoom
     {
+        private enum EngineEditorStates { Menu, TestCollision0 };
         private RoomStateChanger roomStateChanger;
         private EngineEditorMenu engineEditorMenu;
+        private EngineEditorStates engineEditorState;
+        private TestCollision0 testCollision0;
+        private IController controller;
         public ISelectable TitleSelect => engineEditorMenu.TitleSelect;
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
-        public IController Controller { get => engineEditorMenu.Controller; set => engineEditorMenu.Controller = value; }
+        public IController Controller 
+        { 
+            get => controller;
+            set
+            {
+                controller = value;
+                engineEditorMenu.Controller = value;
+            }
+        }
         
         public EngineEditorRoom(OptionMenu optionMenu)
         {
@@ -22,6 +34,8 @@ namespace Potato.World.Room.EngineEditor
             engineEditorMenu.Position = new Vector2(
                 x: (Potato.Game.GraphicsDevice.Viewport.Width - engineEditorMenu.Size.Width) / 2,
                 y: (Potato.Game.GraphicsDevice.Viewport.Height - engineEditorMenu.Size.Height) / 2);
+            engineEditorState = EngineEditorStates.Menu;
+            testCollision0 = new TestCollision0();
             Controller = null;
         }
 
@@ -34,18 +48,31 @@ namespace Potato.World.Room.EngineEditor
         public void Draw(Matrix? transformMatrix = null)
         {
             Potato.SpriteBatch.GraphicsDevice.Clear(Color.RosyBrown);
+
+            switch (engineEditorState)
+            {
+                case EngineEditorStates.Menu:
+                    break;
+                case EngineEditorStates.TestCollision0:
+                    testCollision0.Draw(transformMatrix: transformMatrix);
+                    break;
+            }
+
             engineEditorMenu.Draw(transformMatrix: transformMatrix);
             roomStateChanger.Draw(transformMatrix: transformMatrix);
         }
 
         public void HardReset()
         {
+            engineEditorState = EngineEditorStates.Menu;
+            engineEditorMenu.Controller = controller;
             engineEditorMenu.HardReset();
             roomStateChanger.HardReset();
         }
 
         public void Open()
         {
+            engineEditorState = EngineEditorStates.Menu;
             engineEditorMenu.Open();
             roomStateChanger.Open();
         }
@@ -58,6 +85,22 @@ namespace Potato.World.Room.EngineEditor
 
         public void Update(GameTime gameTime)
         {
+            switch (engineEditorState)
+            {
+                case EngineEditorStates.Menu:
+                    break;
+                case EngineEditorStates.TestCollision0:
+                    testCollision0.Update(gameTime: gameTime);
+                    break;
+            }
+            
+            if (engineEditorMenu.CollisionTest0Select.Selected)
+            {
+                engineEditorState = EngineEditorStates.TestCollision0;
+                engineEditorMenu.Controller = null;
+                engineEditorMenu.Close();
+            }
+
             engineEditorMenu.Update(gameTime: gameTime);
             roomStateChanger.Update(gameTime: gameTime);
         }

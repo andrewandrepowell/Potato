@@ -13,6 +13,7 @@ namespace Potato.World.Room.EngineEditor
     {
         private class TestObject : IComponent, ICollidable
         {
+            private string name;
             private Texture2D texture;
             private Vector2 position;
             private bool destroyed;
@@ -23,8 +24,9 @@ namespace Potato.World.Room.EngineEditor
             public Vector2 Position { get => position; set => position = value; }
             public bool Destroyed => destroyed;
 
-            public TestObject(Texture2D texture, bool performCorrection=false)
+            public TestObject(string name, Texture2D texture, bool performCorrection=false)
             {
+                this.name = name;
                 this.texture = texture;
                 position = Vector2.Zero;
                 destroyed = false;
@@ -53,7 +55,9 @@ namespace Potato.World.Room.EngineEditor
                     return;
 
                 collideCounter++;
+                Console.WriteLine($"Name: {name}");
                 Console.WriteLine($"Collision Occurred. Number of collisions: {collideCounter}");
+                Console.WriteLine($"Correction Vector: {info.Correction}");
 
                 if (performCorrection)
                     position += info.Correction;
@@ -73,8 +77,8 @@ namespace Potato.World.Room.EngineEditor
         {
             collisionManager = new CollisionManager();
             Texture2D texture = Potato.Game.Content.Load<Texture2D>(assetName: "test0");
-            testObject0 = new TestObject(texture: texture, performCorrection: true);
-            testObject1 = new TestObject(texture: texture, performCorrection: false);
+            testObject0 = new TestObject(name: "Test Object 0", texture: texture, performCorrection: true);
+            testObject1 = new TestObject(name: "Test Object 1", texture: texture, performCorrection: false);
             testObject1.Position = new Vector2(x: 256, y: 256);
             collisionManager.ManagedCollidables.Add(testObject0);
             collisionManager.ManagedCollidables.Add(testObject1);

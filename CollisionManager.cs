@@ -217,6 +217,10 @@ namespace Potato
                 }
             }
 
+#if DEBUG
+            Console.WriteLine($"Overlap Width: {overlapWidth}. Overlap Height: {overlapHeight}");
+#endif
+
             correction0 = new Vector2(
                 x: correctionOffsetX0,
                 y: correctionOffsetY0);

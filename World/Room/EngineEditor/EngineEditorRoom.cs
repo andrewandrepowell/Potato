@@ -88,19 +88,24 @@ namespace Potato.World.Room.EngineEditor
             switch (engineEditorState)
             {
                 case EngineEditorStates.Menu:
+                    if (engineEditorMenu.CollisionTest0Select.Selected)
+                    {
+                        engineEditorState = EngineEditorStates.TestCollision0;
+                        engineEditorMenu.Controller = null;
+                        engineEditorMenu.Close();
+                    }
                     break;
                 case EngineEditorStates.TestCollision0:
+                    if (controller.BackPressed())
+                    {
+                        engineEditorState = EngineEditorStates.Menu;
+                        engineEditorMenu.Controller = controller;
+                        engineEditorMenu.Open();
+                    }
                     testCollision0.Update(gameTime: gameTime);
                     break;
             }
             
-            if (engineEditorMenu.CollisionTest0Select.Selected)
-            {
-                engineEditorState = EngineEditorStates.TestCollision0;
-                engineEditorMenu.Controller = null;
-                engineEditorMenu.Close();
-            }
-
             engineEditorMenu.Update(gameTime: gameTime);
             roomStateChanger.Update(gameTime: gameTime);
         }

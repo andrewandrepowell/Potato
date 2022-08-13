@@ -114,6 +114,9 @@ namespace Potato
             int rowMax = 0;
             int colMin = intersection.Width - 1;
             int colMax = 0;
+
+            int[] colCounts = new int[intersection.Width];
+            int[] rowCounts = new int[intersection.Height];
             
             for (int row = 0; row < intersection.Height; row++)
                 for (int col = 0; col < intersection.Width; col++)
@@ -145,10 +148,13 @@ namespace Potato
                             colMin = col;
                         if (col > colMax)
                             colMax = col;
+
+                        colCounts[col]++;
+                        rowCounts[row]++;
                     }
 
-            int overlapWidth = colMax - colMin + 1;
-            int overlapHeight = rowMax - rowMin + 1;
+            int overlapWidth = rowCounts.Max();
+            int overlapHeight = colCounts.Max(); ;
             int pointMidX = (colMax + colMin) / 2;
             int pointMidY = (rowMax + rowMin) / 2;
 
@@ -219,6 +225,8 @@ namespace Potato
 
 #if DEBUG
             Console.WriteLine($"Overlap Width: {overlapWidth}. Overlap Height: {overlapHeight}");
+            Console.WriteLine($"topSum1: {topSum1}. bottomSum1: {bottomSum1}. leftSum1: {leftSum1}. rightSum1: {rightSum1}");
+            Console.WriteLine($"topSum0: {topSum0}. bottomSum0: {bottomSum0}. leftSum0: {leftSum0}. rightSum0: {rightSum0}");
 #endif
 
             correction0 = new Vector2(

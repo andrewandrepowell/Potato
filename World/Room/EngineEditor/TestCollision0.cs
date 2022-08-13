@@ -16,6 +16,7 @@ namespace Potato.World.Room.EngineEditor
             private string name;
             private Texture2D texture;
             private Vector2 position;
+            private Vector2 collisionPoint;
             private bool destroyed;
             private int collideCounter;
             private bool performCorrection;
@@ -32,6 +33,7 @@ namespace Potato.World.Room.EngineEditor
                 destroyed = false;
                 collideCounter = 0;
                 this.performCorrection = performCorrection;
+                collisionPoint = Vector2.Zero;
             }
 
             public void Dispose() => destroyed = true;
@@ -46,6 +48,7 @@ namespace Potato.World.Room.EngineEditor
                     texture: texture,
                     position: position.ToPoint().ToVector2(),
                     color: Color.White);
+                spriteBatch.DrawPoint(position: collisionPoint, color: Color.Red, size: 4);
                 spriteBatch.End();
             }
 
@@ -58,9 +61,11 @@ namespace Potato.World.Room.EngineEditor
                 Console.WriteLine($"Name: {name}");
                 Console.WriteLine($"Collision Occurred. Number of collisions: {collideCounter}");
                 Console.WriteLine($"Correction Vector: {info.Correction}");
+                Console.WriteLine($"Collision Point: {info.Point}");
 
                 if (performCorrection)
                     position += info.Correction;
+                collisionPoint = info.Point;
             }
 
             public void Update(GameTime gameTime)

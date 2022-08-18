@@ -82,8 +82,8 @@ namespace Potato.World.Room.EngineEditor
         {
             collisionManager = new CollisionManager();
             Texture2D texture = Potato.Game.Content.Load<Texture2D>(assetName: "test0");
-            testObject0 = new TestObject(name: "Test Object 0", texture: texture, performCorrection: true);
-            testObject1 = new TestObject(name: "Test Object 1", texture: texture, performCorrection: false);
+            testObject0 = new TestObject(name: "Test Object 0", texture: texture, performCorrection: false);
+            testObject1 = new TestObject(name: "Test Object 1", texture: texture, performCorrection: true);
             testObject1.Position = new Vector2(x: 256, y: 256);
             collisionManager.ManagedCollidables.Add(testObject0);
             collisionManager.ManagedCollidables.Add(testObject1);

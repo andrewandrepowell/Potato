@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using MonoGame.Extended;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Potato
 {
@@ -243,6 +244,38 @@ namespace Potato
                 y: pointY1);
 
             return true;
+        }
+
+        public static List<Vector2> AcquireVertices(Texture2D mask, int kernelRadius=1)
+        {
+            int maxEdgeScore = (2 * kernelRadius) + 1;
+            maxEdgeScore *= maxEdgeScore;
+
+            Color[] colorData = new Color[mask.Width * mask.Height];
+            mask.GetData(colorData);
+
+            for (int maskRow = 0; maskRow < mask.Height; maskRow++)
+            {
+                for (int maskCol = 0; maskCol < mask.Width; maskCol++)
+                {
+                    int edgeScore = 0;
+                    for (int kernelRow = -kernelRadius; kernelRow < kernelRadius; kernelRow++)
+                    {
+                        int checkRow = kernelRow + maskRow;
+                        if (checkRow < 0 || checkRow >= mask.Height)
+                            continue;
+                        for (int kernelCol = -kernelRadius; kernelCol < kernelRadius; kernelCol++)
+                        {
+                            int checkCol = kernelCol + maskCol;
+                            if (checkCol < 0 || checkCol >= mask.Width || colorData[checkCol + checkRow * mask.Width].A == 0)
+                                continue;
+                            edgeScore++;
+                        }
+                    }
+
+                    //
+                }
+            }
         }
     }
 }

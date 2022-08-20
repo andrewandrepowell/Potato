@@ -246,36 +246,87 @@ namespace Potato
             return true;
         }
 
-        public static List<Vector2> AcquireVertices(Texture2D mask, int kernelRadius=1)
+        public static List<Vector2> AcquireVertices(Texture2D mask, Color startColor, Color vertixColor)
         {
-            int maxEdgeScore = (2 * kernelRadius) + 1;
-            maxEdgeScore *= maxEdgeScore;
-
-            Color[] colorData = new Color[mask.Width * mask.Height];
-            mask.GetData(colorData);
-
-            for (int maskRow = 0; maskRow < mask.Height; maskRow++)
-            {
-                for (int maskCol = 0; maskCol < mask.Width; maskCol++)
+            List<Vector2> vertices = new List<Vector2>();
+            Color[] maskData = new Color[mask.Width * mask.Height];
+            Vector2 startVertex = Vector2.Zero;
+            bool startFound = false;
+            mask.GetData(maskData);
+            for (int row = 0; row < mask.Height; row++)
+                for (int col = 0; col < mask.Width; col++)
                 {
-                    int edgeScore = 0;
-                    for (int kernelRow = -kernelRadius; kernelRow < kernelRadius; kernelRow++)
+                    Color pixelColor = maskData[col + row * mask.Width];
+                    if (pixelColor == startColor)
                     {
-                        int checkRow = kernelRow + maskRow;
-                        if (checkRow < 0 || checkRow >= mask.Height)
-                            continue;
-                        for (int kernelCol = -kernelRadius; kernelCol < kernelRadius; kernelCol++)
-                        {
-                            int checkCol = kernelCol + maskCol;
-                            if (checkCol < 0 || checkCol >= mask.Width || colorData[checkCol + checkRow * mask.Width].A == 0)
-                                continue;
-                            edgeScore++;
-                        }
+                        if (startFound)
+                            throw new Exception("Found more than one starting pixel");
+                        startFound = true;
+                        Vector2 vertix = new Vector2(col, row);
+                        startVertex = vertix;
+                        vertices.Add(vertix);
                     }
-
-                    //
+                    else if (pixelColor == vertixColor)
+                    {
+                        vertices.Add(new Vector2(col, row));
+                    }
                 }
-            }
+            if (!startFound)
+                throw new Exception("Could not find starting pixel");
+            Vector2 centerPoint = new Vector2(
+                x: vertices.Select((x) => x.X).Average(), 
+                y: vertices.Select((x) => x.Y).Average());
+            double startAngle = Math.Atan2(
+                y: startVertex.Y - centerPoint.Y,
+                x: startVertex.X - centerPoint.X);
+            var angles0 = vertices.Select((x) => Math.Atan2(
+                y: x.Y - centerPoint.Y,
+                x: x.X - centerPoint.X)).ToList();
+            var angles1 = angles0.Select((x) => x - startAngle).ToList();
+            var angles2 = angles1.Select((x) => wrapMinMax(x, 0, 2 * Math.PI)).ToList();
+            List<Vector2> verticesSorted = vertices.Zip(angles2, (x, y) => (x, y)).OrderBy((x) => x.y).Select((x) => x.x).ToList();
+            return verticesSorted;
         }
+
+        // https://stackoverflow.com/questions/4633177/c-how-to-wrap-a-float-to-the-interval-pi-pi
+        // See Tim Cas' answer.
+        private static double wrapMax(double x, double max) => (max + x % max) % max;
+        private static double wrapMinMax(double x, double min, double max) => min + wrapMax(x - min, max - min);
+
+
+        //public static List<Vector2> AcquireVertices(Texture2D mask, int kernelRadius=1, int )
+        //{
+        //    int maxEdgeScore = (2 * kernelRadius) + 1;
+        //    maxEdgeScore *= maxEdgeScore;
+
+        //    Color[] colorData = new Color[mask.Width * mask.Height];
+        //    mask.GetData(colorData);
+
+        //    for (int maskRow = 0; maskRow < mask.Height; maskRow++)
+        //    {
+        //        for (int maskCol = 0; maskCol < mask.Width; maskCol++)
+        //        {
+        //            int edgeScore = 0;
+        //            for (int kernelRow = -kernelRadius; kernelRow < kernelRadius; kernelRow++)
+        //            {
+        //                int checkRow = kernelRow + maskRow;
+        //                if (checkRow < 0 || checkRow >= mask.Height)
+        //                    continue;
+        //                for (int kernelCol = -kernelRadius; kernelCol < kernelRadius; kernelCol++)
+        //                {
+        //                    int checkCol = kernelCol + maskCol;
+        //                    if (checkCol < 0 || checkCol >= mask.Width || colorData[checkCol + checkRow * mask.Width].A == 0)
+        //                        continue;
+        //                    edgeScore++;
+        //                }
+        //            }
+
+        //            if (edgeScore == maxEdgeScore)
+        //                continue;
+
+
+        //        }
+        //    }
+        //}
     }
 }

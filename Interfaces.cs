@@ -31,6 +31,7 @@ namespace Potato
         }
         bool Collidable { get; set; }
         Texture2D CollisionMask { get; }
+        IList<Vector2> CollisionVertices { get; }
         void ServiceCollision(Info info);
     }
     internal interface IRoom : IComponent, IControllable, IResetable, IOpenable

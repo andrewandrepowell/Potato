@@ -20,8 +20,10 @@ namespace Potato.World.Room.EngineEditor
             private bool destroyed;
             private int collideCounter;
             private bool performCorrection;
+            private List<Vector2> collisionVertices;
             public bool Collidable { get => true; set => throw new NotImplementedException(); }
             public Texture2D CollisionMask => texture;
+            public IList<Vector2> CollisionVertices => collisionVertices;
             public Vector2 Position { get => position; set => position = value; }
             public bool Destroyed => destroyed;
 
@@ -34,6 +36,7 @@ namespace Potato.World.Room.EngineEditor
                 collideCounter = 0;
                 this.performCorrection = performCorrection;
                 collisionPoint = Vector2.Zero;
+                collisionVertices = CollisionManager.AcquireVertices(mask: texture, startColor: Color.Yellow, vertixColor: Color.Red);
             }
 
             public void Dispose() => destroyed = true;

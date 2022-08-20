@@ -21,12 +21,14 @@ namespace Potato
             public ICollidable Other { get; private set; }
             public Vector2 Point { get; private set; }
             public Vector2 Correction { get; private set; }
+            public Vector2 Normal { get; private set; }
 
-            public Info(ICollidable other, Vector2 point, Vector2 correction)
+            public Info(ICollidable other, Vector2 point, Vector2 correction, Vector2 normal)
             {
                 Other = other;
                 Point = point;
                 Correction = correction;
+                Normal = normal;
             }
         }
         bool Collidable { get; set; }

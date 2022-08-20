@@ -26,27 +26,34 @@ namespace Potato
             // For each collidable in the manager, check for collisions with other collidables in the manager.
             foreach (var combination in managedCollidables.GetPermutations(count: 2))
             {
-                Vector2 point0, point1, correction0, correction1;
+                Vector2 point0, point1, correction0, correction1, normal0, normal1;
                 ICollidable[] pair = combination.ToArray();
                 ICollidable collidable0 = pair[0], collidable1 = pair[1];
 
                 if (!CheckForCollision(
                     collidable0: collidable0, collidable1: collidable1,
                     correction0: out correction0, correction1: out correction1,
-                    point0: out point0, point1: out point1))
+                    point0: out point0, point1: out point1,
+                    normal0: out normal0, normal1: out normal1))
                     continue;
                 
-                collidable0.ServiceCollision(info: new ICollidable.Info(other: collidable1, point: point0, correction: correction0));
-                collidable1.ServiceCollision(info: new ICollidable.Info(other: collidable0, point: point1, correction: correction1));
+                collidable0.ServiceCollision(info: new ICollidable.Info(other: collidable1, point: point0, correction: correction0, normal: normal0));
+                collidable1.ServiceCollision(info: new ICollidable.Info(other: collidable0, point: point1, correction: correction1, normal: normal1));
             }
         }
 
-        private static bool CheckForCollision(ICollidable collidable0, ICollidable collidable1, out Vector2 correction0, out Vector2 correction1, out Vector2 point0, out Vector2 point1)
+        private static bool CheckForCollision(
+            ICollidable collidable0, ICollidable collidable1, 
+            out Vector2 correction0, out Vector2 correction1, 
+            out Vector2 point0, out Vector2 point1,
+            out Vector2 normal0, out Vector2 normal1)
         {
             correction0 = Vector2.Zero;
             correction1 = Vector2.Zero;
             point0 = Vector2.Zero;
             point1 = Vector2.Zero;
+            normal0 = Vector2.Zero;
+            normal1 = Vector2.Zero;
 
             // If one of the collidables are not collidable, then there is no collision.
             if (!collidable0.Collidable || !collidable1.Collidable)
@@ -102,6 +109,8 @@ namespace Potato
             if (!collisionMask.Contains(true))
                 return false;
 
+            // Declare variables needed to determine the amount of overlap in the top, bottom, left, and right regions of
+            // each collider's intersection.
             int midHeight0 = bounds0.Height / 2;
             int midWidth0 = bounds0.Width / 2;
             int midHeight1 = bounds1.Height / 2;
@@ -111,14 +120,20 @@ namespace Potato
             int leftSum0 = 0, leftSum1 = 0;
             int rightSum0 = 0, rightSum1 = 0;
             
+            // Declare the variables needed for computing the collision points.
             int rowMin = intersection.Height - 1;
             int rowMax = 0;
             int colMin = intersection.Width - 1;
             int colMax = 0;
 
+            // In order to determine the overlap correction distances, arrays for the column and row counts are declared.
             int[] colCounts = new int[intersection.Width];
             int[] rowCounts = new int[intersection.Height];
-            
+
+            // The following nested for-loop determines the following for each collider.
+            //  - The amount of overlap in the top, bottom, left, and right regions of each intersection.
+            //  - The minimum and maximum row and column indices of the intersection.
+            //  - Column and row counts, used for determing correction distances.
             for (int row = 0; row < intersection.Height; row++)
                 for (int col = 0; col < intersection.Width; col++)
                     if (collisionMask[col + row * intersection.Width])
@@ -224,6 +239,7 @@ namespace Potato
                 }
             }
 
+
 #if DEBUG
             Console.WriteLine($"Overlap Width: {overlapWidth}. Overlap Height: {overlapHeight}");
             Console.WriteLine($"topSum1: {topSum1}. bottomSum1: {bottomSum1}. leftSum1: {leftSum1}. rightSum1: {rightSum1}");
@@ -242,11 +258,13 @@ namespace Potato
             point1 = new Vector2(
                 x: pointX1,
                 y: pointY1);
+            normal0 = GetNormal(otherVertices: collidable1.CollisionVertices, otherPosition: collidable1.Position, currentPoint: point0);
+            normal1 = GetNormal(otherVertices: collidable0.CollisionVertices, otherPosition: collidable0.Position, currentPoint: point1);
 
             return true;
         }
 
-        public static List<Vector2> AcquireVertices(Texture2D mask, Color startColor, Color vertixColor)
+        public static List<Vector2> GetVertices(Texture2D mask, Color startColor, Color vertixColor)
         {
             List<Vector2> vertices = new List<Vector2>();
             Color[] maskData = new Color[mask.Width * mask.Height];
@@ -279,54 +297,59 @@ namespace Potato
             double startAngle = Math.Atan2(
                 y: startVertex.Y - centerPoint.Y,
                 x: startVertex.X - centerPoint.X);
-            var angles0 = vertices.Select((x) => Math.Atan2(
-                y: x.Y - centerPoint.Y,
-                x: x.X - centerPoint.X)).ToList();
-            var angles1 = angles0.Select((x) => x - startAngle).ToList();
-            var angles2 = angles1.Select((x) => wrapMinMax(x, 0, 2 * Math.PI)).ToList();
-            List<Vector2> verticesSorted = vertices.Zip(angles2, (x, y) => (x, y)).OrderBy((x) => x.y).Select((x) => x.x).ToList();
+            var angles = vertices
+                .Select((x) => Math.Atan2(
+                    y: x.Y - centerPoint.Y,
+                    x: x.X - centerPoint.X)).ToList()
+                .Select((x) => x - startAngle)
+                .Select((x) => WrapMinMax(x, 0, 2 * Math.PI));
+            List<Vector2> verticesSorted = vertices.Zip(angles, (x, y) => (x, y)).OrderBy((x) => x.y).Select((x) => x.x).ToList();
             return verticesSorted;
         }
 
         // https://stackoverflow.com/questions/4633177/c-how-to-wrap-a-float-to-the-interval-pi-pi
         // See Tim Cas' answer.
-        private static double wrapMax(double x, double max) => (max + x % max) % max;
-        private static double wrapMinMax(double x, double min, double max) => min + wrapMax(x - min, max - min);
+        private static double WrapMax(double x, double max) => (max + x % max) % max;
+        private static int WrapMax(int x, int max) => (max + x % max) % max;
+        
+        private static double WrapMinMax(double x, double min, double max) => min + WrapMax(x - min, max - min);
 
+        private static Vector2 GetNormal(IList<Vector2> otherVertices, Vector2 otherPosition, Vector2 currentPoint)
+        {
+            if (otherVertices.Count < 4)
+                return Vector2.Zero;
 
-        //public static List<Vector2> AcquireVertices(Texture2D mask, int kernelRadius=1, int )
-        //{
-        //    int maxEdgeScore = (2 * kernelRadius) + 1;
-        //    maxEdgeScore *= maxEdgeScore;
+            Vector2 localPoint = currentPoint - otherPosition;
+            List<float> distances = otherVertices.Select(v => Vector2.DistanceSquared(v, localPoint)).ToList();
+            
+            int minIndex = distances.IndexOf(distances.Min());
+            int indexLower = WrapMax(minIndex - 1, otherVertices.Count);
+            int indexHigher = WrapMax(minIndex + 1, otherVertices.Count);
+            
+            (Vector2 vertix, float distance, int index)[] tuples = new (Vector2 vertix, float distance, int index)[]
+            {
+                (otherVertices[minIndex], distances[minIndex], minIndex),
+                (otherVertices[indexLower], distances[indexLower], indexLower),
+                (otherVertices[indexHigher], distances[indexHigher], indexHigher)
+            };
 
-        //    Color[] colorData = new Color[mask.Width * mask.Height];
-        //    mask.GetData(colorData);
+            (Vector2 vertix, int index)[] pairs = tuples
+                .OrderBy(tuple => tuple.distance)
+                .Take(2)
+                .Select(tuple => (tuple.vertix, tuple.index))
+                .OrderBy(pair => pair.index)
+                .ToArray();
 
-        //    for (int maskRow = 0; maskRow < mask.Height; maskRow++)
-        //    {
-        //        for (int maskCol = 0; maskCol < mask.Width; maskCol++)
-        //        {
-        //            int edgeScore = 0;
-        //            for (int kernelRow = -kernelRadius; kernelRow < kernelRadius; kernelRow++)
-        //            {
-        //                int checkRow = kernelRow + maskRow;
-        //                if (checkRow < 0 || checkRow >= mask.Height)
-        //                    continue;
-        //                for (int kernelCol = -kernelRadius; kernelCol < kernelRadius; kernelCol++)
-        //                {
-        //                    int checkCol = kernelCol + maskCol;
-        //                    if (checkCol < 0 || checkCol >= mask.Width || colorData[checkCol + checkRow * mask.Width].A == 0)
-        //                        continue;
-        //                    edgeScore++;
-        //                }
-        //            }
+            Vector2 direction;
+            if ((pairs[1].index - pairs[0].index) > 1)
+                direction = pairs[0].vertix - pairs[1].vertix;
+            else
+                direction = pairs[1].vertix - pairs[0].vertix;
 
-        //            if (edgeScore == maxEdgeScore)
-        //                continue;
-
-
-        //        }
-        //    }
-        //}
+            Vector2 collisionNormal = Vector2.Normalize(new Vector2(
+                x: direction.Y,
+                y: -direction.X));
+            return collisionNormal;
+        }
     }
 }

@@ -169,6 +169,8 @@ namespace Potato
                         rowCounts[row]++;
                     }
 
+            // Compute overlap correction distances aand mid points. 
+            // Mid points are used to determine collision points.
             int overlapWidth = rowCounts.Max();
             int overlapHeight = colCounts.Max(); ;
             int pointMidX = (colMax + colMin) / 2;

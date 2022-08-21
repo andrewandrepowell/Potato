@@ -3,10 +3,16 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Potato
 {
+    internal interface IPhysical : ICollidable
+    {
+        float Mass { get; set; }
+        Vector2 Velocity { get; set; }
+        Vector2 Acceleration { get; set; }
+        Vector2 Force { get; set; }
+    }
     internal interface IOpenable
     {
         enum OpenStates { Opened, Opening, Closed, Closing };
@@ -32,8 +38,8 @@ namespace Potato
             }
         }
         bool Collidable { get; set; }
-        Texture2D CollisionMask { get; }
-        IList<Vector2> CollisionVertices { get; }
+        Texture2D CollisionMask { get; set; }
+        IList<Vector2> CollisionVertices { get; set;  }
         void ServiceCollision(Info info);
     }
     internal interface IRoom : IComponent, IControllable, IResetable, IOpenable

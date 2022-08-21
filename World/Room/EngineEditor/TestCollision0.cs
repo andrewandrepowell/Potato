@@ -23,8 +23,8 @@ namespace Potato.World.Room.EngineEditor
             private bool performCorrection;
             private List<Vector2> collisionVertices;
             public bool Collidable { get => true; set => throw new NotImplementedException(); }
-            public Texture2D CollisionMask => texture;
-            public IList<Vector2> CollisionVertices => collisionVertices;
+            public Texture2D CollisionMask { get => texture; set => throw new NotImplementedException(); }
+            public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
             public Vector2 Position { get => position; set => position = value; }
             public bool Destroyed => destroyed;
 

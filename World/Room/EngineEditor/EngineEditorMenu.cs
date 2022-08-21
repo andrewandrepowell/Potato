@@ -19,6 +19,7 @@ namespace Potato.World.Room.EngineEditor
         private SelectMenu titleSelectMenu;
         private SelectMenu optionSelectMenu;
         private SelectMenu collisionTest0SelectMenu;
+        private SelectMenu physicsTest0SelectMenu;
         public ISelectable TitleSelect => titleSelectMenu;
         public ISelectable CollisionTest0Select => collisionTest0SelectMenu;
         public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
@@ -32,12 +33,14 @@ namespace Potato.World.Room.EngineEditor
             titleSelectMenu = new SelectMenu(text: "Title Screen", align: Alignment.Center, width: innerWidth);
             optionSelectMenu = new SelectMenu(text: "Options", align: Alignment.Center, width: innerWidth);
             collisionTest0SelectMenu = new SelectMenu(text: "Collision Test 0", align: Alignment.Center, width: innerWidth);
+            physicsTest0SelectMenu = new SelectMenu(text: "Physics Test 0", align: Alignment.Center, width: innerWidth);
             containerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
                     titleSelectMenu,
                     optionSelectMenu,
-                    collisionTest0SelectMenu
+                    collisionTest0SelectMenu,
+                    physicsTest0SelectMenu
                 },
                 align: Alignment.Center);
 

@@ -9,11 +9,11 @@ namespace Potato
     internal class PhysicsChanger : IPhysical, IUpdateable
     {
         private float mass;
+        private Vector2 position;
         private Vector2 velocity;
         private Vector2 acceleration;
         private Vector2 force;
-        private bool collidable;
-        private Texture2D collisionMask;
+        private bool destroyed;
         public float Mass { get => mass; set => mass = value; }
         public Vector2 Velocity { get => velocity; set => velocity = value; }
         public Vector2 Acceleration 
@@ -36,12 +36,12 @@ namespace Potato
                 acceleration = value / mass;
             }
         }
-        public bool Collidable { get => collidable; set => collidable = value; }
+        public bool Collidable { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public Texture2D CollisionMask { get => collisionMask; set => collisionMask = value; }
+        public Texture2D CollisionMask { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public IList<Vector2> CollisionVertices { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public Vector2 Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Vector2 Position { get => position; set => position = value; }
 
         public bool Destroyed => throw new NotImplementedException();
 
@@ -49,22 +49,29 @@ namespace Potato
 
         public PhysicsChanger()
         {
-            
+            mass = 0;
+            velocity = Vector2.Zero;
+            acceleration = Vector2.Zero;
+            force = Vector2.Zero;
+            destroyed = false;
         }
 
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        public void Dispose() => destroyed = true;
 
         public void ServiceCollision(ICollidable.Info info)
         {
-            throw new NotImplementedException();
+            if (destroyed)
+                return;
         }
 
         public void Update(GameTime gameTime)
         {
-            throw new NotImplementedException();
+            if (destroyed)
+                return;
+
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            velocity += acceleration * elapsedTime;
+            position += velocity * elapsedTime;
         }
     }
 }

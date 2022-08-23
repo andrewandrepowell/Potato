@@ -30,6 +30,9 @@ namespace Potato.World.Room.EngineEditor
             public Vector2 Velocity { get => physicsChanger.Velocity; set => physicsChanger.Velocity = value; }
             public Vector2 Acceleration { get => physicsChanger.Acceleration; set => physicsChanger.Acceleration = value; }
             public Vector2 Force { get => physicsChanger.Force; set => physicsChanger.Force = value; }
+            public float MaxSpeed { get => physicsChanger.MaxSpeed; set => physicsChanger.MaxSpeed = value; }
+            public float Friction { get => physicsChanger.Friction; set => physicsChanger.Friction = value; }
+            public Vector2 Gravity { get => physicsChanger.Gravity; set => physicsChanger.Gravity = value; }
 
             public TestObject(string name, Texture2D texture, bool performCorrection = false)
             {
@@ -114,6 +117,9 @@ namespace Potato.World.Room.EngineEditor
                 performCorrection: true);
             testPlayer.Position = new Vector2(x: (gameWidth - testPlayer.CollisionMask.Width) / 2, y: 100);
             testPlayer.Mass = 10f;
+            testPlayer.MaxSpeed = 500f;
+            testPlayer.Friction = 20;
+            testPlayer.Gravity = new Vector2(x: 0, y: 1000);
             testObjects.Add(testPlayer);
 
             testObject = new TestObject(
@@ -150,7 +156,7 @@ namespace Potato.World.Room.EngineEditor
         {
             MouseStateExtended mouseState = MouseExtended.GetState();
             if (mouseState.WasButtonJustDown(button: MouseButton.Left))
-                testPlayer.Force = 1000f* Vector2.Normalize(mouseState.Position.ToVector2() - (testPlayer.Position + testPlayer.CollisionMask.Bounds.Center.ToVector2()));
+                testPlayer.Force = 2000f* Vector2.Normalize(mouseState.Position.ToVector2() - (testPlayer.Position + testPlayer.CollisionMask.Bounds.Center.ToVector2()));
             if (mouseState.WasButtonJustDown(button: MouseButton.Right))
             {
                 testPlayer.Force = Vector2.Zero;

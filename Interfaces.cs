@@ -9,9 +9,12 @@ namespace Potato
     internal interface IPhysical : ICollidable
     {
         float Mass { get; set; }
+        float MaxSpeed { get; set; }
+        float Friction { get; set; }
         Vector2 Velocity { get; set; }
         Vector2 Acceleration { get; set; }
         Vector2 Force { get; set; }
+        Vector2 Gravity { get; set; }
     }
     internal interface IOpenable
     {

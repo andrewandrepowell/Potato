@@ -318,7 +318,7 @@ namespace Potato
 
         private static Vector2 GetNormal(IList<Vector2> otherVertices, Vector2 otherPosition, Vector2 currentPoint)
         {
-            if (otherVertices.Count < 4)
+            if (otherVertices.Count < 3)
                 return Vector2.Zero;
 
             Vector2 localPoint = currentPoint - otherPosition;

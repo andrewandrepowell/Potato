@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -77,6 +78,7 @@ namespace Potato.World.Room.EngineEditor
                 Console.WriteLine($"Collision Occurred. Number of collisions: {collideCounter}");
                 Console.WriteLine($"Correction Vector: {info.Correction}");
                 Console.WriteLine($"Collision Point: {info.Point}");
+                Console.WriteLine($"Collision Normal: {info.Normal}");
 
                 if (performCorrection)
                     physicsChanger.Position += info.Correction;
@@ -105,12 +107,15 @@ namespace Potato.World.Room.EngineEditor
             int gameHeight = Potato.Game.GraphicsDevice.Viewport.Height;
             TestObject testObject;
             testObjects = new List<TestObject>();
+
             testPlayer = new TestObject(
                 name: "player",
                 texture: Potato.Game.Content.Load<Texture2D>("test0"),
                 performCorrection: true);
             testPlayer.Position = new Vector2(x: (gameWidth - testPlayer.CollisionMask.Width) / 2, y: 100);
+            testPlayer.Mass = 10f;
             testObjects.Add(testPlayer);
+
             testObject = new TestObject(
                 name: "wall0",
                 texture: Potato.Game.Content.Load<Texture2D>("test1"),
@@ -131,6 +136,8 @@ namespace Potato.World.Room.EngineEditor
                 x: testObject.Position.X + testObject.CollisionMask.Width, 
                 y: testObject.Position.Y + testObject.CollisionMask.Height / 2) };
             testObjects.Add(testObject);
+
+            collisionManager.ManagedCollidables.AddRange(testObjects);
         }
         
         public void Draw(Matrix? transformMatrix = null)
@@ -141,6 +148,17 @@ namespace Potato.World.Room.EngineEditor
 
         public void Update(GameTime gameTime)
         {
+            MouseStateExtended mouseState = MouseExtended.GetState();
+            if (mouseState.WasButtonJustDown(button: MouseButton.Left))
+                testPlayer.Force = 1000f* Vector2.Normalize(mouseState.Position.ToVector2() - (testPlayer.Position + testPlayer.CollisionMask.Bounds.Center.ToVector2()));
+            if (mouseState.WasButtonJustDown(button: MouseButton.Right))
+            {
+                testPlayer.Force = Vector2.Zero;
+                testPlayer.Velocity = Vector2.Zero;
+                testPlayer.Position = mouseState.Position.ToVector2() - testPlayer.CollisionMask.Bounds.Center.ToVector2();
+            }
+             
+
             foreach (IUpdateable updateable in testObjects)
                 updateable.Update(gameTime: gameTime);
             collisionManager.Update(gameTime: gameTime);

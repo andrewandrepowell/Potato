@@ -9,11 +9,12 @@ namespace Potato.World.Room.EngineEditor
 {
     internal class EngineEditorRoom : IRoom
     {
-        private enum EngineEditorStates { Menu, TestCollision0 };
+        private enum EngineEditorStates { Menu, TestCollision0, TestPhysics0 };
         private RoomStateChanger roomStateChanger;
         private EngineEditorMenu engineEditorMenu;
         private EngineEditorStates engineEditorState;
         private TestCollision0 testCollision0;
+        private TestPhysics0 testPhysics0;
         private IController controller;
         public ISelectable TitleSelect => engineEditorMenu.TitleSelect;
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
@@ -36,6 +37,7 @@ namespace Potato.World.Room.EngineEditor
                 y: (Potato.Game.GraphicsDevice.Viewport.Height - engineEditorMenu.Size.Height) / 2);
             engineEditorState = EngineEditorStates.Menu;
             testCollision0 = new TestCollision0();
+            testPhysics0 = new TestPhysics0();
             Controller = null;
         }
 
@@ -55,6 +57,9 @@ namespace Potato.World.Room.EngineEditor
                     break;
                 case EngineEditorStates.TestCollision0:
                     testCollision0.Draw(transformMatrix: transformMatrix);
+                    break;
+                case EngineEditorStates.TestPhysics0:
+                    testPhysics0.Draw(transformMatrix: transformMatrix);
                     break;
             }
 
@@ -85,25 +90,44 @@ namespace Potato.World.Room.EngineEditor
 
         public void Update(GameTime gameTime)
         {
+            bool testSelected = false;
+            bool checkBackPressed = false;
+
             switch (engineEditorState)
             {
                 case EngineEditorStates.Menu:
                     if (engineEditorMenu.CollisionTest0Select.Selected)
                     {
                         engineEditorState = EngineEditorStates.TestCollision0;
-                        engineEditorMenu.Controller = null;
-                        engineEditorMenu.Close();
+                        testSelected = true;
+                    }
+                    if (engineEditorMenu.PhysicsTest0Select.Selected)
+                    {
+                        engineEditorState = EngineEditorStates.TestPhysics0;
+                        testSelected = true;
                     }
                     break;
                 case EngineEditorStates.TestCollision0:
-                    if (controller.BackPressed())
-                    {
-                        engineEditorState = EngineEditorStates.Menu;
-                        engineEditorMenu.Controller = controller;
-                        engineEditorMenu.Open();
-                    }
+                    checkBackPressed = true;
                     testCollision0.Update(gameTime: gameTime);
                     break;
+                case EngineEditorStates.TestPhysics0:
+                    checkBackPressed = true;
+                    testPhysics0.Update(gameTime: gameTime);
+                    break;
+            }
+
+            if (testSelected)
+            {
+                engineEditorMenu.Controller = null;
+                engineEditorMenu.Close();
+            }
+
+            if (checkBackPressed && controller.BackPressed())
+            {
+                engineEditorState = EngineEditorStates.Menu;
+                engineEditorMenu.Controller = controller;
+                engineEditorMenu.Open();
             }
             
             engineEditorMenu.Update(gameTime: gameTime);

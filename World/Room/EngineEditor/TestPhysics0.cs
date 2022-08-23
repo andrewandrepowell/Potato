@@ -95,19 +95,54 @@ namespace Potato.World.Room.EngineEditor
             }
         }
         private CollisionManager collisionManager;
+        private TestObject testPlayer;
+        private List<TestObject> testObjects;
 
         public TestPhysics0()
         {
             collisionManager = new CollisionManager();
+            int gameWidth = Potato.Game.GraphicsDevice.Viewport.Width;
+            int gameHeight = Potato.Game.GraphicsDevice.Viewport.Height;
+            TestObject testObject;
+            testObjects = new List<TestObject>();
+            testPlayer = new TestObject(
+                name: "player",
+                texture: Potato.Game.Content.Load<Texture2D>("test0"),
+                performCorrection: true);
+            testPlayer.Position = new Vector2(x: (gameWidth - testPlayer.CollisionMask.Width) / 2, y: 100);
+            testObjects.Add(testPlayer);
+            testObject = new TestObject(
+                name: "wall0",
+                texture: Potato.Game.Content.Load<Texture2D>("test1"),
+                performCorrection: false);
+            testObject.Position = new Vector2(x: (gameWidth - testObject.CollisionMask.Width) / 2, y: 400);
+            testObjects.Add(testObject);
+            testObject = new TestObject(
+                name: "wall1",
+                texture: Potato.Game.Content.Load<Texture2D>("test2"),
+                performCorrection: false)
+            { Position = new Vector2(x: testObject.Position.X + testObject.CollisionMask.Width, y: testObject.Position.Y) };
+            testObjects.Add(testObject);
+            testObject = new TestObject(
+                name: "wall2",
+                texture: Potato.Game.Content.Load<Texture2D>("test1"),
+                performCorrection: false)
+            { Position = new Vector2(
+                x: testObject.Position.X + testObject.CollisionMask.Width, 
+                y: testObject.Position.Y + testObject.CollisionMask.Height / 2) };
+            testObjects.Add(testObject);
         }
         
         public void Draw(Matrix? transformMatrix = null)
         {
-            throw new NotImplementedException();
+            foreach (IDrawable drawable in testObjects)
+                drawable.Draw(transformMatrix: transformMatrix);
         }
 
         public void Update(GameTime gameTime)
         {
+            foreach (IUpdateable updateable in testObjects)
+                updateable.Update(gameTime: gameTime);
             collisionManager.Update(gameTime: gameTime);
         }
     }

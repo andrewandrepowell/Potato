@@ -22,6 +22,7 @@ namespace Potato.World.Room.EngineEditor
         private SelectMenu physicsTest0SelectMenu;
         public ISelectable TitleSelect => titleSelectMenu;
         public ISelectable CollisionTest0Select => collisionTest0SelectMenu;
+        public ISelectable PhysicsTest0Select => physicsTest0SelectMenu;
         public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public Vector2 Position { get => transitionMenu.Position; set => transitionMenu.Position = value; }

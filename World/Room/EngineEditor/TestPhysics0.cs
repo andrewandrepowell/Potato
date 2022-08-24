@@ -21,6 +21,7 @@ namespace Potato.World.Room.EngineEditor
             private bool performCorrection;
             private List<Vector2> collisionVertices;
             private PhysicsChanger physicsChanger;
+            public bool Grounded { get => physicsChanger.Grounded; set => physicsChanger.Grounded = value; }
             public bool Collidable { get => true; set => throw new NotImplementedException(); }
             public Texture2D CollisionMask { get => texture; set => throw new NotImplementedException(); }
             public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
@@ -116,9 +117,9 @@ namespace Potato.World.Room.EngineEditor
                 texture: Potato.Game.Content.Load<Texture2D>("test0"),
                 performCorrection: true);
             testPlayer.Position = new Vector2(x: (gameWidth - testPlayer.CollisionMask.Width) / 2, y: 100);
-            testPlayer.Mass = 10f;
+            testPlayer.Mass = 1f;
             testPlayer.MaxSpeed = 500f;
-            testPlayer.Friction = 20;
+            testPlayer.Friction = 80;
             testPlayer.Gravity = new Vector2(x: 0, y: 1000);
             testObjects.Add(testPlayer);
 
@@ -127,12 +128,14 @@ namespace Potato.World.Room.EngineEditor
                 texture: Potato.Game.Content.Load<Texture2D>("test1"),
                 performCorrection: false);
             testObject.Position = new Vector2(x: (gameWidth - testObject.CollisionMask.Width) / 2, y: 400);
+            testObject.Friction = 80;
             testObjects.Add(testObject);
             testObject = new TestObject(
                 name: "wall1",
                 texture: Potato.Game.Content.Load<Texture2D>("test2"),
                 performCorrection: false)
             { Position = new Vector2(x: testObject.Position.X + testObject.CollisionMask.Width, y: testObject.Position.Y) };
+            testObject.Friction = 80;
             testObjects.Add(testObject);
             testObject = new TestObject(
                 name: "wall2",
@@ -141,6 +144,7 @@ namespace Potato.World.Room.EngineEditor
             { Position = new Vector2(
                 x: testObject.Position.X + testObject.CollisionMask.Width, 
                 y: testObject.Position.Y + testObject.CollisionMask.Height / 2) };
+            testObject.Friction = 80;
             testObjects.Add(testObject);
 
             collisionManager.ManagedCollidables.AddRange(testObjects);
@@ -155,8 +159,10 @@ namespace Potato.World.Room.EngineEditor
         public void Update(GameTime gameTime)
         {
             MouseStateExtended mouseState = MouseExtended.GetState();
-            if (mouseState.WasButtonJustDown(button: MouseButton.Left))
-                testPlayer.Force = 2000f* Vector2.Normalize(mouseState.Position.ToVector2() - (testPlayer.Position + testPlayer.CollisionMask.Bounds.Center.ToVector2()));
+            if (mouseState.IsButtonDown(button: MouseButton.Left))
+                testPlayer.Force = 3000 * Vector2.Normalize(mouseState.Position.ToVector2() - (testPlayer.Position + testPlayer.CollisionMask.Bounds.Center.ToVector2()));
+            else
+                testPlayer.Force = Vector2.Zero;
             if (mouseState.WasButtonJustDown(button: MouseButton.Right))
             {
                 testPlayer.Force = Vector2.Zero;

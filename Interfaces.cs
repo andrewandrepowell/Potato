@@ -11,6 +11,7 @@ namespace Potato
         float Mass { get; set; }
         float MaxSpeed { get; set; }
         float Friction { get; set; }
+        float Bounce { get; set; }
         bool Grounded { get; set; }
         Vector2 Velocity { get; set; }
         Vector2 Acceleration { get; set; }

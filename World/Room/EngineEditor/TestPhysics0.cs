@@ -4,6 +4,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Potato.World.Room.EngineEditor
@@ -33,6 +34,7 @@ namespace Potato.World.Room.EngineEditor
             public Vector2 Force { get => physicsChanger.Force; set => physicsChanger.Force = value; }
             public float MaxSpeed { get => physicsChanger.MaxSpeed; set => physicsChanger.MaxSpeed = value; }
             public float Friction { get => physicsChanger.Friction; set => physicsChanger.Friction = value; }
+            public float Bounce { get => physicsChanger.Bounce; set => physicsChanger.Bounce = value; }
             public Vector2 Gravity { get => physicsChanger.Gravity; set => physicsChanger.Gravity = value; }
 
             public TestObject(string name, Texture2D texture, bool performCorrection = false)
@@ -118,24 +120,24 @@ namespace Potato.World.Room.EngineEditor
                 performCorrection: true);
             testPlayer.Position = new Vector2(x: (gameWidth - testPlayer.CollisionMask.Width) / 2, y: 100);
             testPlayer.Mass = 1f;
-            testPlayer.MaxSpeed = 500f;
+            testPlayer.MaxSpeed = 1000f;
             testPlayer.Friction = 80;
-            testPlayer.Gravity = new Vector2(x: 0, y: 1000);
+            testPlayer.Gravity = new Vector2(x: 0, y: 1500);
             testObjects.Add(testPlayer);
 
+            float otherFriction = 80;
+            float otherBounce = .75f;
             testObject = new TestObject(
                 name: "wall0",
                 texture: Potato.Game.Content.Load<Texture2D>("test1"),
                 performCorrection: false);
             testObject.Position = new Vector2(x: (gameWidth - testObject.CollisionMask.Width) / 2, y: 400);
-            testObject.Friction = 80;
             testObjects.Add(testObject);
             testObject = new TestObject(
                 name: "wall1",
                 texture: Potato.Game.Content.Load<Texture2D>("test2"),
                 performCorrection: false)
             { Position = new Vector2(x: testObject.Position.X + testObject.CollisionMask.Width, y: testObject.Position.Y) };
-            testObject.Friction = 80;
             testObjects.Add(testObject);
             testObject = new TestObject(
                 name: "wall2",
@@ -144,8 +146,13 @@ namespace Potato.World.Room.EngineEditor
             { Position = new Vector2(
                 x: testObject.Position.X + testObject.CollisionMask.Width, 
                 y: testObject.Position.Y + testObject.CollisionMask.Height / 2) };
-            testObject.Friction = 80;
             testObjects.Add(testObject);
+
+            foreach (IPhysical physical in testObjects.Where((x) => x != testPlayer))
+            {
+                physical.Friction = otherFriction;
+                physical.Bounce = otherBounce;
+            }
 
             collisionManager.ManagedCollidables.AddRange(testObjects);
         }

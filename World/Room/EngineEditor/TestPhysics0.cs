@@ -46,7 +46,8 @@ namespace Potato.World.Room.EngineEditor
                 this.performCorrection = performCorrection;
                 collisionPoint = Vector2.Zero;
                 collisionNormal = Vector2.Zero;
-                collisionVertices = CollisionManager.GetVertices(mask: texture, startColor: Color.Yellow, vertixColor: Color.Red);
+                collisionVertices = CollisionManager.GetVertices(
+                    mask: texture, startColor: Color.Yellow, includeColor: Color.Red, excludeColor: new Color(r: 0, g: 255, b: 0, alpha: 255));
                 physicsChanger = new PhysicsChanger();
             }
 
@@ -128,10 +129,22 @@ namespace Potato.World.Room.EngineEditor
             float otherFriction = 80;
             float otherBounce = .75f;
             testObject = new TestObject(
+                name: "wall4",
+                texture: Potato.Game.Content.Load<Texture2D>("test4"),
+                performCorrection: false);
+            testObject.Position = new Vector2(x: (gameWidth - testObject.CollisionMask.Width) / 2 - 256, y: 256);
+            testObjects.Add(testObject);
+            testObject = new TestObject(
+                name: "wall3",
+                texture: Potato.Game.Content.Load<Texture2D>("test3"),
+                performCorrection: false)
+            { Position = new Vector2(x: testObject.Position.X, y: testObject.Position.Y + testObject.CollisionMask.Height) };
+            testObjects.Add(testObject);
+            testObject = new TestObject(
                 name: "wall0",
                 texture: Potato.Game.Content.Load<Texture2D>("test1"),
-                performCorrection: false);
-            testObject.Position = new Vector2(x: (gameWidth - testObject.CollisionMask.Width) / 2, y: 400);
+                performCorrection: false)
+            { Position = new Vector2(x: testObject.Position.X + testObject.CollisionMask.Width, y: testObject.Position.Y + testObject.CollisionMask.Height / 2) };
             testObjects.Add(testObject);
             testObject = new TestObject(
                 name: "wall1",

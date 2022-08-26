@@ -193,7 +193,7 @@ namespace Potato
                 pointX0 = colOfMax + intersection1.X + collidable1.Position.X;
                 pointX1 = colOfMax + intersection0.X + collidable0.Position.X;
                 
-                if (topSum1 > bottomSum1)
+                if (bottomSum0 > topSum0)
                 {
                     correctionOffsetY0 = -overlapHeight - adjustY0;
                     pointY0 = rowMin + intersection1.Y + collidable1.Position.Y;
@@ -203,7 +203,7 @@ namespace Potato
                     correctionOffsetY0 = overlapHeight - adjustY0;
                     pointY0 = rowMax + intersection1.Y + collidable1.Position.Y;
                 }
-                if (topSum0 > bottomSum0)
+                if (bottomSum1  > topSum1)
                 {
                     correctionOffsetY1 = -overlapHeight - adjustY1;
                     pointY1 = rowMin + intersection0.Y + collidable0.Position.Y;
@@ -221,7 +221,7 @@ namespace Potato
                 pointY0 = rowOfMax + intersection1.Y + collidable1.Position.Y;
                 pointY1 = rowOfMax + intersection0.Y + collidable0.Position.Y;
 
-                if (leftSum1 > rightSum1)
+                if (rightSum0  > leftSum0)
                 {
                     correctionOffsetX0 = -overlapWidth - adjustX0;
                     pointX0 = colMin + intersection1.X + collidable1.Position.X;
@@ -231,7 +231,7 @@ namespace Potato
                     correctionOffsetX0 = overlapWidth - adjustX0;
                     pointX0 = colMax + intersection1.X + collidable1.Position.X;
                 }
-                if (leftSum0 > rightSum0)
+                if (rightSum1  > leftSum1)
                 {
                     correctionOffsetX1 = -overlapWidth - adjustX1;
                     pointX1 = colMin + intersection0.X + collidable0.Position.X;
@@ -268,9 +268,10 @@ namespace Potato
             return true;
         }
 
-        public static List<Vector2> GetVertices(Texture2D mask, Color startColor, Color vertixColor)
+        public static List<Vector2> GetVertices(Texture2D mask, Color startColor, Color includeColor, Color excludeColor)
         {
-            List<Vector2> vertices = new List<Vector2>();
+            List<Vector2> includeVertices = new List<Vector2>();
+            List<Vector2> excludeVertices = new List<Vector2>();
             Color[] maskData = new Color[mask.Width * mask.Height];
             Vector2 startVertex = Vector2.Zero;
             bool startFound = false;
@@ -286,28 +287,35 @@ namespace Potato
                         startFound = true;
                         Vector2 vertix = new Vector2(col, row);
                         startVertex = vertix;
-                        vertices.Add(vertix);
+                        includeVertices.Add(vertix);
                     }
-                    else if (pixelColor == vertixColor)
+                    else if (pixelColor == includeColor)
                     {
-                        vertices.Add(new Vector2(col, row));
+                        includeVertices.Add(new Vector2(col, row));
+                    }
+                    else if (pixelColor == excludeColor)
+                    {
+                        excludeVertices.Add(new Vector2(col, row));
                     }
                 }
             if (!startFound)
                 throw new Exception("Could not find starting pixel");
+            List<Vector2> centerVertices = new List<Vector2>(includeVertices.Count + excludeVertices.Count);
+            centerVertices.AddRange(includeVertices);
+            centerVertices.AddRange(excludeVertices);
             Vector2 centerPoint = new Vector2(
-                x: vertices.Select((x) => x.X).Average(), 
-                y: vertices.Select((x) => x.Y).Average());
+                x: centerVertices.Select((x) => x.X).Average(), 
+                y: centerVertices.Select((x) => x.Y).Average());
             double startAngle = Math.Atan2(
                 y: startVertex.Y - centerPoint.Y,
                 x: startVertex.X - centerPoint.X);
-            var angles = vertices
+            var angles = includeVertices
                 .Select((x) => Math.Atan2(
                     y: x.Y - centerPoint.Y,
                     x: x.X - centerPoint.X)).ToList()
                 .Select((x) => x - startAngle)
                 .Select((x) => WrapMinMax(x, 0, 2 * Math.PI));
-            List<Vector2> verticesSorted = vertices.Zip(angles, (x, y) => (x, y)).OrderBy((x) => x.y).Select((x) => x.x).ToList();
+            List<Vector2> verticesSorted = includeVertices.Zip(angles, (x, y) => (x, y)).OrderBy((x) => x.y).Select((x) => x.x).ToList();
             return verticesSorted;
         }
 

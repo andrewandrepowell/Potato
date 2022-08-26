@@ -38,7 +38,8 @@ namespace Potato.World.Room.EngineEditor
                 this.performCorrection = performCorrection;
                 collisionPoint = Vector2.Zero;
                 collisionNormal = Vector2.Zero;
-                collisionVertices = CollisionManager.GetVertices(mask: texture, startColor: Color.Yellow, vertixColor: Color.Red);
+                collisionVertices = CollisionManager.GetVertices(
+                    mask: texture, startColor: Color.Yellow, includeColor: Color.Red, excludeColor: Color.Green);
             }
 
             public void Dispose() => destroyed = true;

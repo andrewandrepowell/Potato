@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Potato.World.Room.EngineEditor
 {
-    internal class TestPhysics0 : IComponent
+    internal class TestPhysics0 : IComponent, IPausible
     {
         private class TestObject : IComponent, IPhysical
         {
@@ -36,6 +36,10 @@ namespace Potato.World.Room.EngineEditor
             public float Friction { get => physicsChanger.Friction; set => physicsChanger.Friction = value; }
             public float Bounce { get => physicsChanger.Bounce; set => physicsChanger.Bounce = value; }
             public Vector2 Gravity { get => physicsChanger.Gravity; set => physicsChanger.Gravity = value; }
+
+            public bool SoftPaused => ((IPausible)physicsChanger).SoftPaused;
+
+            public bool HardPaused => ((IPausible)physicsChanger).HardPaused;
 
             public TestObject(string name, Texture2D texture, bool performCorrection = false)
             {
@@ -102,13 +106,39 @@ namespace Potato.World.Room.EngineEditor
 
                 physicsChanger.Update(gameTime: gameTime);
             }
+
+            public void SoftPause()
+            {
+                ((IPausible)physicsChanger).SoftPause();
+            }
+
+            public void SoftResume()
+            {
+                ((IPausible)physicsChanger).SoftResume();
+            }
+
+            public void HardPause()
+            {
+                ((IPausible)physicsChanger).HardPause();
+            }
+
+            public void HardResume()
+            {
+                ((IPausible)physicsChanger).HardResume();
+            }
         }
         private CollisionManager collisionManager;
         private TestObject testPlayer;
         private List<TestObject> testObjects;
+        private bool softPaused;
+        private bool hardPaused;
+        public bool SoftPaused => softPaused;
+        public bool HardPaused => hardPaused;
 
         public TestPhysics0()
         {
+            softPaused = false;
+            hardPaused = false;
             collisionManager = new CollisionManager();
             int gameWidth = Potato.Game.GraphicsDevice.Viewport.Width;
             int gameHeight = Potato.Game.GraphicsDevice.Viewport.Height;
@@ -179,6 +209,7 @@ namespace Potato.World.Room.EngineEditor
         public void Update(GameTime gameTime)
         {
             MouseStateExtended mouseState = MouseExtended.GetState();
+
             if (mouseState.IsButtonDown(button: MouseButton.Left))
                 testPlayer.Force = 3000 * Vector2.Normalize(mouseState.Position.ToVector2() - (testPlayer.Position + testPlayer.CollisionMask.Bounds.Center.ToVector2()));
             else
@@ -189,11 +220,46 @@ namespace Potato.World.Room.EngineEditor
                 testPlayer.Velocity = Vector2.Zero;
                 testPlayer.Position = mouseState.Position.ToVector2() - testPlayer.CollisionMask.Bounds.Center.ToVector2();
             }
-             
 
             foreach (IUpdateable updateable in testObjects)
                 updateable.Update(gameTime: gameTime);
             collisionManager.Update(gameTime: gameTime);
+        }
+
+        public void SoftPause()
+        {
+            if (softPaused)
+                return;
+            softPaused = true;
+            foreach (IPausible pausible in testObjects)
+                pausible.SoftPause();
+        }
+
+        public void SoftResume()
+        {
+            if (!softPaused)
+                return;
+            softPaused = false;
+            foreach (IPausible pausible in testObjects)
+                pausible.SoftResume();
+        }
+
+        public void HardPause()
+        {
+            if (hardPaused)
+                return;
+            hardPaused = true;
+            foreach (IPausible pausible in testObjects)
+                pausible.HardPause();
+        }
+
+        public void HardResume()
+        {
+            if (!hardPaused)
+                return;
+            hardPaused = false;
+            foreach (IPausible pausible in testObjects)
+                pausible.HardResume();
         }
     }
 }

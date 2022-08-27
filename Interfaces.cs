@@ -6,7 +6,11 @@ using System.Collections.Generic;
 
 namespace Potato
 {
-    internal interface IPhysical : ICollidable
+    internal interface ICharacterizable : IPhysical, IComponent
+    {
+        IList<IPhysical> Projectiles { get; set;  }
+    }
+    internal interface IPhysical : ICollidable, IPausible
     {
         float Mass { get; set; }
         float MaxSpeed { get; set; }

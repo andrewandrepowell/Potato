@@ -28,6 +28,7 @@ namespace Potato
         private Vector2 gravity;
         private Vector2 touchedOrientation;
         private bool destroyed;
+        private bool hardPaused;
         private bool grounded => groundedTimer > 0;
         private bool touched => touchedTimer > 0;
         public bool Grounded
@@ -85,6 +86,8 @@ namespace Potato
         public IList<Vector2> CollisionVertices { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Vector2 Position { get => position; set => position = value; }
         public bool Destroyed => destroyed;
+        public bool SoftPaused => false;
+        public bool HardPaused => hardPaused;
 
         public PhysicsChanger()
         {
@@ -109,7 +112,8 @@ namespace Potato
 
         public void ServiceCollision(ICollidable.Info info)
         {
-            if (destroyed)
+            // Don't update the state of the physical if destroyed or paused.
+            if (destroyed || hardPaused)
                 return;
 
             // Only check for touched and grounded states if the current physical has an orientation,
@@ -158,7 +162,8 @@ namespace Potato
 
         public void Update(GameTime gameTime)
         {
-            if (destroyed)
+            // Don't update the state of the physical if destroyed or paused.
+            if (destroyed || hardPaused)
                 return;
 
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -188,22 +193,31 @@ namespace Potato
             // Determine the new position based on the current velocity.
             position += velocity * elapsedTime;
 
-            // Configure touched state.
+            // Touched state is dependent on a timer. 
             if (touched)
                 touchedTimer -= elapsedTime;
+            // Reset associated information when touched state isn't active.
             else
             {
                 touchedOrientation = Vector2.Zero;
             }
 
-            // Configure grounded state.
+            // Grounded state is dependent on a timer.
             if (grounded)
                 groundedTimer -= elapsedTime;
+            // Reset associated information when grounded state isn't active.
             else
             {
                 otherFriction = 0;
                 orientation = defaultOrientation;
             }
         }
+        public void SoftPause() { }
+
+        public void SoftResume() { }
+
+        public void HardPause() => hardPaused = true;
+
+        public void HardResume() => hardPaused = false;
     }
 }

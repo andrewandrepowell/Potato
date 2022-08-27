@@ -129,7 +129,7 @@ namespace Potato
                     if (info.Other is IPhysical otherPhysical)
                     {
                         // The velocity of the current physical is updated to account for the bounce mechanic.
-                        Vector2 orthogonal = new Vector2(x: -touchedOrientation.Y, y: touchedOrientation.X);
+                        Vector2 orthogonal = touchedOrientation.GetPerpendicular();
                         float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
                         float orthognalScalar = Vector2.Dot(orthogonal, velocity);
                         float bounceScalar = -(otherPhysical.Bounce + bounce) * touchedOrientationScalar;
@@ -179,7 +179,7 @@ namespace Potato
             // Apply touched corrections to velocity. 
             if (touched)
             {
-                Vector2 orthogonal = new Vector2(x: -touchedOrientation.Y, y: touchedOrientation.X);
+                Vector2 orthogonal = touchedOrientation.GetPerpendicular();
                 float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
                 float orthognalScalar = Vector2.Dot(orthogonal, velocity);
                 velocity = Math.Max(0, touchedOrientationScalar) * touchedOrientation + orthognalScalar * orthogonal;

@@ -170,18 +170,24 @@ namespace Potato
                     }
 
             // Compute overlap correction distances aand mid points. 
-            // Mid points are used to determine collision points.
             int overlapWidth = rowCounts.Max();
-            int overlapHeight = colCounts.Max(); 
+            int overlapHeight = colCounts.Max();
+
+            // Index of row and column maxes are used to determine collision points.
             int rowOfMax = Array.IndexOf(rowCounts, overlapWidth);
             int colOfMax = Array.IndexOf(colCounts, overlapHeight);
+
+            // Mid points are used to determine collision points.
             int pointMidX = (colMax + colMin) / 2;
             int pointMidY = (rowMax + rowMin) / 2;
 
+            // Adjustments are used to more accurately determine correction vectors.
             float adjustX0 = (collidable0.Position.X - bounds0.X);
             float adjustY0 = (collidable0.Position.Y - bounds0.Y);
             float adjustX1 = (collidable1.Position.X - bounds1.X);
             float adjustY1 = (collidable1.Position.Y - bounds1.Y);
+
+            // Compute the correction vectors and collision points.
             float correctionOffsetY0, correctionOffsetY1;
             float correctionOffsetX0, correctionOffsetX1;
             float pointY0, pointY1;
@@ -358,9 +364,7 @@ namespace Potato
             else
                 direction = pairs[1].vertix - pairs[0].vertix;
 
-            Vector2 collisionNormal = Vector2.Normalize(new Vector2(
-                x: direction.Y,
-                y: -direction.X));
+            Vector2 collisionNormal = Vector2.Normalize(-direction.GetPerpendicular());
             return collisionNormal;
         }
     }

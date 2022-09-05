@@ -34,7 +34,7 @@
         <key>dataFormat</key>
         <string>spritesheet-only</string>
         <key>textureFileName</key>
-        <filename></filename>
+        <filename>protagonist_idle.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrQualityLevel</key>
@@ -68,7 +68,7 @@
         <key>jpgQuality</key>
         <uint>80</uint>
         <key>pngOptimizationLevel</key>
-        <uint>1</uint>
+        <uint>0</uint>
         <key>webpQualityLevel</key>
         <uint>101</uint>
         <key>textureSubPath</key>
@@ -80,9 +80,9 @@
         <key>maxTextureSize</key>
         <QSize>
             <key>width</key>
-            <int>2048</int>
+            <int>4096</int>
             <key>height</key>
-            <int>2048</int>
+            <int>4096</int>
         </QSize>
         <key>fixedTextureSize</key>
         <QSize>
@@ -94,7 +94,7 @@
         <key>algorithmSettings</key>
         <struct type="AlgorithmSettings">
             <key>algorithm</key>
-            <enum type="AlgorithmSettings::AlgorithmId">MaxRects</enum>
+            <enum type="AlgorithmSettings::AlgorithmId">Basic</enum>
             <key>freeSizeMode</key>
             <enum type="AlgorithmSettings::AlgorithmFreeSizeMode">Best</enum>
             <key>sizeConstraints</key>
@@ -155,7 +155,7 @@
             <key>trimMargin</key>
             <uint>1</uint>
             <key>trimMode</key>
-            <enum type="SpriteSettings::TrimMode">Trim</enum>
+            <enum type="SpriteSettings::TrimMode">None</enum>
             <key>tracerTolerance</key>
             <int>200</int>
             <key>heuristicMask</key>
@@ -166,9 +166,51 @@
             <false/>
         </struct>
         <key>individualSpriteSettings</key>
-        <map type="IndividualSpriteSettingsMap"/>
+        <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../../../../../../tmp/0001.png</key>
+            <key type="filename">../../../../../../tmp/0002.png</key>
+            <key type="filename">../../../../../../tmp/0003.png</key>
+            <key type="filename">../../../../../../tmp/0004.png</key>
+            <key type="filename">../../../../../../tmp/0005.png</key>
+            <key type="filename">../../../../../../tmp/0006.png</key>
+            <key type="filename">../../../../../../tmp/0007.png</key>
+            <key type="filename">../../../../../../tmp/0008.png</key>
+            <key type="filename">../../../../../../tmp/0009.png</key>
+            <key type="filename">../../../../../../tmp/0010.png</key>
+            <key type="filename">../../../../../../tmp/0011.png</key>
+            <key type="filename">../../../../../../tmp/0012.png</key>
+            <key type="filename">../../../../../../tmp/0013.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>128,128,256,256</rect>
+                <key>scale9Paddings</key>
+                <rect>128,128,256,256</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+        </map>
         <key>fileList</key>
-        <array/>
+        <array>
+            <filename>../../../../../../tmp/0001.png</filename>
+            <filename>../../../../../../tmp/0002.png</filename>
+            <filename>../../../../../../tmp/0003.png</filename>
+            <filename>../../../../../../tmp/0004.png</filename>
+            <filename>../../../../../../tmp/0005.png</filename>
+            <filename>../../../../../../tmp/0006.png</filename>
+            <filename>../../../../../../tmp/0007.png</filename>
+            <filename>../../../../../../tmp/0008.png</filename>
+            <filename>../../../../../../tmp/0009.png</filename>
+            <filename>../../../../../../tmp/0010.png</filename>
+            <filename>../../../../../../tmp/0011.png</filename>
+            <filename>../../../../../../tmp/0012.png</filename>
+            <filename>../../../../../../tmp/0013.png</filename>
+        </array>
         <key>ignoreFileList</key>
         <array/>
         <key>replaceList</key>

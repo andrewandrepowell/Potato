@@ -1,0 +1,14 @@
+{
+  "textureAtlas": {
+    "texture": "protagonist_idle.png",
+    "regionWidth": 512,
+    "regionHeight": 512
+  },
+  "cycles": {
+    "idle": {
+      "frames": [2,3,4,5,6,7,8,9,10,11,12],
+      "isLooping": false,
+      "frameDuration": 0.2
+    }
+  }
+}

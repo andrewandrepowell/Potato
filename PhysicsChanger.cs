@@ -129,18 +129,17 @@ namespace Potato
                     // The touched orientation is recorded as the collision normal vector.
                     touchedOrientation = info.Normal;
 
-                    // Further operations are needed if the other collidable is a physical.
-                    if (info.Other is IPhysical otherPhysical)
-                    {
-                        // The velocity of the current physical is updated to account for the bounce mechanic.
-                        Vector2 orthogonal = touchedOrientation.GetPerpendicular();
-                        float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
-                        float orthognalScalar = Vector2.Dot(orthogonal, velocity);
-                        float bounceScalar = -(otherPhysical.Bounce + bounce) * touchedOrientationScalar;
-                        if (Math.Abs(bounceScalar) < squashBounceThreshold)
-                            bounceScalar = 0;
-                        velocity = bounceScalar * touchedOrientation + orthognalScalar * orthogonal;
-                    }
+                    // The following operations implement the bounce mechanic. 
+                    // Current velocity is broken down into touched orientation and orthogonal components.
+                    // Bounce affects velocity in the direction of the touched orientation.
+                    Vector2 orthogonal = touchedOrientation.GetPerpendicular();
+                    float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
+                    float orthognalScalar = Vector2.Dot(orthogonal, velocity);
+                    float otherBounce = (info.Other is IPhysical otherPhysical) ? otherPhysical.Bounce : 0;
+                    float bounceScalar = -(otherBounce + bounce) * touchedOrientationScalar;
+                    if (Math.Abs(bounceScalar) < squashBounceThreshold)
+                        bounceScalar = 0;
+                    velocity = bounceScalar * touchedOrientation + orthognalScalar * orthogonal;
                 }
 
                 // If the orientation of the current physical is similar enough to the collision normal vector,

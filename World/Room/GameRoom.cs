@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using Potato.World.Room.LevelEditor;
 
 namespace Potato.World.Room
 {
@@ -14,6 +15,7 @@ namespace Potato.World.Room
     {
         private TitleRoom titleRoom;
         private EngineEditorRoom engineEditorRoom;
+        private LevelEditorRoom levelEditorRoom;
         private TransitionRoom transitionRoom;
         public IOpenable.OpenStates OpenState => transitionRoom.OpenState;
 
@@ -24,16 +26,28 @@ namespace Potato.World.Room
         {
             titleRoom = new TitleRoom(optionMenu: optionMenu);
             engineEditorRoom = new EngineEditorRoom(optionMenu: optionMenu);
-            
+            levelEditorRoom = new LevelEditorRoom();
+
+
             TransitionRoom.Node titleNode = new TransitionRoom.Node(
-                selectable: new SelectCombiner(selectables: new List<ISelectable>() { engineEditorRoom.TitleSelect }, option: SelectCombiner.Options.Any),
+                selectable: new SelectCombiner(
+                    selectables: new List<ISelectable>() 
+                    { 
+                        engineEditorRoom.TitleSelect, levelEditorRoom.TitleSelect 
+                    }, 
+                    option: SelectCombiner.Options.Any),
                 room: titleRoom);
             TransitionRoom.Node engineEditorNode = new TransitionRoom.Node(
                 selectable: titleRoom.EngineEditorSelect,
                 room: engineEditorRoom);
+            TransitionRoom.Node levelEditorNode = new TransitionRoom.Node(
+                selectable: titleRoom.LevelEditorSelect,
+                room: levelEditorRoom);
 
             titleNode.Nodes.Add(engineEditorNode);
+            titleNode.Nodes.Add(levelEditorNode);
             engineEditorNode.Nodes.Add(titleNode);
+            levelEditorNode.Nodes.Add(titleNode);
 
             transitionRoom = new TransitionRoom(
                 nodes: titleNode.Nodes, 

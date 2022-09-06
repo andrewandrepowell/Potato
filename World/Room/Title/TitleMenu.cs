@@ -20,12 +20,14 @@ namespace Potato.World.Room.Title
         private ContainerMenu containerMenu;
         private OptionMenu optionMenu;
         private SelectMenu engineEditorSelectMenu;
+        private SelectMenu levelEditorSelectMenu;
         private SelectMenu optionsSelectMenu;
         private Vector2 containerOffset;
         private Vector2 optionOffset;
         private Vector2 titlePosition;
         private Size2 titleSize;
         public ISelectable EngineEditorSelect => engineEditorSelectMenu;
+        public ISelectable LevelEditorSelect => levelEditorSelectMenu;
         public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
         public IController Controller { get => transitionMenu.Controller; set => transitionMenu.Controller = value; }
         public Vector2 Position 
@@ -43,16 +45,19 @@ namespace Potato.World.Room.Title
         public TitleMenu(OptionMenu optionMenu)
         {
             engineEditorSelectMenu = new SelectMenu(text: "Engine Editor", align: Alignment.Center, width: innerWidth);
+            levelEditorSelectMenu = new SelectMenu(text: "Level Editor", align: Alignment.Center, width: innerWidth);
             optionsSelectMenu = new SelectMenu(text: "Options", align: Alignment.Center, width: innerWidth);
             containerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
                     new ImageMenu(texture: Potato.Game.Content.Load<Texture2D>("potato")),
                     engineEditorSelectMenu,
+                    levelEditorSelectMenu,
                     optionsSelectMenu
                 },
                 align: Alignment.Center);
             this.optionMenu = optionMenu;
+
             transitionMenu = new TransitionMenu(
                 nodes: new List<TransitionMenu.Node>()
                 {

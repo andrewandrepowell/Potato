@@ -16,6 +16,7 @@ namespace Potato.World.Room.Title
         private Texture2D backgroundTexture;
         private RoomStateChanger roomStateChanger;
         public ISelectable EngineEditorSelect => titleMenu.EngineEditorSelect;
+        public ISelectable LevelEditorSelect => titleMenu.LevelEditorSelect;
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
         public IController Controller { get => titleMenu.Controller; set => titleMenu.Controller = value; }
 

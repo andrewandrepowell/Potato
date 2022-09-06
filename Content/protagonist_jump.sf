@@ -1,0 +1,14 @@
+{
+  "textureAtlas": {
+    "texture": "protagonist_jump.png",
+    "regionWidth": 512,
+    "regionHeight": 512
+  },
+  "cycles": {
+    "jump": {
+      "frames": [0,1,2,3,4,5,6],
+      "isLooping": false,
+      "frameDuration": 0.2
+    }
+  }
+}

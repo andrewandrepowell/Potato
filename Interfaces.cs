@@ -6,9 +6,17 @@ using System.Collections.Generic;
 
 namespace Potato
 {
-    internal interface ICharacterizable : IPhysical, IComponent
+    internal interface IIdentifiable
     {
-        IList<IPhysical> Projectiles { get; set;  }
+        string Identifier { get; set; }
+    }
+    internal interface ILevel : IRoom
+    {
+        ICollection<IWallable> Walls { get; set; }
+    }
+    internal interface IWallable : ICollidable, IDrawable
+    {
+        Texture2D DisplayTexture { get; set; }
     }
     internal interface IPhysical : ICollidable, IPausible
     {

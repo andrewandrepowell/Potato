@@ -4,6 +4,7 @@ using Potato.Room;
 using Potato.Room.Wall;
 using Potato.World.Menu;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -30,6 +31,7 @@ namespace Potato.World.Room.LevelEditor
             roomStateChanger = new RoomStateChanger();
             levelEditorMenu = new LevelEditorMenu();
         }
+
         public void Close()
         {
             simpleLevel.Close();
@@ -40,16 +42,26 @@ namespace Potato.World.Room.LevelEditor
         public void Draw(Matrix? transformMatrix = null)
         {
             if (wallToPlace != null)
-            {
                 wallToPlace.Draw(transformMatrix: transformMatrix);
-            }
             simpleLevel.Draw(transformMatrix: transformMatrix);
             levelEditorMenu.Draw(transformMatrix: transformMatrix);
             roomStateChanger.Draw(transformMatrix: transformMatrix);
         }
 
+        private void Reset()
+        {
+            wallToPlaceIdentifier = "";
+            if (wallToPlace != null)
+            {
+                wallToPlace.Dispose();
+                wallToPlace = null;
+            }
+            simpleLevel.Walls.Clear();
+        }
+
         public void HardReset()
         {
+            Reset();
             simpleLevel.HardReset();
             levelEditorMenu.HardReset();
             roomStateChanger.HardReset();
@@ -64,7 +76,7 @@ namespace Potato.World.Room.LevelEditor
 
         public void SoftReset()
         {
-            wallToPlaceIdentifier = "";
+            Reset();
             simpleLevel.SoftReset();
             levelEditorMenu.SoftReset();
             roomStateChanger.SoftReset();
@@ -102,6 +114,22 @@ namespace Potato.World.Room.LevelEditor
                 wallToPlace.Position = new Vector2(
                     x: blockX * blockWidth,
                     y: blockY * blockWidth);
+
+                // Try to place the block if left mouse button is pressed.
+                if (mouseState.WasButtonJustDown(MouseButton.Left))
+                {
+                    // Only place the wall-to-place if it doesn't intersect within the bounding rectangle of all placed walls.
+                    Rectangle mouseBounds = new Rectangle(location: mouseState.Position, size: new Point(x: 1, y: 1));
+                    if (simpleLevel.Walls
+                        .Select((x)=> new Rectangle(
+                            location: x.Position.ToPoint(), 
+                            size: x.CollisionMask.Bounds.Size))
+                        .All((x)=> !x.Intersects(mouseBounds)))
+                    {
+                        simpleLevel.Walls.Add(wallToPlace);
+                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                    }
+                }
             }
 
             // Update the other objects.

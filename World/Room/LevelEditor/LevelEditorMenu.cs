@@ -24,6 +24,7 @@ namespace Potato.World.Room.LevelEditor
         private SelectMenu hideSelectMenu;
         private string wallToPlaceIdentifier;
         private List<(SelectMenu, string)> wallToPlaceItems;
+        private IController hideController;
         public string WallToPlaceIdentifier => wallToPlaceIdentifier;
         public ISelectable TitleSelect => titleSelectMenu;
         public IOpenable.OpenStates OpenState => transitionMenu.OpenState;
@@ -35,6 +36,8 @@ namespace Potato.World.Room.LevelEditor
         public LevelEditorMenu()
         {
             Rectangle gameBounds = Potato.Game.GraphicsDevice.Viewport.Bounds;
+
+            hideController = null;
 
             wallToPlaceIdentifier = "";
             wallToPlaceItems = new List<(SelectMenu, string)>();
@@ -83,11 +86,24 @@ namespace Potato.World.Room.LevelEditor
 
         public void Draw(Matrix? transformMatrix = null) => transitionMenu.Draw(transformMatrix: transformMatrix);
 
-        public void HardReset() => transitionMenu.HardReset();
+        private void Reset()
+        {
+            wallToPlaceIdentifier = "";
+        }
+
+        public void HardReset()
+        {
+            Reset();
+            transitionMenu.HardReset();
+        }
 
         public void Open() => transitionMenu.Open();
 
-        public void SoftReset() => transitionMenu.SoftReset();
+        public void SoftReset()
+        {
+            Reset();
+            transitionMenu.SoftReset();
+        }
 
         public void Update(GameTime gameTime)
         {
@@ -99,6 +115,22 @@ namespace Potato.World.Room.LevelEditor
             // If in the place wall menu, user can go back if the back button is pressed.
             if (placeWallContainerMenu.Controller != null && placeWallContainerMenu.Controller.BackPressed())
                 transitionMenu.GoPreviousMenu();
+
+            // Close the menu and remove its control if the hide menu option is selected.
+            if (hideSelectMenu.Selected && hideController == null)
+            {
+                hideController = transitionMenu.Controller;
+                transitionMenu.Controller = null;
+                transitionMenu.Close();
+            }
+
+            // Return control back to and open the menu if the back is pressed.
+            if (hideController != null && hideController.BackPressed())
+            {
+                transitionMenu.Controller = hideController;
+                hideController = null;
+                transitionMenu.Open();
+            }
 
             // Update transition menu
             transitionMenu.Update(gameTime: gameTime);

@@ -14,6 +14,7 @@ namespace Potato.World.Room.LevelEditor
     internal class LevelEditorRoom : IRoom
     {
         private const int blockWidth = 127;
+        private const string saveExtension = "level";
         private RoomStateChanger roomStateChanger;
         private LevelEditorMenu levelEditorMenu;
         private SimpleLevel simpleLevel;
@@ -130,6 +131,23 @@ namespace Potato.World.Room.LevelEditor
                         wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
                     }
                 }
+            }
+
+            // Save the level if the save menu is active, the level editor menu has the controller, 
+            // the activate button is pressed, and the save string is greater than 0 length.
+            if (levelEditorMenu.SaveMenuActive && levelEditorMenu.Controller != null &&
+                levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.SaveString.Length > 0)
+            {
+                SimpleLevelSave save = simpleLevel.Save();
+                Saver.Save(fileName: $"{levelEditorMenu.SaveString}.{saveExtension}", obj: save);
+            }
+
+            // Loading the level works in a similar way to saving, but the reverse operation.
+            if (levelEditorMenu.LoadMenuActive && levelEditorMenu.Controller != null &&
+                levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.LoadString.Length > 0)
+            {
+                SimpleLevelSave save = Saver.Load<SimpleLevelSave>($"{levelEditorMenu.LoadString}.{saveExtension}");
+                simpleLevel.Load(save);
             }
 
             // Update the other objects.

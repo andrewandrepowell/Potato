@@ -90,9 +90,7 @@ namespace Potato.Menu
                     point.ToVector2(),
                     new Vector2(x: fullSize.Width, y: fullSize.Height));
                 float fadeRatio = distanceFromTopLeft / diagonalLength;
-                return Add(
-                    color1: fadeRatio * backPlaneColor0,
-                    color2: (1 - fadeRatio) * backPlaneColor1);
+                return (fadeRatio * backPlaneColor0).Add((1 - fadeRatio) * backPlaneColor1);
             }
             backplaneTexture = Potato.SpriteBatch.GetCurvedRectangle(
                 size: fullSize,

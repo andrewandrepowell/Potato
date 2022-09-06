@@ -8,7 +8,13 @@ namespace Potato.Room
 {
     internal struct SimpleLevelSave
     {
-        public List<(string, Vector2)> Walls { get; set; }
+        public struct WallNode
+        {
+            public string Identifier { get; set; }
+            public float X { get; set; }
+            public float Y { get; set; }
+        }
+        public List<WallNode> WallNodes { get; set; }
     }
     internal class SimpleLevel : ILevel, ISavable<SimpleLevelSave>
     {
@@ -59,20 +65,20 @@ namespace Potato.Room
         public SimpleLevelSave Save()
         {
             SimpleLevelSave save = new SimpleLevelSave();
-            save.Walls = walls
+            save.WallNodes = walls
                 .Select((x) => (x, x.Position))
                 .Where((x) => x.x is IIdentifiable)
-                .Select((x) => (((IIdentifiable)x.x).Identifier, x.Position))
+                .Select((x) => new SimpleLevelSave.WallNode() { Identifier = ((IIdentifiable)x.x).Identifier, X = x.Position.X, Y = x.Position.Y } )
                 .ToList();
             return save;
         }
 
         public void Load(SimpleLevelSave save)
         {
-            foreach ((string identifier, Vector2 position) in save.Walls)
+            foreach (SimpleLevelSave.WallNode wallNode in save.WallNodes)
             {
-                IWallable wall = WallManager.GetWall(identifier: identifier);
-                wall.Position = position;
+                IWallable wall = WallManager.GetWall(identifier: wallNode.Identifier);
+                wall.Position = new Vector2(x: wallNode.X, y: wallNode.Y);
                 walls.Add(wall);
             }
         }

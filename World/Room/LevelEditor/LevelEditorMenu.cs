@@ -21,6 +21,7 @@ namespace Potato.World.Room.LevelEditor
         private SelectMenu titleSelectMenu;
         private SelectMenu loadSelectMenu;
         private SelectMenu placeWallSelectMenu;
+        private SelectMenu hideSelectMenu;
         private string wallToPlaceIdentifier;
         private List<(SelectMenu, string)> wallToPlaceItems;
         public string WallToPlaceIdentifier => wallToPlaceIdentifier;
@@ -43,13 +44,15 @@ namespace Potato.World.Room.LevelEditor
             titleSelectMenu = new SelectMenu(text: "Title Menu", align: Alignment.Center, width: innerWidth);
             loadSelectMenu = new SelectMenu(text: "Load Level", align: Alignment.Center, width: innerWidth);
             placeWallSelectMenu = new SelectMenu(text: "Place Wall", align: Alignment.Center, width: innerWidth);
+            hideSelectMenu = new SelectMenu(text: "Hide Menu", align: Alignment.Center, width: innerWidth);
 
             mainContainerMenu = new ContainerMenu(
                 components: new List<IMenu>()
                 {
                     titleSelectMenu,
                     loadSelectMenu,
-                    placeWallSelectMenu
+                    placeWallSelectMenu,
+                    hideSelectMenu
                 },
                 align: Alignment.Center);
             mainContainerMenu.Position = new Vector2(

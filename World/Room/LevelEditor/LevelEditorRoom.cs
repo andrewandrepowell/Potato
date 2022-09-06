@@ -12,6 +12,7 @@ namespace Potato.World.Room.LevelEditor
 {
     internal class LevelEditorRoom : IRoom
     {
+        private const int blockWidth = 127;
         private RoomStateChanger roomStateChanger;
         private LevelEditorMenu levelEditorMenu;
         private SimpleLevel simpleLevel;
@@ -95,7 +96,12 @@ namespace Potato.World.Room.LevelEditor
             // Perform operataions if there's a wall-to-place.
             if (wallToPlace != null)
             {
-                wallToPlace.Position = mouseState.Position.ToVector2();
+                // Set the position of the block-to-place.
+                int blockX = mouseState.Position.X / blockWidth;
+                int blockY = mouseState.Position.Y / blockWidth;
+                wallToPlace.Position = new Vector2(
+                    x: blockX * blockWidth,
+                    y: blockY * blockWidth);
             }
 
             // Update the other objects.

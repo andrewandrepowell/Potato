@@ -136,25 +136,62 @@ namespace Potato.World.Room.LevelEditor
                         .All((x)=> !x.Intersects(mouseBounds)))
                     {
                         simpleLevel.Walls.Add(wallToPlace);
-                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+
+                        // Replace wall-to-place with a new wall if one's available.
+                        if (wallToPlaceIdentifier.Length > 0)
+                            wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
                     }
                 }
             }
 
-            if (mouseState.WasButtonJustDown(MouseButton.Right))
+            // Perform operataions if there's NO wall-to-place.
+            if (wallToPlace == null)
             {
-                dragCameraStart = mouseState.Position.ToVector2();
+                // Try to pick up a wall.
+                if (mouseState.WasButtonJustDown(MouseButton.Left))
+                {
+                    Point mousePosition = simpleLevel.Camera.Position.ToPoint() + mouseState.Position;
+                    Rectangle mouseBounds = new Rectangle(location: mousePosition, size: new Point(x: 1, y: 1));
+                    try
+                    {
+                        wallToPlace = simpleLevel.Walls
+                            .Select((x) =>
+                            new
+                            {
+                                Bounds = new Rectangle(
+                                    location: x.Position.ToPoint(),
+                                    size: x.CollisionMask.Bounds.Size),
+                                Wall = x
+                            })
+                            .Where((x) => x.Bounds.Intersects(mouseBounds))
+                            .First()
+                            .Wall;
+                        simpleLevel.Walls.Remove(wallToPlace);
+                    } 
+                    catch (InvalidOperationException)
+                    {
+                    }
+                }
             }
-            if (mouseState.IsButtonDown(MouseButton.Right))
+
+            // Dragging the mouse with the right mouse button held moves the
+            // the camera in the direction of the drag.
             {
-                Vector2 moveVector = mouseState.Position.ToVector2() - dragCameraStart;
-                simpleLevel.Camera.Move(direction: moveVector * timeElapsed * dragCameraSpeed);
+                if (mouseState.WasButtonJustDown(MouseButton.Right))
+                {
+                    dragCameraStart = mouseState.Position.ToVector2();
+                }
+                if (mouseState.IsButtonDown(MouseButton.Right))
+                {
+                    Vector2 moveVector = mouseState.Position.ToVector2() - dragCameraStart;
+                    simpleLevel.Camera.Move(direction: moveVector * timeElapsed * dragCameraSpeed);
+                }
             }
 
             // Save the level if the save menu is active, the level editor menu has the controller, 
             // the activate button is pressed, and the save string is greater than 0 length.
             if (levelEditorMenu.SaveMenuActive && levelEditorMenu.Controller != null &&
-            levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.SaveString.Length > 0)
+                levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.SaveString.Length > 0)
             {
                 SimpleLevelSave save = simpleLevel.Save();
                 Saver.Save(fileName: $"{levelEditorMenu.SaveString}.{saveExtension}", obj: save);

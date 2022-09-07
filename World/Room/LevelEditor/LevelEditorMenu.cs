@@ -26,11 +26,12 @@ namespace Potato.World.Room.LevelEditor
         private SelectMenu loadSelectMenu;
         private SelectMenu saveSelectMenu;
         private SelectMenu placeWallSelectMenu;
+        private SelectMenu dropWallSelectMenu;
         private SelectMenu hideSelectMenu;
         private string wallToPlaceIdentifier;
         private List<(SelectMenu, string)> wallToPlaceItems;
         private IController hideController;
-        public bool MenuHidden => hideController != null;
+        public ISelectable DropWallSelect => dropWallSelectMenu;
         public string WallToPlaceIdentifier => wallToPlaceIdentifier;
         public StringBuilder LoadString => loadTypingMenu.Text;
         public bool LoadMenuActive => loadContainerMenu.Controller != null;
@@ -60,6 +61,7 @@ namespace Potato.World.Room.LevelEditor
             loadSelectMenu = new SelectMenu(text: "Load Level", align: Alignment.Center, width: innerWidth);
             saveSelectMenu = new SelectMenu(text: "Save Level", align: Alignment.Center, width: innerWidth);
             placeWallSelectMenu = new SelectMenu(text: "Place Wall", align: Alignment.Center, width: innerWidth);
+            dropWallSelectMenu = new SelectMenu(text: "Drop Wall", align: Alignment.Center, width: innerWidth);
             hideSelectMenu = new SelectMenu(text: "Hide Menu", align: Alignment.Center, width: innerWidth);
 
             mainContainerMenu = new ContainerMenu(
@@ -69,6 +71,7 @@ namespace Potato.World.Room.LevelEditor
                     loadSelectMenu,
                     saveSelectMenu,
                     placeWallSelectMenu,
+                    dropWallSelectMenu,
                     hideSelectMenu
                 },
                 align: Alignment.Center);

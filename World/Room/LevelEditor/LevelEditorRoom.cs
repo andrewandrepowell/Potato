@@ -4,6 +4,7 @@ using Potato.Room;
 using Potato.Room.Wall;
 using Potato.World.Menu;
 using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -15,17 +16,20 @@ namespace Potato.World.Room.LevelEditor
     {
         private const int blockWidth = 127;
         private const string saveExtension = "level";
+        private const float dragCameraSpeed = 32f;
         private RoomStateChanger roomStateChanger;
         private LevelEditorMenu levelEditorMenu;
         private SimpleLevel simpleLevel;
         private IWallable wallToPlace;
         private string wallToPlaceIdentifier;
+        private Vector2 dragCameraStart;
         public IController Controller { get => levelEditorMenu.Controller; set => levelEditorMenu.Controller = value; }
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
         public ISelectable TitleSelect => levelEditorMenu.TitleSelect;
 
         public LevelEditorRoom()
         {
+            dragCameraStart = Vector2.Zero;
             wallToPlaceIdentifier = "";
             wallToPlace = null;
             simpleLevel = new SimpleLevel();
@@ -42,11 +46,12 @@ namespace Potato.World.Room.LevelEditor
 
         public void Draw(Matrix? transformMatrix = null)
         {
+            transformMatrix = simpleLevel.Camera.GetViewMatrix();
             if (wallToPlace != null)
                 wallToPlace.Draw(transformMatrix: transformMatrix);
             simpleLevel.Draw(transformMatrix: transformMatrix);
-            levelEditorMenu.Draw(transformMatrix: transformMatrix);
-            roomStateChanger.Draw(transformMatrix: transformMatrix);
+            levelEditorMenu.Draw(transformMatrix: null);
+            roomStateChanger.Draw(transformMatrix: null);
         }
 
         private void Reset()
@@ -58,6 +63,7 @@ namespace Potato.World.Room.LevelEditor
                 wallToPlace = null;
             }
             simpleLevel.Walls.Clear();
+            simpleLevel.Camera.Position = Vector2.Zero;
         }
 
         public void HardReset()
@@ -86,6 +92,7 @@ namespace Potato.World.Room.LevelEditor
         public void Update(GameTime gameTime)
         {
             MouseStateExtended mouseState = MouseExtended.GetState();
+            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Detect if wall-to-place identifier changes.
             if (wallToPlaceIdentifier != levelEditorMenu.WallToPlaceIdentifier)
@@ -110,8 +117,8 @@ namespace Potato.World.Room.LevelEditor
             if (wallToPlace != null)
             {
                 // Set the position of the block-to-place.
-                int blockX = mouseState.Position.X / blockWidth;
-                int blockY = mouseState.Position.Y / blockWidth;
+                int blockX = (mouseState.Position.X + (int)simpleLevel.Camera.Position.X) / blockWidth;
+                int blockY = (mouseState.Position.Y + (int)simpleLevel.Camera.Position.Y) / blockWidth;
                 wallToPlace.Position = new Vector2(
                     x: blockX * blockWidth,
                     y: blockY * blockWidth);
@@ -120,7 +127,8 @@ namespace Potato.World.Room.LevelEditor
                 if (mouseState.WasButtonJustDown(MouseButton.Left))
                 {
                     // Only place the wall-to-place if it doesn't intersect within the bounding rectangle of all placed walls.
-                    Rectangle mouseBounds = new Rectangle(location: mouseState.Position, size: new Point(x: 1, y: 1));
+                    Point mousePosition = simpleLevel.Camera.Position.ToPoint() + mouseState.Position;
+                    Rectangle mouseBounds = new Rectangle(location: mousePosition, size: new Point(x: 1, y: 1));
                     if (simpleLevel.Walls
                         .Select((x)=> new Rectangle(
                             location: x.Position.ToPoint(), 
@@ -133,10 +141,20 @@ namespace Potato.World.Room.LevelEditor
                 }
             }
 
+            if (mouseState.WasButtonJustDown(MouseButton.Right))
+            {
+                dragCameraStart = mouseState.Position.ToVector2();
+            }
+            if (mouseState.IsButtonDown(MouseButton.Right))
+            {
+                Vector2 moveVector = mouseState.Position.ToVector2() - dragCameraStart;
+                simpleLevel.Camera.Move(direction: moveVector * timeElapsed * dragCameraSpeed);
+            }
+
             // Save the level if the save menu is active, the level editor menu has the controller, 
             // the activate button is pressed, and the save string is greater than 0 length.
             if (levelEditorMenu.SaveMenuActive && levelEditorMenu.Controller != null &&
-                levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.SaveString.Length > 0)
+            levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.SaveString.Length > 0)
             {
                 SimpleLevelSave save = simpleLevel.Save();
                 Saver.Save(fileName: $"{levelEditorMenu.SaveString}.{saveExtension}", obj: save);
@@ -146,8 +164,14 @@ namespace Potato.World.Room.LevelEditor
             if (levelEditorMenu.LoadMenuActive && levelEditorMenu.Controller != null &&
                 levelEditorMenu.Controller.ActivatePressed() && levelEditorMenu.LoadString.Length > 0)
             {
-                SimpleLevelSave save = Saver.Load<SimpleLevelSave>($"{levelEditorMenu.LoadString}.{saveExtension}");
-                simpleLevel.Load(save);
+                try
+                {
+                    SimpleLevelSave save = Saver.Load<SimpleLevelSave>($"{levelEditorMenu.LoadString}.{saveExtension}");
+                    simpleLevel.Load(save);
+                }
+                catch (FileNotFoundException)
+                {
+                }
             }
 
             // Update the other objects.

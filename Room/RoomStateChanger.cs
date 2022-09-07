@@ -4,18 +4,21 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using MonoGame.Extended;
 
 namespace Potato.Room
 {
-    internal class RoomStateChanger : IRoom
+    internal class RoomStateChanger : IRoom, IMovable
     {
         private static Color fadeColor;
         private static Texture2D fadeTexture;
         private const float fadeAlphaChangeRate = 3.0f;
         private float fadeAlpha;
+        private Vector2 position;
         public IOpenable.OpenStates OpenState { get; private set; }
         public IController Controller { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        
+        public Vector2 Position { get => position; set => position = value; }
+
         static RoomStateChanger()
         {
             fadeColor = Potato.ColorTheme3;
@@ -45,7 +48,7 @@ namespace Potato.Room
         {
             SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
-            spriteBatch.Draw(texture: fadeTexture, position: Vector2.Zero, color: Color.White * fadeAlpha);
+            spriteBatch.Draw(texture: fadeTexture, position: position, color: Color.White * fadeAlpha);
             spriteBatch.End();
         }
 
@@ -76,6 +79,10 @@ namespace Potato.Room
             OpenState = IOpenable.OpenStates.Closed;
         }
 
-        public void HardReset() => SoftReset();
+        public void HardReset()
+        {
+            position = Vector2.Zero;
+            SoftReset();
+        }
     }
 }

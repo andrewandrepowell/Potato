@@ -13,6 +13,7 @@ namespace Potato
     internal interface ILevel : IRoom
     {
         ICollection<IWallable> Walls { get; set; }
+        OrthographicCamera Camera { get; set; }
     }
     internal interface IWallable : ICollidable, IDrawable
     {

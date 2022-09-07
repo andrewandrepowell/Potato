@@ -30,6 +30,7 @@ namespace Potato.World.Room.LevelEditor
         private string wallToPlaceIdentifier;
         private List<(SelectMenu, string)> wallToPlaceItems;
         private IController hideController;
+        public bool MenuHidden => hideController != null;
         public string WallToPlaceIdentifier => wallToPlaceIdentifier;
         public StringBuilder LoadString => loadTypingMenu.Text;
         public bool LoadMenuActive => loadContainerMenu.Controller != null;

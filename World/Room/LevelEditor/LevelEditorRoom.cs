@@ -94,69 +94,19 @@ namespace Potato.World.Room.LevelEditor
             MouseStateExtended mouseState = MouseExtended.GetState();
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Detect if wall-to-place identifier changes.
-            if (wallToPlaceIdentifier != levelEditorMenu.WallToPlaceIdentifier)
-            {
-                wallToPlaceIdentifier = levelEditorMenu.WallToPlaceIdentifier;
-
-                // If the identifier exists, set the wall-to-place to the new wall.
-                if (WallManager.Identifiers.Contains(wallToPlaceIdentifier))
-                {
-                    if (wallToPlace != null)
-                        wallToPlace.Dispose();
-                    wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
-                }
-                else
-                {
-                    wallToPlace.Dispose();
-                    wallToPlace = null;
-                }
-            }
-
-            // Set the position of the wall-to-place.
-            if (wallToPlace != null)
-            {  
-                int blockX = (mouseState.Position.X + (int)simpleLevel.Camera.Position.X) / blockWidth;
-                int blockY = (mouseState.Position.Y + (int)simpleLevel.Camera.Position.Y) / blockWidth;
-                wallToPlace.Position = new Vector2(
-                    x: blockX * blockWidth,
-                    y: blockY * blockWidth);
-            }
-
-            // Try to place the wall if the left mouse button is pressed.
-            if (wallToPlace != null && mouseState.WasButtonJustDown(MouseButton.Left))
-            {
-                // Only place the wall-to-place if it doesn't intersect within the bounding rectangle of all placed walls.
-                Point mousePosition = simpleLevel.Camera.Position.ToPoint() + mouseState.Position;
-                Rectangle mouseBounds = new Rectangle(location: mousePosition, size: new Point(x: 1, y: 1));
-                if (simpleLevel.Walls
-                    .Select((x)=> new Rectangle(
-                        location: x.Position.ToPoint(), 
-                        size: x.CollisionMask.Bounds.Size))
-                    .All((x)=> !x.Intersects(mouseBounds)))
-                {
-                    simpleLevel.Walls.Add(wallToPlace);
-
-                    // Replace wall-to-place with a new wall if one's available.
-                    // If not, make sure the wall-to-place isn't referring to the placed wall.
-                    if (wallToPlaceIdentifier.Length > 0)
-                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
-                    else
-                        wallToPlace = null;
-                }
-            }
-
-            // If the drop wall menu option is selected, dispose of the wall-to-place.
-            if (wallToPlace != null &&  levelEditorMenu.DropWallSelect.Selected)
-            {
-                wallToPlace.Dispose();
-                wallToPlace = null;
-            }
-            
-
-            // Perform operataions if there's NO wall-to-place.
+            // Operations if there's no wall-to-place. 
             if (wallToPlace == null)
             {
+                // Detect if wall-to-place identifier changes.
+                if (wallToPlaceIdentifier != levelEditorMenu.WallToPlaceIdentifier)
+                {
+                    wallToPlaceIdentifier = levelEditorMenu.WallToPlaceIdentifier;
+
+                    // If the identifier exists, set the wall-to-place to the new wall.
+                    if (WallManager.Identifiers.Contains(wallToPlaceIdentifier))
+                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                }
+
                 // Try to pick up a wall.
                 if (mouseState.WasButtonJustDown(MouseButton.Left))
                 {
@@ -177,10 +127,64 @@ namespace Potato.World.Room.LevelEditor
                             .First()
                             .Wall;
                         simpleLevel.Walls.Remove(wallToPlace);
-                    } 
+                    }
                     catch (InvalidOperationException)
                     {
                     }
+                }
+            }
+            // Operations if there's NO wall-to-place. 
+            else
+            {
+                // Detect if wall-to-place identifier changes.
+                if (wallToPlaceIdentifier != levelEditorMenu.WallToPlaceIdentifier)
+                {
+                    wallToPlaceIdentifier = levelEditorMenu.WallToPlaceIdentifier;
+
+                    // If the identifier exists, set the wall-to-place to the new wall.
+                    if (WallManager.Identifiers.Contains(wallToPlaceIdentifier))
+                    {
+                        wallToPlace.Dispose();
+                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                    }
+                }
+
+                // Set the position of the wall-to-place.
+                {
+                    int blockX = (mouseState.Position.X + (int)simpleLevel.Camera.Position.X) / blockWidth;
+                    int blockY = (mouseState.Position.Y + (int)simpleLevel.Camera.Position.Y) / blockWidth;
+                    wallToPlace.Position = new Vector2(
+                        x: blockX * blockWidth,
+                        y: blockY * blockWidth);
+                }
+
+                // Try to place the wall if the left mouse button is pressed.
+                if (mouseState.WasButtonJustDown(MouseButton.Left))
+                {
+                    // Only place the wall-to-place if it doesn't intersect within the bounding rectangle of all placed walls.
+                    Point mousePosition = simpleLevel.Camera.Position.ToPoint() + mouseState.Position;
+                    Rectangle mouseBounds = new Rectangle(location: mousePosition, size: new Point(x: 1, y: 1));
+                    if (simpleLevel.Walls
+                        .Select((x) => new Rectangle(
+                            location: x.Position.ToPoint(),
+                            size: x.CollisionMask.Bounds.Size))
+                        .All((x) => !x.Intersects(mouseBounds)))
+                    {
+                        simpleLevel.Walls.Add(wallToPlace);
+
+                        // Replace wall-to-place with a new wall if one's available.
+                        // If not, make sure the wall-to-place isn't referring to the placed wall.
+                        if (wallToPlaceIdentifier.Length > 0)
+                            wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                        else
+                            wallToPlace = null;
+                    }
+                }
+                // If the drop wall menu option is selected, dispose of the wall-to-place.
+                else if (levelEditorMenu.DropWallSelect.Selected)
+                {
+                    wallToPlace.Dispose();
+                    wallToPlace = null;
                 }
             }
 

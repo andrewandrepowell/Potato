@@ -15,10 +15,16 @@ namespace Potato.Room.Wall
         static WallManager()
         {
             identifierToSimpleWallMap = new Dictionary<string, (string, string)>();
-            identifierToSimpleWallMap.Add("test1", ("test1", "test1"));
-            identifierToSimpleWallMap.Add("test2", ("test2", "test2"));
-            identifierToSimpleWallMap.Add("test3", ("test3", "test3"));
-            identifierToSimpleWallMap.Add("test4", ("test4", "test4"));
+            identifierToSimpleWallMap.Add("mask_block_bottom", ("walls/mask_block_bottom", "walls/mask_block_bottom"));
+            identifierToSimpleWallMap.Add("mask_block_left", ("walls/mask_block_left", "walls/mask_block_left"));
+            identifierToSimpleWallMap.Add("mask_block_right", ("walls/mask_block_right", "walls/mask_block_right"));
+            identifierToSimpleWallMap.Add("mask_block_top", ("walls/mask_block_top", "walls/mask_block_top"));
+            identifierToSimpleWallMap.Add("mask_ramp_top_left_0", ("walls/mask_ramp_top_left_0", "walls/mask_ramp_top_left_0"));
+            identifierToSimpleWallMap.Add("mask_ramp_top_left_1", ("walls/mask_ramp_top_left_1", "walls/mask_ramp_top_left_1"));
+            identifierToSimpleWallMap.Add("mask_ramp_top_left_2", ("walls/mask_ramp_top_left_2", "walls/mask_ramp_top_left_2"));
+            identifierToSimpleWallMap.Add("mask_ramp_top_right_0", ("walls/mask_ramp_top_right_0", "walls/mask_ramp_top_right_0"));
+            identifierToSimpleWallMap.Add("mask_ramp_top_right_1", ("walls/mask_ramp_top_right_1", "walls/mask_ramp_top_right_1"));
+            identifierToSimpleWallMap.Add("mask_ramp_top_right_2", ("walls/mask_ramp_top_right_2", "walls/mask_ramp_top_right_2"));
         }
         public static IWallable GetWall(string identifier)
         {

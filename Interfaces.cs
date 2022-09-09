@@ -6,6 +6,14 @@ using System.Collections.Generic;
 
 namespace Potato
 {
+    internal interface IProjectile : IPhysical, IComponent
+    {
+        ICharacterizable Character { get; set; }
+    }
+    internal interface ICharacterizable : IPhysical, IComponent
+    {
+        IList<IProjectile> Projectiles { get; set; }
+    }
     internal interface IIdentifiable
     {
         string Identifier { get; set; }
@@ -13,6 +21,7 @@ namespace Potato
     internal interface ILevel : IRoom
     {
         ICollection<IWallable> Walls { get; set; }
+        ICollection<ICharacterizable> Characters { get; set; }
         OrthographicCamera Camera { get; set; }
     }
     internal interface IWallable : ICollidable, IDrawable
@@ -30,6 +39,7 @@ namespace Potato
         Vector2 Acceleration { get; set; }
         Vector2 Force { get; set; }
         Vector2 Gravity { get; set; }
+        Vector2 Orientation { get; set; }
     }
     internal interface IOpenable
     {

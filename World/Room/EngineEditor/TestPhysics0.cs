@@ -29,6 +29,7 @@ namespace Potato.World.Room.EngineEditor
             public Vector2 Position { get => physicsChanger.Position; set => physicsChanger.Position = value; }
             public bool Destroyed => destroyed;
             public float Mass { get => physicsChanger.Mass; set => physicsChanger.Mass = value; }
+            public Vector2 Orientation { get => physicsChanger.Orientation; set => physicsChanger.Orientation = value; }
             public Vector2 Velocity { get => physicsChanger.Velocity; set => physicsChanger.Velocity = value; }
             public Vector2 Acceleration { get => physicsChanger.Acceleration; set => physicsChanger.Acceleration = value; }
             public Vector2 Force { get => physicsChanger.Force; set => physicsChanger.Force = value; }

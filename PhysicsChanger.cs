@@ -39,6 +39,7 @@ namespace Potato
         public float Mass { get => mass; set => mass = value; }
         public float Friction { get => friction; set => friction = value; }
         public float Bounce { get => bounce; set => bounce = value; }
+        public Vector2 Orientation { get => orientation; set => new NotImplementedException(); }
         public Vector2 Velocity { get => velocity; set => velocity = value; }
         public Vector2 Acceleration 
         { 

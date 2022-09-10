@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Collections;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Potato.Character
 {
     internal class Player : ICharacterizable, IControllable, IIdentifiable
     {
-        private List<IProjectile> projectiles;
+        private Bag<IProjectile> projectiles;
         private PhysicsChanger physicsChanger;
         private Texture2D collisionMask;
         private List<Vector2> collisionVertices;
@@ -18,7 +19,7 @@ namespace Potato.Character
         private bool destroyed;
         private bool softPaused;
         private bool hardPaused;
-        public IList<IProjectile> Projectiles { get => projectiles; set => throw new NotImplementedException(); }
+        public Bag<IProjectile> Projectiles { get => projectiles; set => throw new NotImplementedException(); }
         public float Mass { get => physicsChanger.Mass; set => physicsChanger.Mass = value; }
         public float MaxSpeed { get => physicsChanger.MaxSpeed; set => physicsChanger.MaxSpeed = value; }
         public float Friction { get => physicsChanger.Friction; set => physicsChanger.Friction = value; }
@@ -36,7 +37,7 @@ namespace Potato.Character
 
         public Player()
         {
-            projectiles = new List<IProjectile>();
+            projectiles = new Bag<IProjectile>();
             physicsChanger = new PhysicsChanger();
             collisionMask = Potato.Game.Content.Load<Texture2D>("characters/mask_player");
             collisionVertices = new List<Vector2>();
@@ -63,29 +64,25 @@ namespace Potato.Character
             destroyed = true;
             foreach (IDestroyable destroyable in projectiles)
                 destroyable.Dispose();
+            projectiles.Clear();
             physicsChanger.Dispose();
         }
 
         public void Draw(Matrix? transformMatrix = null)
         {
 
-            foreach (IDrawable drawable in projectiles)
-                drawable.Draw(transformMatrix: transformMatrix);
+
         }
 
         public void HardPause()
         {
             hardPaused = true;
-            foreach (IPausible pausible in projectiles)
-                pausible.HardPause();
             physicsChanger.HardPause();
         }
 
         public void HardResume()
         {
             hardPaused = false;
-            foreach (IPausible pausible in projectiles)
-                pausible.HardResume();
             physicsChanger.HardResume();
         }
 
@@ -100,23 +97,17 @@ namespace Potato.Character
         public void SoftPause()
         {
             softPaused = true;
-            foreach (IPausible pausible in projectiles)
-                pausible.SoftPause();
             physicsChanger.SoftPause();
         }
 
         public void SoftResume()
         {
             softPaused = false;
-            foreach (IPausible pausible in projectiles)
-                pausible.SoftResume();
             physicsChanger.SoftResume();
         }
 
         public void Update(GameTime gameTime)
         {
-            foreach (IUpdateable updateable in projectiles)
-                updateable.Update(gameTime: gameTime);
             physicsChanger.Update(gameTime: gameTime);
         }
     }

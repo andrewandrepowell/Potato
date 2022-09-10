@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.Collections;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace Potato
     }
     internal interface ICharacterizable : IPhysical, IComponent
     {
-        IList<IProjectile> Projectiles { get; set; }
+        Bag<IProjectile> Projectiles { get; set; }
     }
     internal interface IIdentifiable
     {

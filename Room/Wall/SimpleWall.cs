@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +23,7 @@ namespace Potato.Room.Wall
         public bool Collidable { get => collidable; set => collidable = value; }
         public Texture2D CollisionMask { get => collisionMask; set => throw new NotImplementedException(); }
         public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
+        public Size2 Size { get => collisionMask.Bounds.Size; set => throw new NotImplementedException(); }
         public Vector2 Position { get => position; set => position = value; }
         public bool Destroyed => destroyed;
         public string Identifier { get => identifier; set => throw new NotImplementedException(); }

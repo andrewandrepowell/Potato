@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-
+using Potato.Character;
 
 namespace Potato.World.Room.LevelEditor
 {
@@ -20,8 +20,8 @@ namespace Potato.World.Room.LevelEditor
         private RoomStateChanger roomStateChanger;
         private LevelEditorMenu levelEditorMenu;
         private SimpleLevel simpleLevel;
-        private IWallable wallToPlace;
-        private string wallToPlaceIdentifier;
+        private IElement elementToPlace;
+        private string elementToPlaceIdentifier;
         private Vector2 dragCameraStart;
         public IController Controller { get => levelEditorMenu.Controller; set => levelEditorMenu.Controller = value; }
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
@@ -30,8 +30,8 @@ namespace Potato.World.Room.LevelEditor
         public LevelEditorRoom()
         {
             dragCameraStart = Vector2.Zero;
-            wallToPlaceIdentifier = "";
-            wallToPlace = null;
+            elementToPlaceIdentifier = "";
+            elementToPlace = null;
             simpleLevel = new SimpleLevel();
             roomStateChanger = new RoomStateChanger();
             levelEditorMenu = new LevelEditorMenu();
@@ -47,8 +47,8 @@ namespace Potato.World.Room.LevelEditor
         public void Draw(Matrix? transformMatrix = null)
         {
             transformMatrix = simpleLevel.Camera.GetViewMatrix();
-            if (wallToPlace != null)
-                wallToPlace.Draw(transformMatrix: transformMatrix);
+            if (elementToPlace != null && elementToPlace is IDrawable drawable)
+                drawable.Draw(transformMatrix: transformMatrix);
             simpleLevel.Draw(transformMatrix: transformMatrix);
             levelEditorMenu.Draw(transformMatrix: null);
             roomStateChanger.Draw(transformMatrix: null);
@@ -56,13 +56,14 @@ namespace Potato.World.Room.LevelEditor
 
         private void Reset()
         {
-            wallToPlaceIdentifier = "";
-            if (wallToPlace != null)
+            elementToPlaceIdentifier = "";
+            if (elementToPlace != null)
             {
-                wallToPlace.Dispose();
-                wallToPlace = null;
+                if (elementToPlace is IDestroyable destroyable)
+                    destroyable.Dispose();
+                elementToPlace = null;
             }
-            simpleLevel.Walls.Clear();
+            simpleLevel.Elements.Clear();
             simpleLevel.Camera.Position = Vector2.Zero;
         }
 
@@ -94,97 +95,106 @@ namespace Potato.World.Room.LevelEditor
             MouseStateExtended mouseState = MouseExtended.GetState();
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Operations if there's no wall-to-place. 
-            if (wallToPlace == null)
+            // Operations if there's no element-to-place. 
+            if (elementToPlace == null)
             {
-                // Detect if wall-to-place identifier changes.
-                if (wallToPlaceIdentifier != levelEditorMenu.WallToPlaceIdentifier)
+                // Detect if element-to-place identifier changes.
+                if (elementToPlaceIdentifier != levelEditorMenu.ElementToPlaceIdentifier)
                 {
-                    wallToPlaceIdentifier = levelEditorMenu.WallToPlaceIdentifier;
+                    elementToPlaceIdentifier = levelEditorMenu.ElementToPlaceIdentifier;
 
-                    // If the identifier exists, set the wall-to-place to the new wall.
-                    if (WallManager.Identifiers.Contains(wallToPlaceIdentifier))
-                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                    // If the identifier exists, set the element-to-place to the new element.
+                    if (WallManager.Identifiers.Contains(elementToPlaceIdentifier))
+                        elementToPlace = WallManager.GetWall(elementToPlaceIdentifier);
+                    else if (CharacterManager.Identifiers.Contains(elementToPlaceIdentifier))
+                        elementToPlace = CharacterManager.GetCharacter(elementToPlaceIdentifier);
+                    else throw new ArgumentException($"{elementToPlaceIdentifier} not a supported identifier.");
                 }
 
-                // Try to pick up a wall.
+                // Try to pick up an element.
                 if (mouseState.WasButtonJustDown(MouseButton.Left))
                 {
                     Point mousePosition = simpleLevel.Camera.Position.ToPoint() + mouseState.Position;
                     Rectangle mouseBounds = new Rectangle(location: mousePosition, size: new Point(x: 1, y: 1));
                     try
                     {
-                        wallToPlace = simpleLevel.Walls
+                        elementToPlace = simpleLevel.Elements
                             .Select((x) =>
                             new
                             {
                                 Bounds = new Rectangle(
                                     location: x.Position.ToPoint(),
-                                    size: x.CollisionMask.Bounds.Size),
+                                    size: (Point)x.Size),
                                 Wall = x
                             })
                             .Where((x) => x.Bounds.Intersects(mouseBounds))
                             .First()
                             .Wall;
-                        simpleLevel.Walls.Remove(wallToPlace);
+                        simpleLevel.Elements.Remove(elementToPlace);
                     }
                     catch (InvalidOperationException)
                     {
                     }
                 }
             }
-            // Operations if there's NO wall-to-place. 
+            // Operations if there's NO element-to-place. 
             else
             {
-                // Detect if wall-to-place identifier changes.
-                if (wallToPlaceIdentifier != levelEditorMenu.WallToPlaceIdentifier)
+                // Detect if element-to-place identifier changes.
+                if (elementToPlaceIdentifier != levelEditorMenu.ElementToPlaceIdentifier)
                 {
-                    wallToPlaceIdentifier = levelEditorMenu.WallToPlaceIdentifier;
+                    elementToPlaceIdentifier = levelEditorMenu.ElementToPlaceIdentifier;
 
-                    // If the identifier exists, set the wall-to-place to the new wall.
-                    if (WallManager.Identifiers.Contains(wallToPlaceIdentifier))
+                    // If the identifier exists, set the element-to-place to the new wall.
+                    if (WallManager.Identifiers.Contains(elementToPlaceIdentifier))
                     {
-                        wallToPlace.Dispose();
-                        wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                        if (elementToPlace is IDestroyable destroyable)
+                            destroyable.Dispose();
+                        if (WallManager.Identifiers.Contains(elementToPlaceIdentifier))
+                            elementToPlace = WallManager.GetWall(elementToPlaceIdentifier);
+                        else if (CharacterManager.Identifiers.Contains(elementToPlaceIdentifier))
+                            elementToPlace = CharacterManager.GetCharacter(elementToPlaceIdentifier);
+                        else throw new ArgumentException($"{elementToPlaceIdentifier} not a supported identifier.");
                     }
                 }
 
-                // Set the position of the wall-to-place.
+                // Set the position of the element-to-place.
                 {
                     int blockX = (mouseState.Position.X + (int)simpleLevel.Camera.Position.X) / blockWidth;
                     int blockY = (mouseState.Position.Y + (int)simpleLevel.Camera.Position.Y) / blockWidth;
-                    wallToPlace.Position = new Vector2(
+                    elementToPlace.Position = new Vector2(
                         x: blockX * blockWidth,
                         y: blockY * blockWidth);
                 }
 
-                // Try to place the wall if the left mouse button is pressed.
+                // Try to place the element if the left mouse button is pressed.
                 if (mouseState.WasButtonJustDown(MouseButton.Left))
                 {
-                    // Only place the wall-to-place if it doesn't intersect within the bounding rectangle of all placed walls.
+                    // Only place the element-to-place if it doesn't intersect within the bounding rectangle of all placed elements.
                     Point mousePosition = simpleLevel.Camera.Position.ToPoint() + mouseState.Position;
                     Rectangle mouseBounds = new Rectangle(location: mousePosition, size: new Point(x: 1, y: 1));
-                    if (simpleLevel.Walls
+                    if (simpleLevel.Elements
                         .Select((x) => new Rectangle(
                             location: x.Position.ToPoint(),
-                            size: x.CollisionMask.Bounds.Size))
+                            size: (Point)x.Size))
                         .All((x) => !x.Intersects(mouseBounds)))
                     {
-                        simpleLevel.Walls.Add(wallToPlace);
+                        simpleLevel.Elements.Add(elementToPlace);
 
-                        // Replace wall-to-place with a new wall if one's available.
-                        // If not, make sure the wall-to-place isn't referring to the placed wall.
-                        if (wallToPlaceIdentifier.Length > 0)
-                            wallToPlace = WallManager.GetWall(identifier: wallToPlaceIdentifier);
+                        // Replace element-to-place with a new element if one's available.
+                        // If not, make sure the element-to-place isn't referring to the placed wall.
+                        if (elementToPlaceIdentifier.Length > 0)
+                            elementToPlace = WallManager.GetWall(identifier: elementToPlaceIdentifier);
                         else
-                            wallToPlace = null;
+                            elementToPlace = null;
                     }
                 }
-                // If the drop wall menu option is selected, dispose of the wall-to-place.
+                // If the drop element menu option is selected, dispose of the element-to-place.
                 else if (levelEditorMenu.DropWallSelect.Selected)
                 {
-                    wallToPlace.Dispose();
-                    wallToPlace = null;
+                    if (elementToPlace is IDestroyable destroyable)
+                        destroyable.Dispose();
+                    elementToPlace = null;
                 }
             }
 

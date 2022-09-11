@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -85,6 +86,7 @@ namespace Potato
         public bool Collidable { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Texture2D CollisionMask { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public IList<Vector2> CollisionVertices { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Size2 Size { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Vector2 Position { get => position; set => position = value; }
         public bool Destroyed => destroyed;
         public bool SoftPaused => false;

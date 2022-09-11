@@ -15,12 +15,7 @@ namespace Potato.Room
             public float X { get; set; }
             public float Y { get; set; }
         }
-        public struct WallNode
-        {
-            public string Identifier { get; set; }
-            public VectorNode Position { get; set; }
-        }
-        public struct CharacterNode
+        public struct ElementNode
         {
             public string Identifier { get; set; }
             public VectorNode Position { get; set; }
@@ -29,18 +24,15 @@ namespace Potato.Room
         {
             public VectorNode Position { get; set; }
         }
-        public List<WallNode> Walls { get; set; }
-        public List<CharacterNode> Characters { get; set; }
+        public List<ElementNode> Elements { get; set; }
         public CameraNode Camera { get; set; }
     }
     internal class SimpleLevel : ILevel, ISavable<SimpleLevelSave>
     {
         private OrthographicCamera camera;
         private RoomStateChanger roomStateChanger;
-        private List<IWallable> walls;
-        private List<ICharacterizable> characters;
-        public ICollection<IWallable> Walls { get => walls; set => throw new NotImplementedException(); }
-        public ICollection<ICharacterizable> Characters { get => characters; set => throw new NotImplementedException(); }
+        private List<IElement> elements;
+        public ICollection<IElement> Elements { get => elements; set => throw new NotImplementedException(); }
         public IController Controller { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
 
@@ -50,8 +42,7 @@ namespace Potato.Room
         {
             camera = new OrthographicCamera(graphicsDevice: Potato.Game.GraphicsDevice);
             roomStateChanger = new RoomStateChanger();
-            walls = new List<IWallable>();
-            characters = new List<ICharacterizable>();
+            elements = new List<IElement>();
         }
 
         public void Close()
@@ -61,16 +52,14 @@ namespace Potato.Room
 
         public void Draw(Matrix? transformMatrix = null)
         {
-            foreach (IDrawable drawable in walls)
-                drawable.Draw(transformMatrix: transformMatrix);
-            foreach (IDrawable drawable in characters)
+            foreach (IDrawable drawable in elements.OfType<IDrawable>())
                 drawable.Draw(transformMatrix: transformMatrix);
             roomStateChanger.Draw(transformMatrix: null);
         }
 
         public void HardReset()
         {
-            foreach (IResetable resetable in characters)
+            foreach (IResetable resetable in elements.OfType<IResetable>())
                 resetable.HardReset();
             roomStateChanger.HardReset();
         }
@@ -82,14 +71,14 @@ namespace Potato.Room
 
         public void SoftReset()
         {
-            foreach (IResetable resetable in characters)
+            foreach (IResetable resetable in elements.OfType<IResetable>())
                 resetable.SoftReset();
             roomStateChanger.SoftReset();
         }
 
         public void Update(GameTime gameTime)
         {
-            foreach (IUpdateable updateable in characters)
+            foreach (IUpdateable updateable in elements.OfType<IUpdateable>())
                 updateable.Update(gameTime: gameTime);
             roomStateChanger.Update(gameTime: gameTime);
         }
@@ -97,10 +86,10 @@ namespace Potato.Room
         public SimpleLevelSave Save()
         {
             SimpleLevelSave save = new SimpleLevelSave();
-            save.Walls = walls
+            save.Elements = elements
                 .Select((x) => (x, x.Position))
                 .Where((x) => x.x is IIdentifiable)
-                .Select((x) => new SimpleLevelSave.WallNode() 
+                .Select((x) => new SimpleLevelSave.ElementNode() 
                 { 
                     Identifier = ((IIdentifiable)x.x).Identifier, 
                     Position = new SimpleLevelSave.VectorNode
@@ -110,19 +99,6 @@ namespace Potato.Room
                     } 
                 } )
                 .ToList();
-            save.Characters = characters
-                 .Select((x) => (x, x.Position))
-                 .Where((x) => x.x is IIdentifiable)
-                 .Select((x) => new SimpleLevelSave.CharacterNode()
-                 {
-                     Identifier = ((IIdentifiable)x.x).Identifier,
-                     Position = new SimpleLevelSave.VectorNode
-                     {
-                         X = x.Position.X,
-                         Y = x.Position.Y
-                     }
-                 })
-                 .ToList();
             save.Camera = new SimpleLevelSave.CameraNode
             {
                 Position = new SimpleLevelSave.VectorNode
@@ -136,17 +112,16 @@ namespace Potato.Room
 
         public void Load(SimpleLevelSave save)
         {
-            foreach (SimpleLevelSave.WallNode wallNode in save.Walls)
+            foreach (SimpleLevelSave.ElementNode elementNode in save.Elements)
             {
-                IWallable wall = WallManager.GetWall(identifier: wallNode.Identifier);
-                wall.Position = new Vector2(x: wallNode.Position.X, y: wallNode.Position.Y);
-                walls.Add(wall);
-            }
-            foreach (SimpleLevelSave.CharacterNode characterNode in save.Characters)
-            {
-                ICharacterizable character = CharacterManager.GetCharacter(identifier: characterNode.Identifier);
-                character.Position = new Vector2(x: characterNode.Position.X, y: characterNode.Position.Y);
-                characters.Add(character);
+                IElement element;
+                if (WallManager.Identifiers.Contains(elementNode.Identifier))
+                    element = WallManager.GetWall(identifier: elementNode.Identifier);
+                else if (CharacterManager.Identifiers.Contains(elementNode.Identifier))
+                    element = CharacterManager.GetCharacter(elementNode.Identifier);
+                else throw new ArgumentException($"{elementNode.Identifier} not a supported identifier.");
+                element.Position = new Vector2(x: element.Position.X, y: element.Position.Y);
+                elements.Add(element);
             }
             camera.Position = new Vector2(x: save.Camera.Position.X, y: save.Camera.Position.Y);
         }

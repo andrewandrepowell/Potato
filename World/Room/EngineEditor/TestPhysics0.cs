@@ -27,6 +27,7 @@ namespace Potato.World.Room.EngineEditor
             public Texture2D CollisionMask { get => texture; set => throw new NotImplementedException(); }
             public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
             public Vector2 Position { get => physicsChanger.Position; set => physicsChanger.Position = value; }
+            public Size2 Size { get => texture.Bounds.Size; set => throw new NotImplementedException(); }
             public bool Destroyed => destroyed;
             public float Mass { get => physicsChanger.Mass; set => physicsChanger.Mass = value; }
             public Vector2 Orientation { get => physicsChanger.Orientation; set => physicsChanger.Orientation = value; }

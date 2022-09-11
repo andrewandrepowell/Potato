@@ -21,8 +21,7 @@ namespace Potato
     }
     internal interface ILevel : IRoom
     {
-        ICollection<IWallable> Walls { get; set; }
-        ICollection<ICharacterizable> Characters { get; set; }
+        ICollection<IElement> Elements { get; set; }
         OrthographicCamera Camera { get; set; }
     }
     internal interface IWallable : ICollidable, IDrawable
@@ -49,7 +48,7 @@ namespace Potato
         void Open();
         void Close();
     }
-    internal interface ICollidable : IMovable, IDestroyable
+    internal interface ICollidable : IElement, IDestroyable
     {
         struct Info
         {
@@ -75,16 +74,20 @@ namespace Potato
     {
     }
     internal enum Alignment { Center, Left, Right };
-    internal interface IMenu : IComponent, IControllable, IMovable, ISizable, IResetable, IOpenable
+    internal interface IMenu : IComponent, IControllable, IElement, IResetable, IOpenable
+    {
+    }
+    internal interface IElement : IMovable, ISizable
+    {
+
+    }
+    internal interface IComponent : IDrawable, IUpdateable
     {
     }
     internal interface ISelectable
     {
         bool Selected { get; }
         void Select();
-    }
-    internal interface IComponent : IDrawable, IUpdateable
-    {
     }
     internal interface IDrawable
     {

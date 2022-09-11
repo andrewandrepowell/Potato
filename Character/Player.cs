@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.Collections;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace Potato.Character
         public bool Collidable { get => collidable; set => collidable = value; }
         public Texture2D CollisionMask { get => collisionMask; set => throw new NotImplementedException(); }
         public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
+        public Size2 Size { get => collisionMask.Bounds.Size; set => throw new NotImplementedException(); }
         public Vector2 Position { get => physicsChanger.Position; set => physicsChanger.Position = value; }
 
         public Player()

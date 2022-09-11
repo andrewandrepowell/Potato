@@ -26,6 +26,7 @@ namespace Potato.World.Room.EngineEditor
             public Texture2D CollisionMask { get => texture; set => throw new NotImplementedException(); }
             public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
             public Vector2 Position { get => position; set => position = value; }
+            public Size2 Size { get => texture.Bounds.Size; set => throw new NotImplementedException(); }
             public bool Destroyed => destroyed;
 
             public TestObject(string name, Texture2D texture, bool performCorrection=false)

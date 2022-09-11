@@ -19,10 +19,11 @@ namespace Potato
     {
         string Identifier { get; set; }
     }
-    internal interface ILevel : IRoom
+    internal interface ILevel : IRoom, IPausible
     {
         ICollection<IElement> Elements { get; set; }
         OrthographicCamera Camera { get; set; }
+        CollisionManager Collision { get; set; }
     }
     internal interface IWallable : ICollidable, IDrawable
     {

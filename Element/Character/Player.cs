@@ -76,7 +76,9 @@ namespace Potato.Element.Character
             spriteBatch.Begin(transformMatrix: transformMatrix);
             spriteBatch.Draw(
                 texture: collisionMask, 
-                position: physicsChanger.Position, 
+                position: physicsChanger.Position
+                    .ToPoint()
+                    .ToVector2(), 
                 color: Color.White);
             spriteBatch.End();
         }

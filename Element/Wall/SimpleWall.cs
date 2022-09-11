@@ -31,7 +31,7 @@ namespace Potato.Element.Wall
         public SimpleWall(Texture2D collisionMask, Texture2D displayTexture, string identifier)
         {
             destroyed = false;
-            collidable = false;
+            collidable = true;
             this.collisionMask = collisionMask;
             this.displayTexture = displayTexture;
             this.identifier = identifier;

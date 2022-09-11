@@ -32,18 +32,26 @@ namespace Potato.Room
     {
         private OrthographicCamera camera;
         private RoomStateChanger roomStateChanger;
+        private CollisionManager collisionManager;
         private List<IElement> elements;
+        private bool softPaused;
+        private bool hardPaused;
         public ICollection<IElement> Elements { get => elements; set => throw new NotImplementedException(); }
         public IController Controller { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public IOpenable.OpenStates OpenState => roomStateChanger.OpenState;
-
         public OrthographicCamera Camera { get => camera; set => throw new NotImplementedException(); }
+        public CollisionManager Collision { get => collisionManager; set => throw new NotImplementedException(); }
+        public bool SoftPaused => softPaused;
+        public bool HardPaused => hardPaused;
 
         public SimpleLevel()
         {
             camera = new OrthographicCamera(graphicsDevice: Potato.Game.GraphicsDevice);
             roomStateChanger = new RoomStateChanger();
+            collisionManager = new CollisionManager();
             elements = new List<IElement>();
+            softPaused = false;
+            hardPaused = false;
         }
 
         public void Close()
@@ -79,9 +87,20 @@ namespace Potato.Room
 
         public void Update(GameTime gameTime)
         {
+            // Remove any destroyed elements from the element list.
+            // This might get changed such that list is updated on a timer basis.
+            elements
+                .OfType<IDestroyable>()
+                .Where((x) => x.Destroyed)
+                .ToList().ForEach((x) => elements.Remove((IElement)x));
+
+            // For each updateable element, update the element.
             foreach (IUpdateable updateable in elements.OfType<IUpdateable>())
                 updateable.Update(gameTime: gameTime);
+
+            // Update the other updateables related to the level.
             roomStateChanger.Update(gameTime: gameTime);
+            collisionManager.Update(gameTime: gameTime);
         }
 
         public SimpleLevelSave Save()
@@ -116,10 +135,46 @@ namespace Potato.Room
             foreach (SimpleLevelSave.ElementNode elementNode in save.Elements)
             {
                 IElement element = ElementManager.GetElement(elementNode.Identifier);
-                element.Position = new Vector2(x: element.Position.X, y: element.Position.Y);
+                element.Position = new Vector2(x: elementNode.Position.X, y: elementNode.Position.Y);
                 elements.Add(element);
             }
             camera.Position = new Vector2(x: save.Camera.Position.X, y: save.Camera.Position.Y);
+        }
+
+        public void SoftPause()
+        {
+            if (softPaused)
+                return;
+            softPaused = true;
+            foreach (IPausible pausible in elements.OfType<IPausible>())
+                pausible.SoftPause();
+        }
+
+        public void SoftResume()
+        {
+            if (!softPaused)
+                return;
+            softPaused = false;
+            foreach (IPausible pausible in elements.OfType<IPausible>())
+                pausible.SoftResume();
+        }
+
+        public void HardPause()
+        {
+            if (hardPaused)
+                return;
+            hardPaused = true;
+            foreach (IPausible pausible in elements.OfType<IPausible>())
+                pausible.HardPause();
+        }
+
+        public void HardResume()
+        {
+            if (!hardPaused)
+                return;
+            hardPaused = false;
+            foreach (IPausible pausible in elements.OfType<IPausible>())
+                pausible.HardResume();
         }
     }
 }

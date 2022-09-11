@@ -55,8 +55,8 @@ namespace Potato
             normal0 = Vector2.Zero;
             normal1 = Vector2.Zero;
 
-            // If one of the collidables are not collidable, then there is no collision.
-            if (!collidable0.Collidable || !collidable1.Collidable)
+            // If both of the collidables are not collidable, then there is no collision.
+            if (!collidable0.Collidable && !collidable1.Collidable)
                 return false;
 
             // Determine the bounding rectangles for this physics and the other physics.
@@ -248,13 +248,6 @@ namespace Potato
                     pointX1 = colMax + intersection0.X + collidable0.Position.X;
                 }
             }
-
-
-#if DEBUG
-            Console.WriteLine($"Overlap Width: {overlapWidth}. Overlap Height: {overlapHeight}");
-            Console.WriteLine($"topSum1: {topSum1}. bottomSum1: {bottomSum1}. leftSum1: {leftSum1}. rightSum1: {rightSum1}");
-            Console.WriteLine($"topSum0: {topSum0}. bottomSum0: {bottomSum0}. leftSum0: {leftSum0}. rightSum0: {rightSum0}");
-#endif
 
             correction0 = new Vector2(
                 x: correctionOffsetX0,

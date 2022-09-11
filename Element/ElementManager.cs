@@ -13,7 +13,7 @@ namespace Potato.Element
 
         static ElementManager()
         {
-            List<string> identifiers = new List<string>();
+            identifiers = new List<string>();
             identifiers.AddRange(CharacterManager.Identifiers);
             identifiers.AddRange(WallManager.Identifiers);
         }

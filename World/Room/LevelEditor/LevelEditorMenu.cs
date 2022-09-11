@@ -6,8 +6,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-using Potato.Room.Wall;
-using Potato.Character;
+using Potato.Element.Wall;
+using Potato.Element.Character;
 
 namespace Potato.World.Room.LevelEditor
 {
@@ -31,12 +31,12 @@ namespace Potato.World.Room.LevelEditor
         private SelectMenu placeElementSelectMenu;
         private SelectMenu placeWallSelectMenu;
         private SelectMenu placeCharacterSelectMenu;
-        private SelectMenu dropWallSelectMenu;
+        private SelectMenu dropElementSelectMenu;
         private SelectMenu hideSelectMenu;
         private string elementToPlaceIdentifier;
         private List<(SelectMenu, string, string)> elementToPlaceItems;
         private IController hideController;
-        public ISelectable DropWallSelect => dropWallSelectMenu;
+        public ISelectable DropElementSelect => dropElementSelectMenu;
         public string ElementToPlaceIdentifier => elementToPlaceIdentifier;
         public StringBuilder LoadString => loadTypingMenu.Text;
         public bool LoadMenuActive => loadContainerMenu.Controller != null;
@@ -70,7 +70,7 @@ namespace Potato.World.Room.LevelEditor
             placeElementSelectMenu = new SelectMenu(text: "Place Element", align: Alignment.Center, width: innerWidth);
             placeWallSelectMenu = new SelectMenu(text: "Place Wall", align: Alignment.Center, width: innerWidth);
             placeCharacterSelectMenu = new SelectMenu(text: "Place Character", align: Alignment.Center, width: innerWidth);
-            dropWallSelectMenu = new SelectMenu(text: "Drop Wall", align: Alignment.Center, width: innerWidth);
+            dropElementSelectMenu = new SelectMenu(text: "Drop Element", align: Alignment.Center, width: innerWidth);
             hideSelectMenu = new SelectMenu(text: "Hide Menu", align: Alignment.Center, width: innerWidth);
 
             mainContainerMenu = new ContainerMenu(
@@ -80,7 +80,7 @@ namespace Potato.World.Room.LevelEditor
                     loadSelectMenu,
                     saveSelectMenu,
                     placeElementSelectMenu,
-                    dropWallSelectMenu,
+                    dropElementSelectMenu,
                     hideSelectMenu
                 },
                 align: Alignment.Center);
@@ -147,9 +147,12 @@ namespace Potato.World.Room.LevelEditor
             TransitionMenu.Node placeElementNode = new TransitionMenu.Node(
                 selectable: placeElementSelectMenu,
                 menu: placeElementContainerMenu);
-            TransitionMenu.Node placeWallContainerNode = new TransitionMenu.Node(
+            TransitionMenu.Node placeWallNode = new TransitionMenu.Node(
                 selectable: placeWallSelectMenu,
                 menu: placeWallContainerMenu);
+            TransitionMenu.Node placeCharacterNode = new TransitionMenu.Node(
+                selectable: placeCharacterSelectMenu,
+                menu: placeCharacterContainerMenu);
             TransitionMenu.Node loadContainerNode = new TransitionMenu.Node(
                 selectable: loadSelectMenu,
                 menu: loadContainerMenu);
@@ -160,7 +163,8 @@ namespace Potato.World.Room.LevelEditor
             mainContainerNode.Nodes.Add(placeElementNode);
             mainContainerNode.Nodes.Add(loadContainerNode);
             mainContainerNode.Nodes.Add(saveContainerNode);
-            placeElementNode.Nodes.Add(placeWallContainerNode);
+            placeElementNode.Nodes.Add(placeWallNode);
+            placeElementNode.Nodes.Add(placeCharacterNode);
 
             transitionMenu = new TransitionMenu(
                 nodes: mainContainerNode.Nodes,
@@ -198,6 +202,10 @@ namespace Potato.World.Room.LevelEditor
 
             // If in the place wall menu, user can go back if the back button is pressed.
             if (placeWallContainerMenu.Controller != null && placeWallContainerMenu.Controller.BackPressed())
+                transitionMenu.GoPreviousMenu();
+
+            // If in the place character menu, user can go back if the back button is pressed.
+            if (placeCharacterContainerMenu.Controller != null && placeCharacterContainerMenu.Controller.BackPressed())
                 transitionMenu.GoPreviousMenu();
 
             // If in the place element menu, user can go back if the back button is pressed.

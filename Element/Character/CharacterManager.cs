@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Potato.Character;
+using Potato.Element.Character;
 
-namespace Potato.Character
+namespace Potato.Element.Character
 {
     internal static class CharacterManager
     {

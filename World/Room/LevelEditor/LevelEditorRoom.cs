@@ -1,14 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input;
 using Potato.Room;
-using Potato.Room.Wall;
 using Potato.World.Menu;
 using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-using Potato.Character;
+using Potato.Element;
 
 namespace Potato.World.Room.LevelEditor
 {
@@ -104,11 +103,7 @@ namespace Potato.World.Room.LevelEditor
                     elementToPlaceIdentifier = levelEditorMenu.ElementToPlaceIdentifier;
 
                     // If the identifier exists, set the element-to-place to the new element.
-                    if (WallManager.Identifiers.Contains(elementToPlaceIdentifier))
-                        elementToPlace = WallManager.GetWall(elementToPlaceIdentifier);
-                    else if (CharacterManager.Identifiers.Contains(elementToPlaceIdentifier))
-                        elementToPlace = CharacterManager.GetCharacter(elementToPlaceIdentifier);
-                    else throw new ArgumentException($"{elementToPlaceIdentifier} not a supported identifier.");
+                    elementToPlace = ElementManager.GetElement(elementToPlaceIdentifier);
                 }
 
                 // Try to pick up an element.
@@ -125,11 +120,11 @@ namespace Potato.World.Room.LevelEditor
                                 Bounds = new Rectangle(
                                     location: x.Position.ToPoint(),
                                     size: (Point)x.Size),
-                                Wall = x
+                                Element = x
                             })
                             .Where((x) => x.Bounds.Intersects(mouseBounds))
                             .First()
-                            .Wall;
+                            .Element;
                         simpleLevel.Elements.Remove(elementToPlace);
                     }
                     catch (InvalidOperationException)
@@ -145,16 +140,12 @@ namespace Potato.World.Room.LevelEditor
                 {
                     elementToPlaceIdentifier = levelEditorMenu.ElementToPlaceIdentifier;
 
-                    // If the identifier exists, set the element-to-place to the new wall.
-                    if (WallManager.Identifiers.Contains(elementToPlaceIdentifier))
+                    // If the identifier exists, set the element-to-place to the new element.
+                    if (ElementManager.Identifiers.Contains(elementToPlaceIdentifier))
                     {
                         if (elementToPlace is IDestroyable destroyable)
                             destroyable.Dispose();
-                        if (WallManager.Identifiers.Contains(elementToPlaceIdentifier))
-                            elementToPlace = WallManager.GetWall(elementToPlaceIdentifier);
-                        else if (CharacterManager.Identifiers.Contains(elementToPlaceIdentifier))
-                            elementToPlace = CharacterManager.GetCharacter(elementToPlaceIdentifier);
-                        else throw new ArgumentException($"{elementToPlaceIdentifier} not a supported identifier.");
+                        elementToPlace = ElementManager.GetElement(elementToPlaceIdentifier);
                     }
                 }
 
@@ -182,15 +173,15 @@ namespace Potato.World.Room.LevelEditor
                         simpleLevel.Elements.Add(elementToPlace);
 
                         // Replace element-to-place with a new element if one's available.
-                        // If not, make sure the element-to-place isn't referring to the placed wall.
+                        // If not, make sure the element-to-place isn't referring to the placed element.
                         if (elementToPlaceIdentifier.Length > 0)
-                            elementToPlace = WallManager.GetWall(identifier: elementToPlaceIdentifier);
+                            elementToPlace = ElementManager.GetElement(elementToPlaceIdentifier);
                         else
                             elementToPlace = null;
                     }
                 }
                 // If the drop element menu option is selected, dispose of the element-to-place.
-                else if (levelEditorMenu.DropWallSelect.Selected)
+                else if (levelEditorMenu.DropElementSelect.Selected)
                 {
                     if (elementToPlace is IDestroyable destroyable)
                         destroyable.Dispose();

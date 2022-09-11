@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Potato.Character
+namespace Potato.Element.Character
 {
     internal class Player : ICharacterizable, IControllable, IIdentifiable
     {
@@ -72,8 +72,13 @@ namespace Potato.Character
 
         public void Draw(Matrix? transformMatrix = null)
         {
-
-
+            SpriteBatch spriteBatch = Potato.SpriteBatch;
+            spriteBatch.Begin(transformMatrix: transformMatrix);
+            spriteBatch.Draw(
+                texture: collisionMask, 
+                position: physicsChanger.Position, 
+                color: Color.White);
+            spriteBatch.End();
         }
 
         public void HardPause()

@@ -2,9 +2,10 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Potato.Room.Wall;
 using MonoGame.Extended;
-using Potato.Character;
+using Potato.Element.Character;
+using Potato.Element.Wall;
+using Potato.Element;
 
 namespace Potato.Room
 {
@@ -114,12 +115,7 @@ namespace Potato.Room
         {
             foreach (SimpleLevelSave.ElementNode elementNode in save.Elements)
             {
-                IElement element;
-                if (WallManager.Identifiers.Contains(elementNode.Identifier))
-                    element = WallManager.GetWall(identifier: elementNode.Identifier);
-                else if (CharacterManager.Identifiers.Contains(elementNode.Identifier))
-                    element = CharacterManager.GetCharacter(elementNode.Identifier);
-                else throw new ArgumentException($"{elementNode.Identifier} not a supported identifier.");
+                IElement element = ElementManager.GetElement(elementNode.Identifier);
                 element.Position = new Vector2(x: element.Position.X, y: element.Position.Y);
                 elements.Add(element);
             }

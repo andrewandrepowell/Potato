@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Potato.Room.Wall
+namespace Potato.Element.Wall
 {
     internal class SimpleWall : IWallable, IIdentifiable
     {

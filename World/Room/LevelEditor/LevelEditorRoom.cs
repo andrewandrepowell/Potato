@@ -13,7 +13,7 @@ namespace Potato.World.Room.LevelEditor
 {
     internal class LevelEditorRoom : IRoom
     {
-        private const int blockWidth = 127;
+        private const int blockWidth = 128;
         private const string saveExtension = "level";
         private const float dragCameraSpeed = 32f;
         private RoomStateChanger roomStateChanger;

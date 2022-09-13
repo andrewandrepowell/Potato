@@ -113,13 +113,14 @@ namespace Potato.World.Room.EngineEditor
                     break;
                 case EngineEditorStates.TestPhysics0:
                     checkBackPressed = true;
-                    if (controller.ActivatePressed())
-                    {
-                        if (testPhysics0.HardPaused)
-                            testPhysics0.HardResume();
-                        else
-                            testPhysics0.HardPause();
-                    }
+                    testPhysics0.Controller = controller;
+                    //if (controller.ActivatePressed())
+                    //{
+                    //    if (testPhysics0.HardPaused)
+                    //        testPhysics0.HardResume();
+                    //    else
+                    //        testPhysics0.HardPause();
+                    //}
                     testPhysics0.Update(gameTime: gameTime);
                     break;
             }
@@ -134,6 +135,7 @@ namespace Potato.World.Room.EngineEditor
             {
                 engineEditorState = EngineEditorStates.Menu;
                 engineEditorMenu.Controller = controller;
+                testPhysics0.Controller = null;
                 engineEditorMenu.Open();
             }
             

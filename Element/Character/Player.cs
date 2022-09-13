@@ -20,6 +20,12 @@ namespace Potato.Element.Character
         private bool destroyed;
         private bool softPaused;
         private bool hardPaused;
+        private float horizontalForce;
+        private float verticalForce;
+        private const float jumpTimerThreshold = 1.0f;
+        private float jumpTimer;
+        public float HorizontalForce { get => horizontalForce; set => horizontalForce = value; }
+        public float VerticalForce { get => verticalForce; set => verticalForce = value; }
         public Bag<IProjectile> Projectiles { get => projectiles; set => throw new NotImplementedException(); }
         public float Mass { get => physicsChanger.Mass; set => physicsChanger.Mass = value; }
         public float MaxSpeed { get => physicsChanger.MaxSpeed; set => physicsChanger.MaxSpeed = value; }
@@ -36,6 +42,11 @@ namespace Potato.Element.Character
         public IList<Vector2> CollisionVertices { get => collisionVertices; set => throw new NotImplementedException(); }
         public Size2 Size { get => collisionMask.Bounds.Size; set => throw new NotImplementedException(); }
         public Vector2 Position { get => physicsChanger.Position; set => physicsChanger.Position = value; }
+        public bool Destroyed => destroyed;
+        public bool SoftPaused => softPaused;
+        public bool HardPaused => hardPaused;
+        public IController Controller { get => controller; set => controller = value; }
+        public string Identifier { get => identifier; set => identifier = value; }
 
         public Player()
         {
@@ -49,17 +60,10 @@ namespace Potato.Element.Character
             destroyed = false;
             softPaused = false;
             hardPaused = false;
+            horizontalForce = 0.0f;
+            verticalForce = 0.0f;
+            jumpTimer = 0.0f;
         }
-
-        public bool Destroyed => destroyed;
-
-        public bool SoftPaused => softPaused;
-
-        public bool HardPaused => hardPaused;
-
-        public IController Controller { get => controller; set => controller = value; }
-
-        public string Identifier { get => identifier; set => identifier = value; }
 
         public void Dispose()
         {
@@ -117,6 +121,37 @@ namespace Potato.Element.Character
 
         public void Update(GameTime gameTime)
         {
+            if (destroyed || hardPaused)
+                return;
+
+            float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+
+            if (controller != null && !softPaused)
+            {
+                //physicsChanger.Force = Vector2.Zero;
+
+                {
+                    if (controller.UpPressed() && physicsChanger.Grounded)
+                        jumpTimer = jumpTimerThreshold;
+                    if (controller.UpHeld() > 0 && jumpTimer > 0)
+                    {
+                        jumpTimer -= timeElapsed;
+                        physicsChanger.Force += verticalForce * physicsChanger.Orientation;
+                    }
+                    else jumpTimer = 0;
+                }
+
+                if (controller.LeftHeld() > 0)
+                {
+
+                }
+                if (controller.RightHeld() > 0)
+                {
+
+                }
+            }
+
             physicsChanger.Update(gameTime: gameTime);
         }
     }

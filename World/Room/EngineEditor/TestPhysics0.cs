@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Input;
+using Potato.Element.Character;
 using Potato.Room;
 using System;
 using System.Collections.Generic;
@@ -10,17 +11,28 @@ using System.Text;
 
 namespace Potato.World.Room.EngineEditor
 {
-    internal class TestPhysics0 : IComponent, IPausible
+    internal class TestPhysics0 : IComponent, IPausible, IControllable
     {
         private SimpleLevel simpleLevel;
-        private IPhysical playerPhysical;
+        private Player playerPhysical;
         private bool softPaused;
         private bool hardPaused;
+        private IController controller;
         public bool SoftPaused => softPaused;
         public bool HardPaused => hardPaused;
+        public IController Controller 
+        { 
+            get => controller; 
+            set
+            {
+                controller = value;
+                playerPhysical.Controller = value;
+            }
+        }
 
         public TestPhysics0()
         {
+            controller = null;
             softPaused = false;
             hardPaused = false;
             simpleLevel = new SimpleLevel();
@@ -28,12 +40,13 @@ namespace Potato.World.Room.EngineEditor
             simpleLevel.Open();
             foreach (ICollidable collidable in simpleLevel.Elements.OfType<ICollidable>())
                 simpleLevel.Collision.ManagedCollidables.Add(collidable);
-            playerPhysical = simpleLevel.Elements.OfType<IPhysical>().First();
+            playerPhysical = simpleLevel.Elements.OfType<Player>().First();
             playerPhysical.Mass = 1f;
             playerPhysical.MaxSpeed = 1000f;
             playerPhysical.Friction = 80;
             playerPhysical.Gravity = new Vector2(x: 0, y: 1500);
             playerPhysical.Bounce = .75f;
+            playerPhysical.VerticalForce = 4000;
         }
         
         public void Draw(Matrix? transformMatrix = null)

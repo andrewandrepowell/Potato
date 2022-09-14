@@ -43,10 +43,11 @@ namespace Potato.World.Room.EngineEditor
             playerPhysical = simpleLevel.Elements.OfType<Player>().First();
             playerPhysical.Mass = 1f;
             playerPhysical.MaxSpeed = 1000f;
-            playerPhysical.Friction = 80;
-            playerPhysical.Gravity = new Vector2(x: 0, y: 1500);
-            playerPhysical.Bounce = .75f;
-            playerPhysical.VerticalForce = 4000;
+            playerPhysical.Friction = 300;
+            playerPhysical.Gravity = new Vector2(x: 0, y: 3000);
+            playerPhysical.Bounce = -.50f;
+            playerPhysical.VerticalForce = 12500;
+            playerPhysical.HorizontalForce = 3000;
         }
         
         public void Draw(Matrix? transformMatrix = null)

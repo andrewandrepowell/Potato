@@ -10,7 +10,7 @@ namespace Potato
     internal class PhysicsChanger : IPhysical, IUpdateable
     {
         private const float orientationGroundedThreshold = 0.25f;
-        private const float groundedTimerThreshold = 0.1f;
+        private const float groundedTimerThreshold = 0.25f;
         private const float touchedTimerThreshold = 0.1f;
         private const float squashBounceThreshold = 50;
         private float mass;
@@ -213,6 +213,8 @@ namespace Potato
                 otherFriction = 0;
                 orientation = defaultOrientation;
             }
+
+            Console.WriteLine($"Orientation: {orientation}");
         }
         public void SoftPause() { }
 

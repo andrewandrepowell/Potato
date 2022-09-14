@@ -20,9 +20,10 @@ namespace Potato.Element.Character
         private bool destroyed;
         private bool softPaused;
         private bool hardPaused;
+        private bool jumpLock;
         private float horizontalForce;
         private float verticalForce;
-        private const float jumpTimerThreshold = 1.0f;
+        private const float jumpTimerThreshold = 0.1f;
         private float jumpTimer;
         public float HorizontalForce { get => horizontalForce; set => horizontalForce = value; }
         public float VerticalForce { get => verticalForce; set => verticalForce = value; }
@@ -60,6 +61,7 @@ namespace Potato.Element.Character
             destroyed = false;
             softPaused = false;
             hardPaused = false;
+            jumpLock = false;
             horizontalForce = 0.0f;
             verticalForce = 0.0f;
             jumpTimer = 0.0f;
@@ -129,26 +131,37 @@ namespace Potato.Element.Character
 
             if (controller != null && !softPaused)
             {
-                //physicsChanger.Force = Vector2.Zero;
+                float upValue = controller.UpHeld();
+                float leftValue = controller.LeftHeld();
+                float rightValue = controller.RightHeld();
 
                 {
-                    if (controller.UpPressed() && physicsChanger.Grounded)
-                        jumpTimer = jumpTimerThreshold;
-                    if (controller.UpHeld() > 0 && jumpTimer > 0)
+                    if (upValue > 0)
                     {
-                        jumpTimer -= timeElapsed;
-                        physicsChanger.Force += verticalForce * physicsChanger.Orientation;
+                        if (jumpTimer > 0)
+                        {
+                            jumpTimer -= timeElapsed;
+                            physicsChanger.Force += verticalForce * physicsChanger.Orientation * upValue;
+                        }
+                        else if (physicsChanger.Grounded && !jumpLock)
+                        {
+                            jumpTimer = jumpTimerThreshold;
+                            jumpLock = true;
+                        }
                     }
-                    else jumpTimer = 0;
+                    else
+                    {
+                        jumpTimer = 0;
+                        if (physicsChanger.Grounded)
+                        {
+                            jumpLock = false;
+                        }
+                    }
                 }
 
-                if (controller.LeftHeld() > 0)
                 {
-
-                }
-                if (controller.RightHeld() > 0)
-                {
-
+                    Vector2 orthogonalOrientation = physicsChanger.Orientation.GetPerpendicular();
+                    physicsChanger.Force += horizontalForce * (rightValue - leftValue) * orthogonalOrientation;
                 }
             }
 

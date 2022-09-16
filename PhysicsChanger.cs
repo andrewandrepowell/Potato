@@ -10,7 +10,7 @@ namespace Potato
     internal class PhysicsChanger : IPhysical, IUpdateable
     {
         private const float orientationGroundedThreshold = 0.25f;
-        private const float groundedTimerThreshold = 0.25f;
+        private const float groundedTimerThreshold = 0.1f;
         private const float touchedTimerThreshold = 0.1f;
         private const float squashBounceThreshold = 50;
         private float mass;
@@ -20,6 +20,7 @@ namespace Potato
         private float groundedTimer;
         private float touchedTimer;
         private float bounce;
+        private float stick;
         private Vector2 position;
         private Vector2 velocity;
         private Vector2 acceleration;
@@ -37,6 +38,7 @@ namespace Potato
             get => grounded;
             set => groundedTimer = (value) ? groundedTimerThreshold : 0;
         }
+        public float Stick { get => stick; set => stick = value; }
         public float Mass { get => mass; set => mass = value; }
         public float Friction { get => friction; set => friction = value; }
         public float Bounce { get => bounce; set => bounce = value; }
@@ -140,8 +142,8 @@ namespace Potato
                     float orthognalScalar = Vector2.Dot(orthogonal, velocity);
                     float otherBounce = (info.Other is IPhysical otherPhysical) ? otherPhysical.Bounce : 0;
                     float bounceScalar = -(otherBounce + bounce) * touchedOrientationScalar;
-                    if (Math.Abs(bounceScalar) < squashBounceThreshold)
-                        bounceScalar = 0;
+                    //if (Math.Abs(bounceScalar) < squashBounceThreshold)
+                    //    bounceScalar = 0;
                     velocity = bounceScalar * touchedOrientation + orthognalScalar * orthogonal;
                 }
 
@@ -170,7 +172,7 @@ namespace Potato
 
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Determine the velocity. Total acceleration is both acceleration and gravity.
+            // Determine the velocity. Total acceleration is both acceleration, gravity, and stick.
             velocity += (acceleration + gravity) * elapsedTime;
 
             // Apply corrections to speed.
@@ -193,7 +195,7 @@ namespace Potato
             }
             
             // Determine the new position based on the current velocity.
-            position += velocity * elapsedTime;
+            position += (velocity - stick * orientation) * elapsedTime;
 
             // Touched state is dependent on a timer. 
             if (touched)

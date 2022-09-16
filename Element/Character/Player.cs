@@ -25,6 +25,9 @@ namespace Potato.Element.Character
         private float verticalForce;
         private const float jumpTimerThreshold = 0.1f;
         private float jumpTimer;
+        private Vector2 jumpOrientation;
+        private float groundStick;
+        private const float groundMultipler = 250f;
         public float HorizontalForce { get => horizontalForce; set => horizontalForce = value; }
         public float VerticalForce { get => verticalForce; set => verticalForce = value; }
         public Bag<IProjectile> Projectiles { get => projectiles; set => throw new NotImplementedException(); }
@@ -62,9 +65,18 @@ namespace Potato.Element.Character
             softPaused = false;
             hardPaused = false;
             jumpLock = false;
-            horizontalForce = 0.0f;
-            verticalForce = 0.0f;
             jumpTimer = 0.0f;
+            jumpOrientation = Vector2.Zero;
+
+            groundStick = 0;
+            horizontalForce = 3000;
+            verticalForce = 14000f;
+            physicsChanger.Mass = 1f;
+            physicsChanger.MaxSpeed = 2000f;
+            physicsChanger.Friction = 1000;
+            physicsChanger.Gravity = new Vector2(x: 0, y: 3000);
+            physicsChanger.Bounce = 0f;
+            physicsChanger.Stick = groundStick;
         }
 
         public void Dispose()
@@ -141,11 +153,13 @@ namespace Potato.Element.Character
                         if (jumpTimer > 0)
                         {
                             jumpTimer -= timeElapsed;
-                            physicsChanger.Force += verticalForce * physicsChanger.Orientation * upValue;
+                            physicsChanger.Force += verticalForce * jumpOrientation * upValue;
                         }
                         else if (physicsChanger.Grounded && !jumpLock)
                         {
+                            physicsChanger.Stick = 0;
                             jumpTimer = jumpTimerThreshold;
+                            jumpOrientation = physicsChanger.Orientation;
                             jumpLock = true;
                         }
                     }
@@ -155,13 +169,16 @@ namespace Potato.Element.Character
                         if (physicsChanger.Grounded)
                         {
                             jumpLock = false;
+                            physicsChanger.Stick = groundStick;
                         }
                     }
                 }
 
                 {
                     Vector2 orthogonalOrientation = physicsChanger.Orientation.GetPerpendicular();
-                    physicsChanger.Force += horizontalForce * (rightValue - leftValue) * orthogonalOrientation;
+                    float movementValue = rightValue - leftValue;
+                    groundStick = Math.Abs(movementValue) * groundMultipler;
+                    physicsChanger.Force += horizontalForce * movementValue * orthogonalOrientation;
                 }
             }
 

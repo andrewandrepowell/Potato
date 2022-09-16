@@ -41,13 +41,7 @@ namespace Potato.World.Room.EngineEditor
             foreach (ICollidable collidable in simpleLevel.Elements.OfType<ICollidable>())
                 simpleLevel.Collision.ManagedCollidables.Add(collidable);
             playerPhysical = simpleLevel.Elements.OfType<Player>().First();
-            playerPhysical.Mass = 1f;
-            playerPhysical.MaxSpeed = 1000f;
-            playerPhysical.Friction = 300;
-            playerPhysical.Gravity = new Vector2(x: 0, y: 3000);
-            playerPhysical.Bounce = -.50f;
-            playerPhysical.VerticalForce = 12500;
-            playerPhysical.HorizontalForce = 3000;
+
         }
         
         public void Draw(Matrix? transformMatrix = null)

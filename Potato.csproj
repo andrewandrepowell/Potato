@@ -34,6 +34,9 @@
     <PackageReference Include="MonoGame.ShaderEffects" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Content\protagonist_running.sf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Content\radio.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

@@ -62,6 +62,18 @@
 /processorParam:TextureFormat=Color
 /build:potato.png
 
+#begin protagonist_running.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,255,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:protagonist_running.png
+
 #begin radio.png
 /importer:TextureImporter
 /processor:TextureProcessor

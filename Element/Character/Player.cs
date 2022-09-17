@@ -2,6 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Collections;
+using MonoGame.Extended.Content;
+using MonoGame.Extended.Serialization;
+using MonoGame.Extended.Sprites;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +12,7 @@ using System.Text;
 namespace Potato.Element.Character
 {
     internal class Player : ICharacterizable, IControllable, IIdentifiable
-    {
+    {        
         private Bag<IProjectile> projectiles;
         private PhysicsChanger physicsChanger;
         private Texture2D collisionMask;
@@ -28,6 +31,8 @@ namespace Potato.Element.Character
         private Vector2 jumpOrientation;
         private float groundStick;
         private const float groundMultipler = 250f;
+        private AnimatedSprite runningSprite;
+        private AnimatedSprite currentSprite;
         public float HorizontalForce { get => horizontalForce; set => horizontalForce = value; }
         public float VerticalForce { get => verticalForce; set => verticalForce = value; }
         public Bag<IProjectile> Projectiles { get => projectiles; set => throw new NotImplementedException(); }
@@ -77,6 +82,11 @@ namespace Potato.Element.Character
             physicsChanger.Gravity = new Vector2(x: 0, y: 3000);
             physicsChanger.Bounce = .75f;
             physicsChanger.Stick = groundStick;
+
+            SpriteSheet spriteSheet = Potato.Game.Content.Load<SpriteSheet>("protagonist_running.sf", new JsonContentLoader());
+            runningSprite = new AnimatedSprite(spriteSheet);
+            runningSprite.Play("running");
+            currentSprite = runningSprite;
         }
 
         public void Dispose()
@@ -92,12 +102,15 @@ namespace Potato.Element.Character
         {
             SpriteBatch spriteBatch = Potato.SpriteBatch;
             spriteBatch.Begin(transformMatrix: transformMatrix);
+            Vector2 drawPosition = physicsChanger.Position
+                    .ToPoint()
+                    .ToVector2();
             spriteBatch.Draw(
                 texture: collisionMask, 
-                position: physicsChanger.Position
-                    .ToPoint()
-                    .ToVector2(), 
+                position: drawPosition, 
                 color: Color.White);
+            if (currentSprite!=null)
+                spriteBatch.Draw(sprite: currentSprite, position: drawPosition);
             spriteBatch.End();
         }
 
@@ -195,6 +208,8 @@ namespace Potato.Element.Character
 
             // Update the other updateables associated with the player.
             physicsChanger.Update(gameTime: gameTime);
+            if (currentSprite != null)
+                currentSprite.Update(deltaTime: timeElapsed);
         }
     }
 }

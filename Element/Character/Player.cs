@@ -75,7 +75,7 @@ namespace Potato.Element.Character
             physicsChanger.MaxSpeed = 2000f;
             physicsChanger.Friction = 1000;
             physicsChanger.Gravity = new Vector2(x: 0, y: 3000);
-            physicsChanger.Bounce = 0f;
+            physicsChanger.Bounce = .75f;
             physicsChanger.Stick = groundStick;
         }
 
@@ -135,18 +135,29 @@ namespace Potato.Element.Character
 
         public void Update(GameTime gameTime)
         {
+            // Don't update if the player is destroyed or hard paused.
             if (destroyed || hardPaused)
                 return;
 
             float timeElapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-
+            // Implement player movement.
             if (controller != null && !softPaused)
             {
                 float upValue = controller.UpHeld();
                 float leftValue = controller.LeftHeld();
                 float rightValue = controller.RightHeld();
+                float movementValue = rightValue - leftValue;
 
+                // The following implements the logic for the jump mechanic.
+                // The idea of the jump mechanic is if the player is grounded, hasn't already jumped, and up is held on the controller,
+                //   the jump state is activated for certain amount of time.
+                // On activation, the current orientation is recorded to determine the direction in which the jump will occur,
+                //   and stick is removed .
+                // If in the jump state is activated and the up is still held, a force is applied in the direction of the recorded orientation.
+                // Jump state ends if its timer runs out or up is no longer held. 
+                // Jump state cannot be reentered until the player is grounded.
+                // If up is not being held and the player is grounded, stick is applied once the player starts trying to move.
                 {
                     if (upValue > 0)
                     {
@@ -169,19 +180,20 @@ namespace Potato.Element.Character
                         if (physicsChanger.Grounded)
                         {
                             jumpLock = false;
-                            physicsChanger.Stick = groundStick;
+                            physicsChanger.Stick = Math.Abs(movementValue) * groundMultipler;
                         }
                     }
                 }
 
+                // If the player tries to move, a force is applied in the horizontal direction in accordance to the
+                //   players movement.
                 {
                     Vector2 orthogonalOrientation = physicsChanger.Orientation.GetPerpendicular();
-                    float movementValue = rightValue - leftValue;
-                    groundStick = Math.Abs(movementValue) * groundMultipler;
                     physicsChanger.Force += horizontalForce * movementValue * orthogonalOrientation;
                 }
             }
 
+            // Update the other updateables associated with the player.
             physicsChanger.Update(gameTime: gameTime);
         }
     }

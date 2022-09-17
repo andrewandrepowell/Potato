@@ -12,7 +12,7 @@ namespace Potato
         private const float orientationGroundedThreshold = 0.25f;
         private const float groundedTimerThreshold = 0.1f;
         private const float touchedTimerThreshold = 0.1f;
-        private const float squashBounceThreshold = 50;
+        private const float squashBounceThreshold = 100;
         private float mass;
         private float maxSpeed;
         private float friction;
@@ -137,13 +137,15 @@ namespace Potato
                     // The following operations implement the bounce mechanic. 
                     // Current velocity is broken down into touched orientation and orthogonal components.
                     // Bounce affects velocity in the direction of the touched orientation.
+                    // To prevent infinite bouncing, if the bounce scalar is below a threshold, the
+                    // bounce scalar is squashed.
                     Vector2 orthogonal = touchedOrientation.GetPerpendicular();
                     float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
                     float orthognalScalar = Vector2.Dot(orthogonal, velocity);
                     float otherBounce = (info.Other is IPhysical otherPhysical) ? otherPhysical.Bounce : 0;
                     float bounceScalar = -(otherBounce + bounce) * touchedOrientationScalar;
-                    //if (Math.Abs(bounceScalar) < squashBounceThreshold)
-                    //    bounceScalar = 0;
+                    if (Math.Abs(bounceScalar) < squashBounceThreshold)
+                        bounceScalar = 0;
                     velocity = bounceScalar * touchedOrientation + orthognalScalar * orthogonal;
                 }
 

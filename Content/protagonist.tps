@@ -34,7 +34,7 @@
         <key>dataFormat</key>
         <string>spritesheet-only</string>
         <key>textureFileName</key>
-        <filename>protagonist_idle.png</filename>
+        <filename>protagonist_running.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrQualityLevel</key>
@@ -180,6 +180,21 @@
             <key type="filename">../../../../../../tmp/0011.png</key>
             <key type="filename">../../../../../../tmp/0012.png</key>
             <key type="filename">../../../../../../tmp/0013.png</key>
+            <key type="filename">../../../../../../tmp/0014.png</key>
+            <key type="filename">../../../../../../tmp/0015.png</key>
+            <key type="filename">../../../../../../tmp/0016.png</key>
+            <key type="filename">../../../../../../tmp/0017.png</key>
+            <key type="filename">../../../../../../tmp/0018.png</key>
+            <key type="filename">../../../../../../tmp/0019.png</key>
+            <key type="filename">../../../../../../tmp/0020.png</key>
+            <key type="filename">../../../../../../tmp/0021.png</key>
+            <key type="filename">../../../../../../tmp/0022.png</key>
+            <key type="filename">../../../../../../tmp/0023.png</key>
+            <key type="filename">../../../../../../tmp/0024.png</key>
+            <key type="filename">../../../../../../tmp/0025.png</key>
+            <key type="filename">../../../../../../tmp/0026.png</key>
+            <key type="filename">../../../../../../tmp/0027.png</key>
+            <key type="filename">../../../../../../tmp/0028.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -210,6 +225,21 @@
             <filename>../../../../../../tmp/0011.png</filename>
             <filename>../../../../../../tmp/0012.png</filename>
             <filename>../../../../../../tmp/0013.png</filename>
+            <filename>../../../../../../tmp/0014.png</filename>
+            <filename>../../../../../../tmp/0015.png</filename>
+            <filename>../../../../../../tmp/0016.png</filename>
+            <filename>../../../../../../tmp/0017.png</filename>
+            <filename>../../../../../../tmp/0018.png</filename>
+            <filename>../../../../../../tmp/0019.png</filename>
+            <filename>../../../../../../tmp/0020.png</filename>
+            <filename>../../../../../../tmp/0021.png</filename>
+            <filename>../../../../../../tmp/0022.png</filename>
+            <filename>../../../../../../tmp/0023.png</filename>
+            <filename>../../../../../../tmp/0024.png</filename>
+            <filename>../../../../../../tmp/0025.png</filename>
+            <filename>../../../../../../tmp/0026.png</filename>
+            <filename>../../../../../../tmp/0027.png</filename>
+            <filename>../../../../../../tmp/0028.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

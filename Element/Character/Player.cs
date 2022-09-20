@@ -24,13 +24,17 @@ namespace Potato.Element.Character
         private bool softPaused;
         private bool hardPaused;
         private bool jumpLock;
+        private bool facingRight;
         private float horizontalForce;
         private float verticalForce;
-        private const float jumpTimerThreshold = 0.1f;
-        private float jumpTimer;
-        private Vector2 jumpOrientation;
         private float groundStick;
+        private float jumpTimer;
+        private float spriteDrawRotation;
+        private const float jumpTimerThreshold = 0.1f;
         private const float groundMultipler = 250f;
+        private Vector2 jumpOrientation;
+        private Vector2 spriteDrawScale;
+        private Vector2 spriteDrawOffset;
         private AnimatedSprite runningSprite;
         private AnimatedSprite currentSprite;
         public float HorizontalForce { get => horizontalForce; set => horizontalForce = value; }
@@ -72,6 +76,7 @@ namespace Potato.Element.Character
             jumpLock = false;
             jumpTimer = 0.0f;
             jumpOrientation = Vector2.Zero;
+            facingRight = true;
 
             groundStick = 0;
             horizontalForce = 3000;
@@ -87,6 +92,10 @@ namespace Potato.Element.Character
             runningSprite = new AnimatedSprite(spriteSheet);
             runningSprite.Play("running");
             currentSprite = runningSprite;
+
+            spriteDrawScale = new Vector2(x: 0.175f, y: 0.175f);
+            spriteDrawOffset = collisionMask.Bounds.Size.ToVector2() / 2;
+            spriteDrawRotation = 0.0f;
         }
 
         public void Dispose()
@@ -110,7 +119,11 @@ namespace Potato.Element.Character
                 position: drawPosition, 
                 color: Color.White);
             if (currentSprite!=null)
-                spriteBatch.Draw(sprite: currentSprite, position: drawPosition);
+                spriteBatch.Draw(
+                    sprite: currentSprite, 
+                    position: drawPosition + spriteDrawOffset, 
+                    rotation: spriteDrawRotation, 
+                    scale: spriteDrawScale);
             spriteBatch.End();
         }
 
@@ -162,6 +175,12 @@ namespace Potato.Element.Character
                 float rightValue = controller.RightHeld();
                 float movementValue = rightValue - leftValue;
 
+                // Set the direction the character is facing.
+                if (movementValue > 0)
+                    facingRight = true;
+                else if (movementValue < 0)
+                    facingRight = false;
+
                 // The following implements the logic for the jump mechanic.
                 // The idea of the jump mechanic is if the player is grounded, hasn't already jumped, and up is held on the controller,
                 //   the jump state is activated for certain amount of time.
@@ -206,10 +225,18 @@ namespace Potato.Element.Character
                 }
             }
 
+            // Update the media.
+            if (currentSprite != null)
+            {
+                currentSprite.Effect = (facingRight) ? SpriteEffects .None : SpriteEffects.FlipHorizontally;
+
+                spriteDrawRotation = (float)Math.Atan2(y: physicsChanger.Orientation.Y, x: physicsChanger.Orientation.X) + MathHelper.PiOver2;
+
+                currentSprite.Update(gameTime: gameTime);
+            }
+
             // Update the other updateables associated with the player.
             physicsChanger.Update(gameTime: gameTime);
-            if (currentSprite != null)
-                currentSprite.Update(deltaTime: timeElapsed);
         }
     }
 }

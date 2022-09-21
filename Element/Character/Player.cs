@@ -25,6 +25,7 @@ namespace Potato.Element.Character
         private bool hardPaused;
         private bool jumpLock;
         private bool facingRight;
+        private bool tryingToMoveHorizontally;
         private float horizontalForce;
         private float verticalForce;
         private float groundStick;
@@ -36,6 +37,7 @@ namespace Potato.Element.Character
         private Vector2 spriteDrawScale;
         private Vector2 spriteDrawOffset;
         private AnimatedSprite runningSprite;
+        private AnimatedSprite idleSprite;
         private AnimatedSprite currentSprite;
         public float HorizontalForce { get => horizontalForce; set => horizontalForce = value; }
         public float VerticalForce { get => verticalForce; set => verticalForce = value; }
@@ -77,6 +79,7 @@ namespace Potato.Element.Character
             jumpTimer = 0.0f;
             jumpOrientation = Vector2.Zero;
             facingRight = true;
+            tryingToMoveHorizontally = false;
 
             groundStick = 0;
             horizontalForce = 3000;
@@ -88,10 +91,15 @@ namespace Potato.Element.Character
             physicsChanger.Bounce = .75f;
             physicsChanger.Stick = groundStick;
 
-            SpriteSheet spriteSheet = Potato.Game.Content.Load<SpriteSheet>("protagonist_running.sf", new JsonContentLoader());
-            runningSprite = new AnimatedSprite(spriteSheet);
-            runningSprite.Play("running");
-            currentSprite = runningSprite;
+            {
+                SpriteSheet spriteSheet;
+                spriteSheet = Potato.Game.Content.Load<SpriteSheet>("protagonist_running.sf", new JsonContentLoader());
+                runningSprite = new AnimatedSprite(spriteSheet);
+                spriteSheet = Potato.Game.Content.Load<SpriteSheet>("protagonist_idle.sf", new JsonContentLoader());
+                idleSprite = new AnimatedSprite(spriteSheet);
+                idleSprite.Play("idle");
+                currentSprite = idleSprite;
+            }
 
             spriteDrawScale = new Vector2(x: 0.175f, y: 0.175f);
             spriteDrawOffset = collisionMask.Bounds.Size.ToVector2() / 2;
@@ -114,16 +122,15 @@ namespace Potato.Element.Character
             Vector2 drawPosition = physicsChanger.Position
                     .ToPoint()
                     .ToVector2();
+            //spriteBatch.Draw(
+            //    texture: collisionMask, 
+            //    position: drawPosition, 
+            //    color: Color.White);
             spriteBatch.Draw(
-                texture: collisionMask, 
-                position: drawPosition, 
-                color: Color.White);
-            if (currentSprite!=null)
-                spriteBatch.Draw(
-                    sprite: currentSprite, 
-                    position: drawPosition + spriteDrawOffset, 
-                    rotation: spriteDrawRotation, 
-                    scale: spriteDrawScale);
+                sprite: currentSprite, 
+                position: drawPosition + spriteDrawOffset, 
+                rotation: spriteDrawRotation, 
+                scale: spriteDrawScale);
             spriteBatch.End();
         }
 
@@ -181,6 +188,12 @@ namespace Potato.Element.Character
                 else if (movementValue < 0)
                     facingRight = false;
 
+                // Determine whether or not player is trying to move horizontally.
+                if (Math.Abs(movementValue) > 0)
+                    tryingToMoveHorizontally = true;
+                else
+                    tryingToMoveHorizontally = false;
+
                 // The following implements the logic for the jump mechanic.
                 // The idea of the jump mechanic is if the player is grounded, hasn't already jumped, and up is held on the controller,
                 //   the jump state is activated for certain amount of time.
@@ -226,11 +239,27 @@ namespace Potato.Element.Character
             }
 
             // Update the media.
-            if (currentSprite != null)
             {
                 currentSprite.Effect = (facingRight) ? SpriteEffects .None : SpriteEffects.FlipHorizontally;
 
                 spriteDrawRotation = (float)Math.Atan2(y: physicsChanger.Orientation.Y, x: physicsChanger.Orientation.X) + MathHelper.PiOver2;
+
+                if (tryingToMoveHorizontally)
+                {
+                    if (currentSprite != runningSprite)
+                    {
+                        runningSprite.Play("running");
+                        currentSprite = runningSprite;
+                    }
+                }
+                else 
+                {
+                    if (currentSprite != idleSprite)
+                    {
+                        idleSprite.Play("idle");
+                        currentSprite = idleSprite;
+                    }
+                }
 
                 currentSprite.Update(gameTime: gameTime);
             }

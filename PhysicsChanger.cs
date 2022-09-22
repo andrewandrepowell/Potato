@@ -10,8 +10,8 @@ namespace Potato
     internal class PhysicsChanger : IPhysical, IUpdateable
     {
         private const float orientationGroundedThreshold = 0.25f;
-        private const float groundedTimerThreshold = 0.1f;
-        private const float touchedTimerThreshold = 0.1f;
+        private const float groundedTimerThreshold = 0.2f;
+        private const float touchedTimerThreshold = 0.2f;
         private const float squashBounceThreshold = 100;
         private float mass;
         private float maxSpeed;
@@ -187,15 +187,15 @@ namespace Potato
                 velocity = speed * direction;
             }
 
-            // Apply touched corrections to velocity. 
-            if (touched)
-            {
-                Vector2 orthogonal = touchedOrientation.GetPerpendicular();
-                float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
-                float orthognalScalar = Vector2.Dot(orthogonal, velocity);
-                velocity = Math.Max(0, touchedOrientationScalar) * touchedOrientation + orthognalScalar * orthogonal;
-            }
-            
+            //// Apply touched corrections to velocity. 
+            //if (touched)
+            //{
+            //    Vector2 orthogonal = touchedOrientation.GetPerpendicular();
+            //    float touchedOrientationScalar = Vector2.Dot(touchedOrientation, velocity);
+            //    float orthognalScalar = Vector2.Dot(orthogonal, velocity);
+            //    velocity = Math.Max(0, touchedOrientationScalar) * touchedOrientation + orthognalScalar * orthogonal;
+            //}
+
             // Determine the new position based on the current velocity.
             position += (velocity - stick * orientation) * elapsedTime;
 

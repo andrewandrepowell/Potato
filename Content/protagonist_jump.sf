@@ -8,6 +8,11 @@
     "jump": {
       "frames": [0,1,2,3,4,5,6],
       "isLooping": false,
+      "frameDuration": 0.0499999747
+    },
+    "air": {
+      "frames": [6],
+      "isLooping": false,
       "frameDuration": 0.2
     }
   }

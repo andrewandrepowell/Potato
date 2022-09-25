@@ -34,7 +34,7 @@
         <key>dataFormat</key>
         <string>spritesheet-only</string>
         <key>textureFileName</key>
-        <filename>protagonist_idle.png</filename>
+        <filename>protagonist_jump.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrQualityLevel</key>
@@ -174,12 +174,6 @@
             <key type="filename">../../../../../../tmp/0005.png</key>
             <key type="filename">../../../../../../tmp/0006.png</key>
             <key type="filename">../../../../../../tmp/0007.png</key>
-            <key type="filename">../../../../../../tmp/0008.png</key>
-            <key type="filename">../../../../../../tmp/0009.png</key>
-            <key type="filename">../../../../../../tmp/0010.png</key>
-            <key type="filename">../../../../../../tmp/0011.png</key>
-            <key type="filename">../../../../../../tmp/0012.png</key>
-            <key type="filename">../../../../../../tmp/0013.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -204,12 +198,6 @@
             <filename>../../../../../../tmp/0005.png</filename>
             <filename>../../../../../../tmp/0006.png</filename>
             <filename>../../../../../../tmp/0007.png</filename>
-            <filename>../../../../../../tmp/0008.png</filename>
-            <filename>../../../../../../tmp/0009.png</filename>
-            <filename>../../../../../../tmp/0010.png</filename>
-            <filename>../../../../../../tmp/0011.png</filename>
-            <filename>../../../../../../tmp/0012.png</filename>
-            <filename>../../../../../../tmp/0013.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

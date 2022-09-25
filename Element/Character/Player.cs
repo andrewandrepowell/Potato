@@ -88,7 +88,7 @@ namespace Potato.Element.Character
             physicsChanger.MaxSpeed = 1000f;
             physicsChanger.Friction = 1000;
             physicsChanger.Gravity = new Vector2(x: 0, y: 3000);
-            physicsChanger.Bounce = .50f;
+            physicsChanger.Bounce = .75f;
             physicsChanger.Stick = groundStickMultiplier;
 
             {
